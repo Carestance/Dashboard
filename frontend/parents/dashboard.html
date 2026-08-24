@@ -1,0 +1,522 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>CareStance | Parent Dashboard</title>
+<style>
+
+    @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@500;600;700&family=Inter:wght@400;500;600;700&display=swap');
+
+    :root{
+      --bg:#F5F3FC;
+      --card:#FFFFFF;
+      --ink:#241C3D;
+      --muted:#8C87A6;
+      --muted-soft:#B7B2CE;
+      --border:#EFEBFA;
+
+      --purple:#7C5CFC;   --purple-dark:#5F3DF5;  --purple-tint:#EFEBFE;
+      --pink:#F0559B;     --pink-tint:#FDE7F1;
+      --green:#1FAE74;    --green-tint:#E1F8EE;
+      --orange:#F0913F;   --orange-tint:#FDEDE0;
+      --blue:#4C8DF5;     --blue-tint:#E8F1FE;
+      --indigo:#6A63EE;   --indigo-tint:#ECEAFE;
+      --amber:#E9A824;    --amber-tint:#FCF1DC;
+
+      --shadow:0 4px 22px rgba(110,80,210,.07);
+      --shadow-hover:0 14px 32px rgba(110,80,210,.16);
+      --r-lg:20px; --r-md:14px; --r-sm:10px;
+    }
+
+
+    *{box-sizing:border-box;}
+    html,body{margin:0;padding:0;}
+    body{
+      position:relative;
+      min-height:100vh;
+      background-color:var(--bg);
+      font-family:'Inter',sans-serif;
+      color:var(--ink);
+      -webkit-font-smoothing:antialiased;
+    }
+    body::before{
+      content:"";
+      position:fixed;
+      inset:0;
+      z-index:-1;
+      background:url('../shared/assets/t1.png') center top / cover no-repeat;
+    }
+    h1,h2,h3,h4,.disp{font-family:'Poppins',sans-serif;}
+    a{text-decoration:none;}
+
+    .app-shell{display:flex;min-height:100vh;align-items:stretch;}
+
+    /* ---------- SIDEBAR (floating light card, pill nav) ---------- */
+    .sidebar{
+      width:250px; flex-shrink:0;
+      background:var(--card);
+      border-radius:26px;
+      padding:22px 16px;
+      display:flex; flex-direction:column;
+      position:sticky; top:16px; height:calc(100vh - 32px);
+      margin:16px 0 16px 16px;
+      box-shadow:var(--shadow-hover);
+      overflow:hidden;
+      isolation:isolate;
+      transition:width .32s cubic-bezier(.4,0,.2,1), padding .32s cubic-bezier(.4,0,.2,1);
+    }
+    .sidebar.collapsed{width:88px;padding:22px 12px;}
+
+    /* ---- full-bleed video backdrop, translucent tint over it for a lively 3D feel ---- */
+    .sidebar-bg{position:absolute;inset:0;z-index:0;}
+    .sidebar-bg video{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;filter:saturate(1.25) contrast(1.05) brightness(.85);transform:scale(1.02);transition:opacity .7s ease-in-out;}
+    .sidebar-bg::after{
+      content:"";position:absolute;inset:0;
+      background:linear-gradient(165deg, rgba(124,92,252,.45) 0%, rgba(95,61,245,.4) 45%, rgba(36,28,61,.48) 100%);
+      mix-blend-mode:normal;
+    }
+    .sidebar-bg::before{
+      content:"";position:absolute;inset:0;z-index:1;
+      background:radial-gradient(120% 60% at 50% 0%, rgba(255,255,255,.22), transparent 60%);
+      pointer-events:none;
+    }
+
+    .brand-row{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:26px;transition:flex-direction .3s ease;position:relative;z-index:2;}
+    .sidebar.collapsed .brand-row{flex-direction:column;gap:14px;}
+    .brand{display:flex;align-items:center;gap:10px;min-width:0;}
+    .brand .logo{
+      width:52px;height:52px;border-radius:50%;flex-shrink:0;
+      background:rgba(255,255,255,.22);backdrop-filter:blur(6px);
+      border:1px solid rgba(255,255,255,.35);
+      display:flex;align-items:center;justify-content:center;
+      overflow:hidden;
+      color:#fff;font-weight:700;font-family:'Poppins',sans-serif;font-size:16px;
+      transition:transform .3s ease;
+    }
+    .brand .logo img{width:100%;height:100%;object-fit:cover;display:block;}
+    .brand span{
+      font-weight:700;font-size:16.5px;color:#fff;white-space:nowrap;
+      opacity:1;max-width:150px;overflow:hidden;display:inline-block;
+      transition:opacity .2s ease, max-width .3s ease;
+    }
+    .sidebar.collapsed .brand span{opacity:0;max-width:0;display:none;}
+
+    .sidebar-toggle{
+      width:26px;height:26px;border-radius:50%;flex-shrink:0;
+      background:rgba(255,255,255,.18);backdrop-filter:blur(6px);color:#fff;border:1px solid rgba(255,255,255,.3);
+      display:flex;align-items:center;justify-content:center;
+      cursor:pointer;
+      transition:transform .3s cubic-bezier(.4,0,.2,1), background .18s ease, color .18s ease;
+    }
+    .sidebar-toggle:hover{background:rgba(255,255,255,.32);color:#fff;}
+    .sidebar-toggle svg{width:12px;height:12px;transition:transform .32s cubic-bezier(.4,0,.2,1);}
+    .sidebar.collapsed .sidebar-toggle svg{transform:rotate(180deg);}
+
+    .nav{display:flex;flex-direction:column;gap:6px;position:relative;z-index:2;}
+    .nav-item{
+      display:flex;align-items:center;gap:12px;
+      padding:11px 16px;border-radius:999px;position:relative;
+      color:rgba(255,255,255,.88);font-size:13.6px;font-weight:600;
+      transition:background .2s ease,color .2s ease,padding .3s ease,transform .2s ease;
+    }
+    .nav-item svg{width:18px;height:18px;flex-shrink:0;transition:transform .25s cubic-bezier(.4,0,.2,1);}
+    .nav-item:hover{background:rgba(255,255,255,.34);color:#fff;}
+    .nav-item:hover svg{transform:scale(1.1);}
+    .nav-item.active{background:rgba(255,255,255,.94);color:var(--purple-dark);font-weight:700;box-shadow:0 8px 18px rgba(36,28,61,.35);}
+    .nav-item span{
+      white-space:nowrap;opacity:1;max-width:180px;overflow:hidden;display:inline-block;
+      transition:opacity .2s ease, max-width .3s ease;
+    }
+    .sidebar.collapsed .nav-item{justify-content:center;padding:12px;width:44px;height:44px;margin:0 auto;}
+    .sidebar.collapsed .nav-item span{opacity:0;max-width:0;display:none;}
+
+    .nav-secondary{margin-top:10px;padding-top:12px;border-top:1px solid rgba(255,255,255,.22);position:relative;z-index:2;}
+    .nav-secondary .nav-item{color:rgba(255,255,255,.7);font-weight:600;}
+    .nav-secondary .nav-item:hover{color:#fff;}
+
+    .sidebar-spacer{flex:1;position:relative;min-height:40px;}
+
+    .sidebar-footer{
+      margin-top:12px;background:rgba(255,255,255,.14);backdrop-filter:blur(6px);color:#fff;
+      border:1px solid rgba(255,255,255,.22);
+      font-size:12px;font-weight:700;line-height:1.4;
+      padding:12px 14px;border-radius:14px;
+      display:flex;align-items:flex-start;gap:10px;position:relative;z-index:2;
+      transition:padding .3s ease,justify-content .3s ease;
+    }
+    .sidebar-footer .icon-circle{
+      width:26px;height:26px;border-radius:50%;background:rgba(255,255,255,.9);flex-shrink:0;
+      display:flex;align-items:center;justify-content:center;color:var(--purple-dark);
+    }
+    .sidebar-footer .icon-circle svg{width:13px;height:13px;}
+    .sidebar-footer span{
+      white-space:normal;opacity:1;max-width:180px;overflow:hidden;
+      transition:opacity .2s ease, max-width .3s ease;
+    }
+    .sidebar.collapsed .sidebar-footer{justify-content:center;padding:10px;}
+    .sidebar.collapsed .sidebar-footer span{opacity:0;max-width:0;display:none;}
+
+    /* ---------- MAIN / TOPBAR ---------- */
+    .main{flex:1;padding:26px 32px 40px;min-width:0;}
+    .topbar{display:flex;align-items:flex-start;justify-content:space-between;gap:16px;margin-bottom:22px;flex-wrap:wrap;}
+    .topbar h1{font-size:23px;margin:0 0 4px;color:var(--ink);font-weight:700;text-shadow:0 1px 16px rgba(255,255,255,.5);}
+    .topbar p{margin:0;color:var(--ink);opacity:.7;font-size:13.5px;text-shadow:0 1px 12px rgba(255,255,255,.5);}
+
+    .user-chip{
+      display:flex;align-items:center;gap:10px;
+      background:#fff;padding:7px 14px 7px 7px;border-radius:40px;
+      box-shadow:var(--shadow); flex-shrink:0;
+    }
+    .avatar{
+      width:34px;height:34px;border-radius:50%;
+      background:var(--purple-tint);
+      display:flex;align-items:center;justify-content:center;font-size:16px;
+    }
+    .user-chip strong{display:block;font-size:12.8px;color:var(--ink);font-weight:700;font-family:'Poppins',sans-serif;line-height:1.3;}
+    .user-chip .role{font-size:11px;color:var(--muted);}
+    .user-chip .chev{color:var(--muted-soft);width:15px;height:15px;}
+
+    .back-link{
+      display:inline-flex;align-items:center;gap:6px;
+      font-size:13px;font-weight:700;color:var(--ink);
+      text-shadow:0 1px 12px rgba(255,255,255,.5);
+      margin-bottom:18px;
+    }
+    .back-link svg{width:15px;height:15px;transform:scaleX(-1);}
+    .back-link:hover{color:var(--purple-dark);}
+
+    /* ---------- CARD PRIMITIVES ---------- */
+    .card{background:var(--card);border-radius:var(--r-lg);box-shadow:var(--shadow);}
+    .panel{padding:22px;}
+    .section-title{
+      display:flex;align-items:center;gap:10px;
+      font-size:15px;font-weight:700;color:var(--ink);margin:0 0 18px;
+    }
+    .section-title .icon-badge{width:30px;height:30px;border-radius:9px;margin-bottom:0;}
+    .section-title .icon-badge svg{width:15px;height:15px;}
+
+    .icon-badge{
+      width:40px;height:40px;border-radius:12px;
+      display:flex;align-items:center;justify-content:center;margin-bottom:10px;
+    }
+    .icon-badge svg{width:18px;height:18px;}
+    .bg-purple{background:var(--purple-tint);color:var(--purple-dark);}
+    .bg-pink{background:var(--pink-tint);color:var(--pink);}
+    .bg-green{background:var(--green-tint);color:var(--green);}
+    .bg-orange{background:var(--orange-tint);color:var(--orange);}
+    .bg-blue{background:var(--blue-tint);color:var(--blue);}
+    .bg-indigo{background:var(--indigo-tint);color:var(--indigo);}
+    .bg-amber{background:var(--amber-tint);color:var(--amber);}
+
+    /* ---------- DASHBOARD STAT ROW ---------- */
+    .stats-row{display:grid;grid-template-columns:1.35fr repeat(5,1fr);gap:14px;margin-bottom:14px;}
+    .stat-card{padding:18px;}
+    .stat-card .label{font-size:11.5px;color:var(--muted);font-weight:500;margin-bottom:4px;}
+    .stat-card .value{font-size:14.5px;font-weight:700;color:var(--ink);line-height:1.35;}
+    .stat-card .sub{font-size:10.8px;color:var(--muted-soft);font-weight:600;margin-top:2px;}
+    .badge-note{color:var(--green);}
+
+    .progress-card{padding:18px;display:flex;flex-direction:column;align-items:center;text-align:center;}
+    .progress-card .label-top{align-self:flex-start;font-size:11.5px;color:var(--muted);font-weight:600;margin-bottom:10px;}
+    .ring{position:relative;width:118px;height:118px;display:flex;align-items:center;justify-content:center;margin-bottom:8px;}
+    .ring svg{width:100%;height:100%;}
+    .ring-value{position:absolute;font-size:22px;font-weight:700;color:var(--ink);font-family:'Poppins',sans-serif;}
+    .progress-card .caption{font-size:11.5px;color:var(--muted);font-weight:600;margin-bottom:10px;}
+    .bar-track{width:100%;height:6px;border-radius:6px;background:var(--purple-tint);overflow:hidden;}
+    .bar-fill{height:100%;border-radius:6px;background:linear-gradient(90deg,var(--purple),var(--purple-dark));}
+
+    /* ---------- TWO COLUMN ROW ---------- */
+    .two-col-row{display:grid;grid-template-columns:1.4fr 1fr;gap:14px;margin-bottom:14px;}
+
+    .journey-steps{display:flex;align-items:flex-start;gap:2px;overflow-x:auto;padding:2px 2px 6px;margin-bottom:18px;}
+    .journey-step{display:flex;flex-direction:column;align-items:center;gap:7px;min-width:52px;flex-shrink:0;}
+    .journey-step .icon-badge{margin-bottom:0;width:34px;height:34px;border-radius:10px;}
+    .journey-step .icon-badge svg{width:15px;height:15px;}
+    .journey-step span{font-size:10px;color:var(--muted);text-align:center;font-weight:600;line-height:1.25;}
+    .journey-arrow{display:flex;align-items:center;color:var(--muted-soft);margin-top:15px;flex-shrink:0;}
+    .journey-arrow svg{width:11px;height:11px;}
+
+    .journey-table{display:flex;flex-direction:column;gap:6px;}
+    .journey-row{display:flex;align-items:center;gap:12px;padding:10px 12px;border-radius:12px;background:var(--purple-tint);}
+    .row-icon{width:28px;height:28px;border-radius:8px;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+    .row-icon svg{width:13px;height:13px;}
+    .row-label{font-size:12px;color:var(--muted);font-weight:600;flex:0 0 150px;}
+    .row-value{font-size:12px;color:var(--ink);font-weight:700;text-align:right;flex:1;}
+
+    .insight-bubble{
+      display:flex;align-items:flex-start;gap:10px;
+      background:var(--purple-tint);padding:14px 16px;border-radius:14px;
+      font-size:12.3px;color:var(--ink);line-height:1.55;margin-bottom:14px;
+    }
+    .insight-bubble svg{width:16px;height:16px;color:var(--purple-dark);flex-shrink:0;margin-top:1px;}
+
+    .action-card{
+      position:relative;background:var(--purple-tint);
+      border-radius:16px;padding:16px 18px;overflow:hidden;
+    }
+    .action-card .tag{
+      display:flex;align-items:center;gap:6px;
+      font-size:10.8px;font-weight:700;color:var(--purple-dark);
+      text-transform:uppercase;letter-spacing:.02em;margin-bottom:8px;
+    }
+    .action-card .tag svg{width:13px;height:13px;}
+    .action-card .action-text{font-size:12.5px;color:var(--ink);max-width:60%;line-height:1.55;margin:0 0 34px;font-weight:500;}
+    .action-arrow{
+      width:30px;height:30px;border-radius:50%;
+      background:var(--purple);color:#fff;
+      display:flex;align-items:center;justify-content:center;
+    }
+    .action-arrow svg{width:15px;height:15px;}
+    .action-img{position:absolute;right:-8px;bottom:-6px;width:128px;pointer-events:none;}
+    .action-img img{width:100%;display:block;}
+
+    /* ---------- REPORTS GRID ---------- */
+    .reports-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:14px;}
+    .report-card{
+      padding:18px;position:relative;display:block;
+      background:var(--purple-tint);
+      transition:transform .18s ease, box-shadow .18s ease;
+      color:inherit;
+    }
+    .report-card:hover{
+      transform:translateY(-5px);box-shadow:var(--shadow-hover);
+    }
+    .report-card h4{font-size:13.3px;margin:2px 0 5px;color:var(--ink);font-weight:700;}
+    .report-card p{font-size:11.3px;color:var(--muted);line-height:1.45;margin:0 0 20px;}
+    .go-arrow{position:absolute;right:16px;bottom:16px;color:var(--muted-soft);}
+    .go-arrow svg{width:14px;height:14px;}
+
+    /* ---------- CAREER JOURNEY PAGE ---------- */
+    .journey-detail-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;}
+    .journey-detail-card{padding:20px;transition:transform .18s ease, box-shadow .18s ease;}
+    .journey-detail-card:hover{transform:translateY(-5px);box-shadow:var(--shadow-hover);}
+    .journey-detail-card .icon-badge{width:42px;height:42px;border-radius:12px;}
+    .journey-detail-card h3{font-size:14.5px;margin:0 0 6px;font-weight:700;}
+    .journey-detail-card p{font-size:12.3px;color:var(--muted);line-height:1.55;margin:0;}
+    .step-num{font-size:10.8px;font-weight:700;color:var(--purple);letter-spacing:.04em;margin-bottom:8px;}
+
+    /* ---------- PARENT INSIGHTS PAGE ---------- */
+    .insights-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;}
+    .insight-card{padding:20px;transition:transform .18s ease, box-shadow .18s ease;}
+    .insight-card:hover{transform:translateY(-5px);box-shadow:var(--shadow-hover);}
+    .insight-card .icon-badge{width:36px;height:36px;border-radius:10px;}
+    .insight-card h3{font-size:14px;margin:0 0 6px;font-weight:700;}
+    .insight-card p{font-size:12.3px;color:var(--muted);line-height:1.55;margin:0;}
+
+    /* ---------- RESPONSIVE ---------- */
+    @media (max-width:1180px){
+      .stats-row{grid-template-columns:repeat(3,1fr);}
+      .stats-row .progress-card{grid-column:span 3;}
+      .reports-grid{grid-template-columns:repeat(3,1fr);}
+      .journey-detail-grid{grid-template-columns:repeat(2,1fr);}
+    }
+    @media (max-width:900px){
+      .two-col-row{grid-template-columns:1fr;}
+      .insights-grid{grid-template-columns:1fr;}
+    }
+    @media (max-width:760px){
+      .sidebar{display:none;}
+      .main{padding:20px 16px 32px;}
+      .stats-row{grid-template-columns:1fr 1fr;}
+      .reports-grid{grid-template-columns:1fr 1fr;}
+      .journey-detail-grid{grid-template-columns:1fr;}
+      .row-label{flex:0 0 110px;}
+      .action-card .action-text{max-width:100%;}
+    }
+
+
+    .stats-row .stat-card:nth-child(6){grid-column: 6;}
+
+</style>
+</head>
+<body>
+  <div class="app-shell">
+    <aside class="sidebar" id="sidebar">
+      <div class="sidebar-bg">
+        <video src="../shared/assets/t3.mp4" autoplay muted playsinline id="sidebarVidA" style="opacity:1"></video>
+        <video src="../shared/assets/t3.mp4" muted playsinline id="sidebarVidB" style="opacity:0"></video>
+      </div>
+      <div class="brand-row">
+        <div class="brand"><div class="logo"><img src="../shared/assets/logo.png" alt="CareStance" onerror="this.parentElement.textContent='S'" /></div><span>CareStance</span></div>
+        <button class="sidebar-toggle" id="sidebarToggle" aria-label="Collapse sidebar" onclick="document.getElementById('sidebar').classList.toggle('collapsed')">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="m15 6-6 6 6 6"/></svg>
+        </button>
+      </div>
+      <nav class="nav">
+        <a class="nav-item active" href="dashboard.html" title="Home"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 11.5 12 4l8 7.5"/><path d="M6 10v9a1 1 0 0 0 1 1h4v-6h2v6h4a1 1 0 0 0 1-1v-9"/></svg><span>Home</span></a>
+        <a class="nav-item" href="careerjourney.html" title="Career Journey"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M15.5 8.5 13 13l-4.5 2.5L11 11l4.5-2.5Z"/></svg><span>Career Journey</span></a>
+        <a class="nav-item" href="parents_insights.html" title="Parent Insights"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18h6"/><path d="M10 21h4"/><path d="M12 3a6 6 0 0 0-3.5 10.9c.5.4.8 1 .9 1.6h5.2c.1-.6.4-1.2.9-1.6A6 6 0 0 0 12 3Z"/></svg><span>Parent Insights</span></a>
+        <a class="nav-item" href="reports.html" title="Reports"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M7 3h7l4 4v14a1 1 0 0 1-1 1H7a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1Z"/><path d="M14 3v4h4"/><path d="M9 13h6M9 17h6M9 9h2"/></svg><span>Reports</span></a>
+      </nav>
+
+      <div class="sidebar-spacer"></div>
+
+      <nav class="nav nav-secondary">
+        <a class="nav-item" href="#" title="Help"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M9.2 9.3a2.8 2.8 0 1 1 3.9 2.7c-.9.4-1.5 1.1-1.5 2v.3"/><circle cx="12" cy="17" r=".6" fill="currentColor" stroke="none"/></svg><span>Help</span></a>
+        <a class="nav-item" href="#" title="Log out"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H6a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h3"/><path d="M16 17l5-5-5-5"/><path d="M21 12H9"/></svg><span>Log out</span></a>
+      </nav>
+
+      <div class="sidebar-footer" title="Empower futures, one student at a time.">
+        <div class="icon-circle"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20.5s-7.5-4.6-9.6-9.2C1.1 8 2.7 4.8 6 4.1c2-.4 3.7.5 4.8 2.1a.9.9 0 0 0 1.4 0c1.1-1.6 2.8-2.5 4.8-2.1 3.3.7 4.9 3.9 3.6 7.2C19.5 15.9 12 20.5 12 20.5Z"/></svg></div>
+        <span>Empower futures, one student at a time.</span>
+      </div>
+    </aside>
+    <main class="main">
+      <div class="topbar">
+        <div><h1>Welcome, Priya! 👋</h1><p>Here's how your child is progressing.</p></div>
+        <div class="user-chip">
+          <div class="avatar">🧑‍🎓</div>
+          <div><strong>Rahul Sharma</strong><span class="role">Class 10-A</span></div>
+          <svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg>
+        </div>
+      </div>
+
+      <section class="stats-row">
+        <div class="card progress-card">
+          <div class="label-top">Child Progress</div>
+          <div class="ring">
+            <svg viewBox="0 0 120 120">
+              <circle cx="60" cy="60" r="52" fill="none" stroke="#EFEBFE" stroke-width="10"/>
+              <circle cx="60" cy="60" r="52" fill="none" stroke="url(#ringGrad)" stroke-width="10"
+                      stroke-linecap="round" stroke-dasharray="326.7" stroke-dashoffset="91.5"
+                      transform="rotate(-90 60 60)"/>
+              <defs>
+                <linearGradient id="ringGrad" x1="0" y1="0" x2="1" y2="1">
+                  <stop offset="0%" stop-color="#7C5CFC"/>
+                  <stop offset="100%" stop-color="#5F3DF5"/>
+                </linearGradient>
+              </defs>
+            </svg>
+            <span class="ring-value">72%</span>
+          </div>
+          <div class="caption">Overall Progress</div>
+          <div class="bar-track"><div class="bar-fill" style="width:72%"></div></div>
+        </div>
+
+        <div class="card stat-card">
+          <div class="icon-badge bg-pink"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20.5s-7.5-4.6-9.6-9.2C1.1 8 2.7 4.8 6 4.1c2-.4 3.7.5 4.8 2.1a.9.9 0 0 0 1.4 0c1.1-1.6 2.8-2.5 4.8-2.1 3.3.7 4.9 3.9 3.6 7.2C19.5 15.9 12 20.5 12 20.5Z"/></svg></div>
+          <div class="label">Current Career Interests</div>
+          <div class="value">Design</div>
+        </div>
+
+        <div class="card stat-card">
+          <div class="icon-badge bg-green"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="m9 7-5 5 5 5"/><path d="m15 7 5 5-5 5"/></svg></div>
+          <div class="label">Skills Being Developed</div>
+          <div class="value">Creativity, Figma, Problem Solving</div>
+        </div>
+
+        <div class="card stat-card">
+          <div class="icon-badge bg-orange"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="4" width="16" height="16" rx="4"/><path d="m8.5 12.5 2.3 2.3 4.7-5.1"/></svg></div>
+          <div class="label">Tasks Completed</div>
+          <div class="value">8 / 10 <span class="sub" style="display:inline;">This Week</span></div>
+        </div>
+
+        <div class="card stat-card">
+          <div class="icon-badge bg-blue"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21s7-6.1 7-11.5A7 7 0 0 0 5 9.5C5 14.9 12 21 12 21Z"/><circle cx="12" cy="9.5" r="2.4"/></svg></div>
+          <div class="label">Current Roadmap Stage</div>
+          <div class="value">Skill Building</div>
+          <div class="sub">(Stage 2 of 5)</div>
+        </div>
+
+        <div class="card stat-card">
+          <div class="icon-badge bg-indigo"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M5 20V11"/><path d="M12 20V4"/><path d="M19 20v-7"/></svg></div>
+          <div class="label">Progress This Month</div>
+          <div class="value badge-note">↗ 12%</div>
+          <div class="sub">From last month</div>
+        </div>
+      </section>
+
+      <section class="two-col-row">
+        <div class="card panel">
+          <div class="section-title"><span class="icon-badge bg-purple"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M15.5 8.5 13 13l-4.5 2.5L11 11l4.5-2.5Z"/></svg></span>Career Journey</div>
+          <div class="journey-steps">
+            <div class="journey-step"><div class="icon-badge bg-purple"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20.5s-7.5-4.6-9.6-9.2C1.1 8 2.7 4.8 6 4.1c2-.4 3.7.5 4.8 2.1a.9.9 0 0 0 1.4 0c1.1-1.6 2.8-2.5 4.8-2.1 3.3.7 4.9 3.9 3.6 7.2C19.5 15.9 12 20.5 12 20.5Z"/></svg></div><span>Interests</span></div>
+            <div class="journey-arrow"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12h16"/><path d="m13 5 7 7-7 7"/></svg></div>
+            <div class="journey-step"><div class="icon-badge bg-purple"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="6" y="3" width="12" height="18" rx="2"/><path d="M9 3v2h6V3"/><path d="M9 11h6M9 15h4"/></svg></div><span>Assessment</span></div>
+            <div class="journey-arrow"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12h16"/><path d="m13 5 7 7-7 7"/></svg></div>
+            <div class="journey-step"><div class="icon-badge bg-purple"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="m12 3 2.6 5.8 6.4.6-4.8 4.3 1.4 6.3L12 16.9l-5.6 3.1 1.4-6.3-4.8-4.3 6.4-.6L12 3Z"/></svg></div><span>Recommended Areas</span></div>
+            <div class="journey-arrow"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12h16"/><path d="m13 5 7 7-7 7"/></svg></div>
+            <div class="journey-step"><div class="icon-badge bg-purple"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="2.5" y="8.5" width="19" height="8.5" rx="4.2"/><path d="M7.2 10.8v3.9M5.3 12.75h3.8"/><circle cx="15.7" cy="11.6" r="1"/><circle cx="18" cy="13.9" r="1"/></svg></div><span>Simulation</span></div>
+            <div class="journey-arrow"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12h16"/><path d="m13 5 7 7-7 7"/></svg></div>
+            <div class="journey-step"><div class="icon-badge bg-purple"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 15a8 8 0 1 1 16 0"/><path d="M12 15 15 9"/><circle cx="12" cy="15" r="1.2"/></svg></div><span>Skill Gap</span></div>
+            <div class="journey-arrow"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12h16"/><path d="m13 5 7 7-7 7"/></svg></div>
+            <div class="journey-step"><div class="icon-badge bg-purple"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21s7-6.1 7-11.5A7 7 0 0 0 5 9.5C5 14.9 12 21 12 21Z"/><circle cx="12" cy="9.5" r="2.4"/></svg></div><span>Roadmap</span></div>
+            <div class="journey-arrow"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12h16"/><path d="m13 5 7 7-7 7"/></svg></div>
+            <div class="journey-step"><div class="icon-badge bg-purple"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M6 21V4"/><path d="M6 4h11l-2.5 4L17 12H6"/></svg></div><span>Progress</span></div>
+          </div>
+          <div class="journey-table">
+            <div class="journey-row"><div class="row-icon bg-pink"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20.5s-7.5-4.6-9.6-9.2C1.1 8 2.7 4.8 6 4.1c2-.4 3.7.5 4.8 2.1a.9.9 0 0 0 1.4 0c1.1-1.6 2.8-2.5 4.8-2.1 3.3.7 4.9 3.9 3.6 7.2C19.5 15.9 12 20.5 12 20.5Z"/></svg></div><div class="row-label">Current Interest</div><div class="row-value">Design</div></div>
+            <div class="journey-row"><div class="row-icon bg-blue"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="8" width="18" height="11" rx="2"/><path d="M8.5 8V6.3a1.8 1.8 0 0 1 1.8-1.8h3.4a1.8 1.8 0 0 1 1.8 1.8V8"/><path d="M3 13.5h18"/><path d="M10.8 13.5h2.4v1.6h-2.4z"/></svg></div><div class="row-label">Explored Careers</div><div class="row-value">UI/UX, Graphic Design, Product Design</div></div>
+            <div class="journey-row"><div class="row-icon bg-green"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M5 20V11"/><path d="M12 20V4"/><path d="M19 20v-7"/></svg></div><div class="row-label">Current Skill</div><div class="row-value">Beginner</div></div>
+            <div class="journey-row"><div class="row-icon bg-orange"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 11A8 8 0 0 0 6.3 6.3L4 8.6"/><path d="M4 4v4.6h4.6"/><path d="M4 13a8 8 0 0 0 13.7 4.7L20 15.4"/><path d="M20 20v-4.6h-4.6"/></svg></div><div class="row-label">Next Step</div><div class="row-value">Complete Figma fundamentals module</div></div>
+          </div>
+        </div>
+
+        <div class="card panel">
+          <div class="section-title"><span class="icon-badge bg-amber"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18h6"/><path d="M10 21h4"/><path d="M12 3a6 6 0 0 0-3.5 10.9c.5.4.8 1 .9 1.6h5.2c.1-.6.4-1.2.9-1.6A6 6 0 0 0 12 3Z"/></svg></span>Parent Insights</div>
+          <div class="insight-bubble">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12a8 8 0 1 1 3.3 6.4L4 20l1.2-3.4A7.9 7.9 0 0 1 4 12Z"/></svg>
+            <span>Your child completed 8/10 weekly tasks and has shown increased interest in design-related activities.</span>
+          </div>
+          <div class="action-card">
+            <div class="tag"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18h6"/><path d="M10 21h4"/><path d="M12 3a6 6 0 0 0-3.5 10.9c.5.4.8 1 .9 1.6h5.2c.1-.6.4-1.2.9-1.6A6 6 0 0 0 12 3Z"/></svg>Suggested Parent Action</div>
+            <p class="action-text">Encourage your child to complete the UI/UX simulation this week.</p>
+            <div class="action-arrow"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12h16"/><path d="m13 5 7 7-7 7"/></svg></div>
+            <div class="action-img">
+              <img src="../shared/assets/t2.png" alt="Parent and child" onerror="this.style.display='none'" />
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="card panel">
+        <div class="section-title"><span class="icon-badge bg-purple"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M7 3h7l4 4v14a1 1 0 0 1-1 1H7a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1Z"/><path d="M14 3v4h4"/><path d="M9 13h6M9 17h6M9 9h2"/></svg></span>Reports</div>
+        <div class="reports-grid">
+          <a class="card report-card" href="reports.html#career"><div class="icon-badge bg-purple"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="8" width="18" height="11" rx="2"/><path d="M8.5 8V6.3a1.8 1.8 0 0 1 1.8-1.8h3.4a1.8 1.8 0 0 1 1.8 1.8V8"/><path d="M3 13.5h18"/><path d="M10.8 13.5h2.4v1.6h-2.4z"/></svg></div><h4>Career Report</h4><p>View career exploration and recommendations</p><div class="go-arrow"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12h16"/><path d="m13 5 7 7-7 7"/></svg></div></a>
+          <a class="card report-card" href="reports.html#progress"><div class="icon-badge bg-green"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="m3 17 6-6 4 4 8-8"/><path d="M15 7h6v6"/></svg></div><h4>Progress Report</h4><p>Track overall progress and achievements</p><div class="go-arrow"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12h16"/><path d="m13 5 7 7-7 7"/></svg></div></a>
+          <a class="card report-card" href="reports.html#monthly"><div class="icon-badge bg-orange"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3.5" y="5" width="17" height="16" rx="2"/><path d="M8 3v4M16 3v4M3.5 10h17"/></svg></div><h4>Monthly Report</h4><p>Monthly summary of activities and growth</p><div class="go-arrow"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12h16"/><path d="m13 5 7 7-7 7"/></svg></div></a>
+          <a class="card report-card" href="reports.html#skills"><div class="icon-badge bg-blue"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M5 20V11"/><path d="M12 20V4"/><path d="M19 20v-7"/></svg></div><h4>Skill Development</h4><p>View skills your child is developing</p><div class="go-arrow"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12h16"/><path d="m13 5 7 7-7 7"/></svg></div></a>
+          <a class="card report-card" href="reports.html#simulation"><div class="icon-badge bg-pink"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="2.5" y="8.5" width="19" height="8.5" rx="4.2"/><path d="M7.2 10.8v3.9M5.3 12.75h3.8"/><circle cx="15.7" cy="11.6" r="1"/><circle cx="18" cy="13.9" r="1"/></svg></div><h4>Simulation Results</h4><p>See performance in simulations</p><div class="go-arrow"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12h16"/><path d="m13 5 7 7-7 7"/></svg></div></a>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <script>
+    (function(){
+      var a = document.getElementById('sidebarVidA');
+      var b = document.getElementById('sidebarVidB');
+      if (!a || !b) return;
+      var active = a, standby = b;
+
+      function armSwap(v){
+        function onTime(){
+          var d = v.duration;
+          if (d && v.currentTime > d - 0.7) {
+            v.removeEventListener('timeupdate', onTime);
+            doCrossfade();
+          }
+        }
+        v.addEventListener('timeupdate', onTime);
+      }
+
+      function doCrossfade(){
+        standby.currentTime = 0;
+        var playPromise = standby.play();
+        if (playPromise) playPromise.catch(function(){});
+        standby.style.opacity = '1';
+        active.style.opacity = '0';
+        setTimeout(function(){
+          active.pause();
+          var tmp = active; active = standby; standby = tmp;
+          armSwap(active);
+        }, 720);
+      }
+
+      armSwap(active);
+    })();
+  </script>
+
+  </body>
+</html>
