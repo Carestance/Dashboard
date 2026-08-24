@@ -1,0 +1,349 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>CareStance | Parent Insights</title>
+<style>
+
+    @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@500;600;700&family=Inter:wght@400;500;600;700&display=swap');
+
+    :root{
+      --bg:#F5F3FC;
+      --card:#FFFFFF;
+      --ink:#241C3D;
+      --muted:#8C87A6;
+      --muted-soft:#B7B2CE;
+      --border:#EFEBFA;
+
+      --purple:#7C5CFC;   --purple-dark:#5F3DF5;  --purple-tint:#EFEBFE;
+      --pink:#F0559B;     --pink-tint:#FDE7F1;
+      --green:#1FAE74;    --green-tint:#E1F8EE;
+      --orange:#F0913F;   --orange-tint:#FDEDE0;
+      --blue:#4C8DF5;     --blue-tint:#E8F1FE;
+      --indigo:#6A63EE;   --indigo-tint:#ECEAFE;
+      --amber:#E9A824;    --amber-tint:#FCF1DC;
+
+      --shadow:0 4px 22px rgba(110,80,210,.07);
+      --shadow-hover:0 14px 32px rgba(110,80,210,.16);
+      --r-lg:20px; --r-md:14px; --r-sm:10px;
+    }
+
+    *{box-sizing:border-box;}
+    html,body{margin:0;padding:0;}
+    body{
+      background:var(--bg);
+      font-family:'Inter',sans-serif;
+      color:var(--ink);
+      -webkit-font-smoothing:antialiased;
+    }
+    h1,h2,h3,h4,.disp{font-family:'Poppins',sans-serif;}
+    a{text-decoration:none;}
+
+    .app-shell{display:flex;min-height:100vh;align-items:stretch;}
+
+    /* ---------- SIDEBAR ---------- */
+    .sidebar{
+      width:246px; flex-shrink:0;
+      background:#fff;
+      border-right:1px solid var(--border);
+      padding:26px 18px 18px;
+      display:flex; flex-direction:column;
+      position:sticky; top:0; height:100vh;
+    }
+    .brand{display:flex;align-items:center;gap:10px;padding:0 6px;margin-bottom:30px;}
+    .brand .logo{
+      width:34px;height:34px;border-radius:10px;flex-shrink:0;
+      background:linear-gradient(135deg,#3FD0C9,#3E7BFA);
+      display:flex;align-items:center;justify-content:center;
+      color:#fff;font-weight:700;font-family:'Poppins',sans-serif;font-size:16px;
+    }
+    .brand span{font-weight:700;font-size:16.5px;color:var(--ink);}
+
+    .nav{display:flex;flex-direction:column;gap:4px;}
+    .nav-item{
+      display:flex;align-items:center;gap:12px;
+      padding:11px 14px;border-radius:12px;
+      color:var(--muted);font-size:13.8px;font-weight:500;
+      transition:background .15s,color .15s;
+    }
+    .nav-item svg{width:18px;height:18px;flex-shrink:0;}
+    .nav-item:hover{background:var(--purple-tint);color:var(--purple-dark);}
+    .nav-item.active{background:var(--purple-tint);color:var(--purple-dark);font-weight:700;}
+
+    .sidebar-art{
+      margin-top:auto;
+      border-radius:18px;overflow:hidden;
+      height:230px;position:relative;
+      box-shadow:inset 0 0 0 1px rgba(255,255,255,.4);
+    }
+    .sidebar-art svg{width:100%;height:100%;display:block;}
+
+    .sidebar-footer{
+      margin-top:12px;background:var(--purple-tint);color:var(--purple-dark);
+      font-size:11.5px;font-weight:600;line-height:1.4;
+      padding:12px 14px;border-radius:12px;
+      display:flex;align-items:center;gap:8px;
+    }
+    .sidebar-footer svg{width:14px;height:14px;flex-shrink:0;}
+
+    /* ---------- MAIN / TOPBAR ---------- */
+    .main{flex:1;padding:26px 32px 40px;min-width:0;}
+    .topbar{display:flex;align-items:flex-start;justify-content:space-between;gap:16px;margin-bottom:22px;flex-wrap:wrap;}
+    .topbar h1{font-size:23px;margin:0 0 4px;color:var(--ink);font-weight:700;}
+    .topbar p{margin:0;color:var(--muted);font-size:13.5px;}
+
+    .user-chip{
+      display:flex;align-items:center;gap:10px;
+      background:#fff;padding:7px 14px 7px 7px;border-radius:40px;
+      box-shadow:var(--shadow); flex-shrink:0;
+    }
+    .avatar{
+      width:34px;height:34px;border-radius:50%;
+      background:var(--purple-tint);
+      display:flex;align-items:center;justify-content:center;font-size:16px;
+    }
+    .user-chip strong{display:block;font-size:12.8px;color:var(--ink);font-weight:700;font-family:'Poppins',sans-serif;line-height:1.3;}
+    .user-chip .role{font-size:11px;color:var(--muted);}
+    .user-chip .chev{color:var(--muted-soft);width:15px;height:15px;}
+
+    .back-link{
+      display:inline-flex;align-items:center;gap:6px;
+      font-size:13px;font-weight:600;color:var(--muted);
+      margin-bottom:18px;
+    }
+    .back-link svg{width:15px;height:15px;transform:scaleX(-1);}
+    .back-link:hover{color:var(--purple-dark);}
+
+    /* ---------- CARD PRIMITIVES ---------- */
+    .card{background:var(--card);border-radius:var(--r-lg);box-shadow:var(--shadow);}
+    .panel{padding:22px;}
+    .section-title{
+      display:flex;align-items:center;gap:10px;
+      font-size:15px;font-weight:700;color:var(--ink);margin:0 0 18px;
+    }
+    .section-title .icon-badge{width:30px;height:30px;border-radius:9px;margin-bottom:0;}
+    .section-title .icon-badge svg{width:15px;height:15px;}
+
+    .icon-badge{
+      width:40px;height:40px;border-radius:12px;
+      display:flex;align-items:center;justify-content:center;margin-bottom:10px;
+    }
+    .icon-badge svg{width:18px;height:18px;}
+    .bg-purple{background:var(--purple-tint);color:var(--purple-dark);}
+    .bg-pink{background:var(--pink-tint);color:var(--pink);}
+    .bg-green{background:var(--green-tint);color:var(--green);}
+    .bg-orange{background:var(--orange-tint);color:var(--orange);}
+    .bg-blue{background:var(--blue-tint);color:var(--blue);}
+    .bg-indigo{background:var(--indigo-tint);color:var(--indigo);}
+    .bg-amber{background:var(--amber-tint);color:var(--amber);}
+
+    /* ---------- DASHBOARD STAT ROW ---------- */
+    .stats-row{display:grid;grid-template-columns:1.35fr repeat(5,1fr);gap:14px;margin-bottom:14px;}
+    .stat-card{padding:18px;}
+    .stat-card .label{font-size:11.5px;color:var(--muted);font-weight:500;margin-bottom:4px;}
+    .stat-card .value{font-size:14.5px;font-weight:700;color:var(--ink);line-height:1.35;}
+    .stat-card .sub{font-size:10.8px;color:var(--muted-soft);font-weight:600;margin-top:2px;}
+    .badge-note{color:var(--green);}
+
+    .progress-card{padding:18px;display:flex;flex-direction:column;align-items:center;text-align:center;}
+    .progress-card .label-top{align-self:flex-start;font-size:11.5px;color:var(--muted);font-weight:600;margin-bottom:10px;}
+    .ring{position:relative;width:118px;height:118px;display:flex;align-items:center;justify-content:center;margin-bottom:8px;}
+    .ring svg{width:100%;height:100%;}
+    .ring-value{position:absolute;font-size:22px;font-weight:700;color:var(--ink);font-family:'Poppins',sans-serif;}
+    .progress-card .caption{font-size:11.5px;color:var(--muted);font-weight:600;margin-bottom:10px;}
+    .bar-track{width:100%;height:6px;border-radius:6px;background:var(--purple-tint);overflow:hidden;}
+    .bar-fill{height:100%;border-radius:6px;background:linear-gradient(90deg,var(--purple),var(--purple-dark));}
+
+    /* ---------- TWO COLUMN ROW ---------- */
+    .two-col-row{display:grid;grid-template-columns:1.4fr 1fr;gap:14px;margin-bottom:14px;}
+
+    .journey-steps{display:flex;align-items:flex-start;gap:2px;overflow-x:auto;padding:2px 2px 6px;margin-bottom:18px;}
+    .journey-step{display:flex;flex-direction:column;align-items:center;gap:7px;min-width:52px;flex-shrink:0;}
+    .journey-step .icon-badge{margin-bottom:0;width:34px;height:34px;border-radius:10px;}
+    .journey-step .icon-badge svg{width:15px;height:15px;}
+    .journey-step span{font-size:10px;color:var(--muted);text-align:center;font-weight:600;line-height:1.25;}
+    .journey-arrow{display:flex;align-items:center;color:var(--muted-soft);margin-top:15px;flex-shrink:0;}
+    .journey-arrow svg{width:11px;height:11px;}
+
+    .journey-table{display:flex;flex-direction:column;gap:6px;}
+    .journey-row{display:flex;align-items:center;gap:12px;padding:10px 12px;border-radius:12px;background:var(--purple-tint);}
+    .row-icon{width:28px;height:28px;border-radius:8px;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+    .row-icon svg{width:13px;height:13px;}
+    .row-label{font-size:12px;color:var(--muted);font-weight:600;flex:0 0 150px;}
+    .row-value{font-size:12px;color:var(--ink);font-weight:700;text-align:right;flex:1;}
+
+    .insight-bubble{
+      display:flex;align-items:flex-start;gap:10px;
+      background:var(--purple-tint);padding:14px 16px;border-radius:14px;
+      font-size:12.3px;color:var(--ink);line-height:1.55;margin-bottom:14px;
+    }
+    .insight-bubble svg{width:16px;height:16px;color:var(--purple-dark);flex-shrink:0;margin-top:1px;}
+
+    .action-card{
+      position:relative;background:var(--purple-tint);
+      border-radius:16px;padding:16px 18px;overflow:hidden;
+    }
+    .action-card .tag{
+      display:flex;align-items:center;gap:6px;
+      font-size:10.8px;font-weight:700;color:var(--purple-dark);
+      text-transform:uppercase;letter-spacing:.02em;margin-bottom:8px;
+    }
+    .action-card .tag svg{width:13px;height:13px;}
+    .action-card .action-text{font-size:12.5px;color:var(--ink);max-width:60%;line-height:1.55;margin:0 0 34px;font-weight:500;}
+    .action-arrow{
+      width:30px;height:30px;border-radius:50%;
+      background:var(--purple);color:#fff;
+      display:flex;align-items:center;justify-content:center;
+    }
+    .action-arrow svg{width:15px;height:15px;}
+    .action-img{position:absolute;right:-8px;bottom:-6px;width:128px;pointer-events:none;}
+    .action-img img{width:100%;display:block;}
+
+    /* ---------- REPORTS GRID ---------- */
+    .reports-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:14px;}
+    .report-card{
+      padding:18px;position:relative;display:block;
+      transition:transform .18s ease, box-shadow .18s ease;
+      color:inherit;
+    }
+    .report-card:hover{transform:translateY(-5px);box-shadow:var(--shadow-hover);}
+    .report-card h4{font-size:13.3px;margin:2px 0 5px;color:var(--ink);font-weight:700;}
+    .report-card p{font-size:11.3px;color:var(--muted);line-height:1.45;margin:0 0 20px;}
+    .go-arrow{position:absolute;right:16px;bottom:16px;color:var(--muted-soft);}
+    .go-arrow svg{width:14px;height:14px;}
+
+    /* ---------- CAREER JOURNEY PAGE ---------- */
+    .journey-detail-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;}
+    .journey-detail-card{padding:20px;transition:transform .18s ease, box-shadow .18s ease;}
+    .journey-detail-card:hover{transform:translateY(-5px);box-shadow:var(--shadow-hover);}
+    .journey-detail-card .icon-badge{width:42px;height:42px;border-radius:12px;}
+    .journey-detail-card h3{font-size:14.5px;margin:0 0 6px;font-weight:700;}
+    .journey-detail-card p{font-size:12.3px;color:var(--muted);line-height:1.55;margin:0;}
+    .step-num{font-size:10.8px;font-weight:700;color:var(--purple);letter-spacing:.04em;margin-bottom:8px;}
+
+    /* ---------- PARENT INSIGHTS PAGE ---------- */
+    .insights-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;}
+    .insight-card{padding:20px;transition:transform .18s ease, box-shadow .18s ease;}
+    .insight-card:hover{transform:translateY(-5px);box-shadow:var(--shadow-hover);}
+    .insight-card .icon-badge{width:36px;height:36px;border-radius:10px;}
+    .insight-card h3{font-size:14px;margin:0 0 6px;font-weight:700;}
+    .insight-card p{font-size:12.3px;color:var(--muted);line-height:1.55;margin:0;}
+
+    /* ---------- RESPONSIVE ---------- */
+    @media (max-width:1180px){
+      .stats-row{grid-template-columns:repeat(3,1fr);}
+      .stats-row .progress-card{grid-column:span 3;}
+      .reports-grid{grid-template-columns:repeat(3,1fr);}
+      .journey-detail-grid{grid-template-columns:repeat(2,1fr);}
+    }
+    @media (max-width:900px){
+      .two-col-row{grid-template-columns:1fr;}
+      .insights-grid{grid-template-columns:1fr;}
+    }
+    @media (max-width:760px){
+      .sidebar{display:none;}
+      .main{padding:20px 16px 32px;}
+      .stats-row{grid-template-columns:1fr 1fr;}
+      .reports-grid{grid-template-columns:1fr 1fr;}
+      .journey-detail-grid{grid-template-columns:1fr;}
+      .row-label{flex:0 0 110px;}
+      .action-card .action-text{max-width:100%;}
+    }
+
+
+</style>
+</head>
+<body>
+  <div class="app-shell">
+    <aside class="sidebar">
+      <div class="brand"><div class="logo">S</div><span>CareStance</span></div>
+      <nav class="nav">
+        <a class="nav-item" href="dashboard.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 11.5 12 4l8 7.5"/><path d="M6 10v9a1 1 0 0 0 1 1h4v-6h2v6h4a1 1 0 0 0 1-1v-9"/></svg><span>Home</span></a>
+        <a class="nav-item" href="careerjourney.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M15.5 8.5 13 13l-4.5 2.5L11 11l4.5-2.5Z"/></svg><span>Career Journey</span></a>
+        <a class="nav-item active" href="parents_insights.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18h6"/><path d="M10 21h4"/><path d="M12 3a6 6 0 0 0-3.5 10.9c.5.4.8 1 .9 1.6h5.2c.1-.6.4-1.2.9-1.6A6 6 0 0 0 12 3Z"/></svg><span>Parent Insights</span></a>
+        <a class="nav-item" href="reports.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M7 3h7l4 4v14a1 1 0 0 1-1 1H7a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1Z"/><path d="M14 3v4h4"/><path d="M9 13h6M9 17h6M9 9h2"/></svg><span>Reports</span></a>
+      </nav>
+      <div class="sidebar-art">
+<svg viewBox="0 0 220 260" preserveAspectRatio="xMidYMax slice" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="skyGrad" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#B9A6F2"/>
+      <stop offset="55%" stop-color="#D79FD6"/>
+      <stop offset="100%" stop-color="#F4C6CB"/>
+    </linearGradient>
+    <linearGradient id="waterGrad" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#C9AEEF"/>
+      <stop offset="100%" stop-color="#E9C3D8"/>
+    </linearGradient>
+  </defs>
+  <rect x="0" y="0" width="220" height="260" fill="url(#skyGrad)"/>
+  <circle cx="34" cy="40" r="1.6" fill="#fff" opacity=".9"/>
+  <circle cx="70" cy="26" r="1.1" fill="#fff" opacity=".8"/>
+  <circle cx="150" cy="34" r="1.4" fill="#fff" opacity=".85"/>
+  <circle cx="190" cy="55" r="1.1" fill="#fff" opacity=".75"/>
+  <circle cx="115" cy="20" r="1" fill="#fff" opacity=".7"/>
+  <path d="M42 32 46 33 42 34 41 38 40 34 36 33 40 32 41 28Z" fill="#fff" opacity=".9"/>
+  <path d="M172 70 175 71 172 72 171 75 170 72 167 71 170 70 171 67Z" fill="#fff" opacity=".8"/>
+  <g opacity=".55">
+    <rect x="150" y="90" width="10" height="70" fill="#8B6FB8"/>
+    <rect x="163" y="70" width="9" height="90" fill="#9A7BC0"/>
+    <rect x="176" y="105" width="8" height="55" fill="#8B6FB8"/>
+    <rect x="188" y="60" width="7" height="100" fill="#9A7BC0"/>
+    <rect x="199" y="85" width="9" height="75" fill="#8B6FB8"/>
+    <rect x="190" y="52" width="3" height="10" fill="#9A7BC0"/>
+  </g>
+  <rect x="0" y="160" width="220" height="100" fill="url(#waterGrad)"/>
+  <ellipse cx="55" cy="160" rx="70" ry="6" fill="#7A5FBE" opacity=".25"/>
+  <g>
+    <path d="M55 160 C55 130 48 108 55 92 C62 108 55 130 55 160 Z" fill="#5B4A8F" opacity=".85"/>
+    <ellipse cx="55" cy="86" rx="30" ry="24" fill="#6B4FA0" opacity=".9"/>
+    <ellipse cx="32" cy="98" rx="18" ry="15" fill="#6B4FA0" opacity=".8"/>
+    <ellipse cx="80" cy="100" rx="19" ry="15" fill="#6B4FA0" opacity=".8"/>
+    <ellipse cx="55" cy="70" rx="17" ry="13" fill="#7A5FB4" opacity=".85"/>
+  </g>
+  <g opacity=".3" transform="translate(0,166) scale(1,-1)">
+    <path d="M55 -6 C55 24 48 46 55 62 C62 46 55 24 55 -6 Z" fill="#5B4A8F"/>
+    <ellipse cx="55" cy="68" rx="30" ry="20" fill="#6B4FA0"/>
+    <ellipse cx="32" cy="58" rx="16" ry="12" fill="#6B4FA0"/>
+    <ellipse cx="80" cy="60" rx="17" ry="12" fill="#6B4FA0"/>
+  </g>
+</svg>
+</div>
+      <div class="sidebar-footer"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20.5s-7.5-4.6-9.6-9.2C1.1 8 2.7 4.8 6 4.1c2-.4 3.7.5 4.8 2.1a.9.9 0 0 0 1.4 0c1.1-1.6 2.8-2.5 4.8-2.1 3.3.7 4.9 3.9 3.6 7.2C19.5 15.9 12 20.5 12 20.5Z"/></svg><span>Empower futures, one student at a time.</span></div>
+    </aside>
+    <main class="main">
+      <div class="topbar">
+        <div><h1>Parent Insights</h1><p>Understand how your child is engaging and what to do next.</p></div>
+        <div class="user-chip">
+          <div class="avatar">🧑‍🎓</div>
+          <div><strong>Rahul Sharma</strong><span class="role">Class 10-A</span></div>
+          <svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg>
+        </div>
+      </div>
+      <a class="back-link" href="dashboard.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12h16"/><path d="m13 5 7 7-7 7"/></svg><span>Back to Dashboard</span></a>
+
+      <section class="card panel" style="margin-bottom:16px;">
+        <div class="section-title"><span class="icon-badge bg-amber"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18h6"/><path d="M10 21h4"/><path d="M12 3a6 6 0 0 0-3.5 10.9c.5.4.8 1 .9 1.6h5.2c.1-.6.4-1.2.9-1.6A6 6 0 0 0 12 3Z"/></svg></span>Suggested Parent Action</div>
+        <div class="action-card" style="max-width:520px;">
+          <div class="tag"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18h6"/><path d="M10 21h4"/><path d="M12 3a6 6 0 0 0-3.5 10.9c.5.4.8 1 .9 1.6h5.2c.1-.6.4-1.2.9-1.6A6 6 0 0 0 12 3Z"/></svg>Suggested Parent Action</div>
+          <p class="action-text">Encourage your child to complete the UI/UX simulation this week.</p>
+          <div class="action-arrow"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12h16"/><path d="m13 5 7 7-7 7"/></svg></div>
+          <div class="action-img">
+            <img src="../shared/assets/t2.png" alt="Parent and child" onerror="this.style.display='none'" />
+          </div>
+        </div>
+      </section>
+
+      <section>
+        <div class="insights-grid">
+          <div class="card insight-card"><div class="icon-badge bg-purple"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12a8 8 0 1 1 3.3 6.4L4 20l1.2-3.4A7.9 7.9 0 0 1 4 12Z"/></svg></div><h3>Weekly Engagement</h3><p>Your child completed 8 of 10 weekly tasks and has shown increased interest in design-related activities.</p></div>
+          <div class="card insight-card"><div class="icon-badge bg-green"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="m3 17 6-6 4 4 8-8"/><path d="M15 7h6v6"/></svg></div><h3>Progress Trend</h3><p>Overall progress is up 12% from last month — steady improvement in the Skill Building stage.</p></div>
+          <div class="card insight-card"><div class="icon-badge bg-pink"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20.5s-7.5-4.6-9.6-9.2C1.1 8 2.7 4.8 6 4.1c2-.4 3.7.5 4.8 2.1a.9.9 0 0 0 1.4 0c1.1-1.6 2.8-2.5 4.8-2.1 3.3.7 4.9 3.9 3.6 7.2C19.5 15.9 12 20.5 12 20.5Z"/></svg></div><h3>Interest Signal</h3><p>Design continues to be the strongest and most consistent interest area over the past 3 weeks.</p></div>
+          <div class="card insight-card"><div class="icon-badge bg-amber"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M7 4h10v4a5 5 0 0 1-10 0V4Z"/><path d="M7 5H4a3 3 0 0 0 3 4"/><path d="M17 5h3a3 3 0 0 1-3 4"/><path d="M12 13v3"/><path d="M8.5 20h7"/><path d="M9.5 16.5h5l.5 3.5h-6l.5-3.5Z"/></svg></div><h3>Recent Achievement</h3><p>Earned 2 new badges this month — recognise this with your child to keep momentum going.</p></div>
+        </div>
+      </section>
+    </main>
+  </div>
+</body>
+</html>
