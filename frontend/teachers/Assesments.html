@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>CareStance | Teacher Dashboard</title>
+<title>CareStance | Assessments</title>
 <style>
 
     @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@500;600;700&family=Inter:wght@400;500;600;700&display=swap');
@@ -337,6 +337,41 @@
 
     .view-all-link{font-size:11.5px;font-weight:700;color:var(--purple-dark);}
 
+    /* ---------- ASSESSMENTS TABLE ---------- */
+    .assess-table{display:flex;flex-direction:column;}
+    .assess-row{
+      display:grid;
+      grid-template-columns:2.2fr 1fr 1fr 1.3fr .8fr .9fr 30px;
+      align-items:center;gap:14px;
+      padding:14px 8px;border-bottom:1px solid var(--border);
+    }
+    .assess-row:last-child{border-bottom:none;}
+    .assess-head{
+      font-size:10.8px;font-weight:700;color:var(--muted-soft);text-transform:uppercase;letter-spacing:.03em;
+      padding-bottom:10px;
+    }
+    .a-title{display:flex;align-items:center;gap:12px;}
+    .a-title .icon-badge{width:34px;height:34px;border-radius:10px;margin-bottom:0;flex-shrink:0;}
+    .a-title .icon-badge svg{width:15px;height:15px;}
+    .a-title strong{display:block;font-size:12.8px;color:var(--ink);font-weight:700;}
+    .a-title span{font-size:11px;color:var(--muted);}
+    .assess-row > div:not(.a-title){font-size:12.3px;color:var(--muted);font-weight:600;}
+    .a-progress{display:flex;align-items:center;gap:8px;}
+    .a-progress .perf-track{flex:1;}
+    .a-progress span{font-size:11.5px;font-weight:700;color:var(--ink);flex-shrink:0;}
+    .a-score{font-weight:700;color:var(--ink);}
+    .status-chip{display:inline-block;font-size:10.5px;font-weight:700;padding:5px 12px;border-radius:20px;}
+    .status-active{background:var(--green-tint);color:var(--green);}
+    .status-closed{background:var(--purple-tint);color:var(--purple-dark);}
+    .status-draft{background:var(--amber-tint);color:var(--amber);}
+    .assess-row .go-arrow{width:26px;height:26px;border-radius:50%;background:var(--purple-tint);color:var(--purple-dark);display:flex;align-items:center;justify-content:center;}
+    .assess-row .go-arrow svg{width:13px;height:13px;}
+    @media (max-width:1180px){
+      .assess-row{grid-template-columns:2fr 1fr 1fr;}
+      .assess-row > div:nth-child(5), .assess-row > div:nth-child(6), .assess-row > div:last-child{display:none;}
+      .assess-head > div:nth-child(5), .assess-head > div:nth-child(6), .assess-head > div:last-child{display:none;}
+    }
+
     /* ---------- RESPONSIVE ---------- */
     @media (max-width:1180px){
       .stats-row{grid-template-columns:repeat(3,1fr);}
@@ -369,10 +404,10 @@
         </button>
       </div>
       <nav class="nav">
-        <a class="nav-item active" href="dashboard.html" title="Dashboard"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 11.5 12 4l8 7.5"/><path d="M6 10v9a1 1 0 0 0 1 1h4v-6h2v6h4a1 1 0 0 0 1-1v-9"/></svg><span>Dashboard</span></a>
+        <a class="nav-item" href="dashboard.html" title="Dashboard"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 11.5 12 4l8 7.5"/><path d="M6 10v9a1 1 0 0 0 1 1h4v-6h2v6h4a1 1 0 0 0 1-1v-9"/></svg><span>Dashboard</span></a>
         <a class="nav-item" href="classes.html" title="My Classes"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="8" height="8" rx="2"/><rect x="13" y="4" width="8" height="8" rx="2"/><rect x="3" y="14" width="8" height="6" rx="2"/><rect x="13" y="14" width="8" height="6" rx="2"/></svg><span>My Classes</span></a>
         <a class="nav-item" href="Students.html" title="Students"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="8" r="3.4"/><path d="M2.5 20c.6-3.6 3.3-6 6.5-6s5.9 2.4 6.5 6"/><circle cx="17.5" cy="8.5" r="2.6"/><path d="M15.8 14.3c2.6.4 4.6 2.5 5.1 5.7"/></svg><span>Students</span></a>
-        <a class="nav-item" href="Assesments.html" title="Assessments"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="6" y="3" width="12" height="18" rx="2"/><path d="M9 3v2h6V3"/><path d="M9 11h6M9 15h4"/></svg><span>Assessments</span></a>
+        <a class="nav-item active" href="Assesments.html" title="Assessments"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="6" y="3" width="12" height="18" rx="2"/><path d="M9 3v2h6V3"/><path d="M9 11h6M9 15h4"/></svg><span>Assessments</span></a>
         <a class="nav-item" href="Career_insights.html" title="Career Insights"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19V10M10 19V5M16 19v-7M22 19H2"/></svg><span>Career Insights</span></a>
         <a class="nav-item" href="tasks_events.html" title="Tasks &amp; Events"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3.5" y="5" width="17" height="16" rx="2"/><path d="M8 3v4M16 3v4M3.5 10h17"/><path d="m8.2 14.5 2.1 2 4.3-4.3"/></svg><span>Tasks &amp; Events</span></a>
         <a class="nav-item" href="Reports.html" title="Reports"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M7 3h7l4 4v14a1 1 0 0 1-1 1H7a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1Z"/><path d="M14 3v4h4"/><path d="M9 13h6M9 17h6M9 9h2"/></svg><span>Reports</span></a>
@@ -394,7 +429,7 @@
 
     <main class="main">
       <div class="topbar">
-        <div><h1>Good morning, Ms. Simran <span>👋</span></h1><p>Here's how your class is doing today.</p></div>
+        <div><h1>Assessments</h1><p>Create, track, and grade assessments across your classes.</p></div>
         <div class="topbar-actions">
           <div class="pill-select">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M22 10v6M2 10l10-5 10 5-10 5-10-5Z"/><path d="M6 12v5c0 1.5 3 3 6 3s6-1.5 6-3v-5"/></svg>
@@ -410,216 +445,157 @@
         </div>
       </div>
 
-      <section class="stats-row">
+      <section class="stats-row" style="grid-template-columns:repeat(4,1fr);">
         <div class="card stat-card">
-          <div class="icon-badge bg-purple"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="8" r="3.4"/><path d="M2.5 20c.6-3.6 3.3-6 6.5-6s5.9 2.4 6.5 6"/><circle cx="17.5" cy="8.5" r="2.6"/><path d="M15.8 14.3c2.6.4 4.6 2.5 5.1 5.7"/></svg></div>
-          <div class="label">Total Students</div>
-          <div class="value">28</div>
-          <div class="sub">In Class 10-A</div>
-          <svg class="mini-spark" viewBox="0 0 100 26" preserveAspectRatio="none"><path d="M0 20 Q10 8 20 14 T40 12 T60 18 T80 10 T100 14" fill="none" stroke="#7C5CFC" stroke-width="2.4" stroke-linecap="round"/></svg>
+          <div class="icon-badge bg-purple"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="6" y="3" width="12" height="18" rx="2"/><path d="M9 3v2h6V3"/><path d="M9 11h6M9 15h4"/></svg></div>
+          <div class="label">Total Assessments</div>
+          <div class="value">16</div>
+          <div class="sub">Across all classes</div>
         </div>
-
         <div class="card stat-card">
-          <div class="icon-badge bg-green"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 17 9 11l4 4 8-8"/><path d="M15 7h6v6"/></svg></div>
-          <div class="label">Students Active<br/>This Week</div>
-          <div class="value">22</div>
-          <div class="sub">78% of class</div>
-          <svg class="mini-spark" viewBox="0 0 100 26" preserveAspectRatio="none"><path d="M0 18 Q10 20 20 15 T40 16 T60 8 T80 10 T100 4" fill="none" stroke="#1FAE74" stroke-width="2.4" stroke-linecap="round"/></svg>
+          <div class="icon-badge bg-green"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="m8.5 12.5 2.3 2.3 4.7-5.1"/></svg></div>
+          <div class="label">Completed</div>
+          <div class="value">9</div>
+          <div class="sub">64% avg. completion</div>
         </div>
-
         <div class="card stat-card">
-          <div class="icon-badge bg-blue"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="6" y="3" width="12" height="18" rx="2"/><path d="M9 3v2h6V3"/><path d="M9 11h6M9 15h4"/></svg></div>
-          <div class="label">Assessments<br/>Completed</div>
-          <div class="value">64%</div>
-          <div class="sub">Avg. completion rate</div>
-          <svg class="mini-spark" viewBox="0 0 100 26" preserveAspectRatio="none"><path d="M0 16 Q10 14 20 18 T40 10 T60 14 T80 12 T100 16" fill="none" stroke="#4C8DF5" stroke-width="2.4" stroke-linecap="round"/></svg>
+          <div class="icon-badge bg-orange"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3.5 2"/></svg></div>
+          <div class="label">Pending Review</div>
+          <div class="value">4</div>
+          <div class="sub">Needs your attention</div>
         </div>
-
         <div class="card stat-card">
-          <div class="icon-badge bg-orange"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="m3 17 6-6 4 4 8-8"/><path d="M15 7h6v6"/></svg></div>
-          <div class="label">Average Progress</div>
-          <div class="value">67%</div>
-          <div class="sub">Across all students</div>
-          <svg class="mini-spark" viewBox="0 0 100 26" preserveAspectRatio="none"><path d="M0 20 Q10 16 20 17 T40 12 T60 14 T80 6 T100 8" fill="none" stroke="#F0913F" stroke-width="2.4" stroke-linecap="round"/></svg>
-        </div>
-
-        <div class="card stat-card">
-          <div class="icon-badge bg-red"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-3.9 3.6-7 8-7s8 3.1 8 7"/></svg></div>
-          <div class="label">Students Needing<br/>Attention</div>
-          <div class="value">5</div>
-          <div class="sub">18% of class</div>
-          <svg class="mini-spark" viewBox="0 0 100 26" preserveAspectRatio="none"><path d="M0 8 Q10 12 20 10 T40 16 T60 14 T80 20 T100 18" fill="none" stroke="#F0555C" stroke-width="2.4" stroke-linecap="round"/></svg>
-        </div>
-
-        <div class="card progress-card">
-          <div class="ring">
-            <svg viewBox="0 0 100 100">
-              <circle cx="50" cy="50" r="42" fill="none" stroke="#EFEBFE" stroke-width="9"/>
-              <circle cx="50" cy="50" r="42" fill="none" stroke="url(#ringGrad)" stroke-width="9"
-                      stroke-linecap="round" stroke-dasharray="263.9" stroke-dashoffset="79.2"
-                      transform="rotate(-90 50 50)"/>
-              <defs>
-                <linearGradient id="ringGrad" x1="0" y1="0" x2="1" y2="1">
-                  <stop offset="0%" stop-color="#7C5CFC"/>
-                  <stop offset="100%" stop-color="#5F3DF5"/>
-                </linearGradient>
-              </defs>
-            </svg>
-            <span class="ring-value">70%</span>
-          </div>
-          <div class="caption">Engagement Score<br/><b>Great Engagement!</b></div>
+          <div class="icon-badge bg-blue"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M5 20V11"/><path d="M12 20V4"/><path d="M19 20v-7"/></svg></div>
+          <div class="label">Average Score</div>
+          <div class="value">76%</div>
+          <div class="sub">Across submitted work</div>
         </div>
       </section>
 
-      <section class="two-col-row">
-        <div class="card panel">
-          <div class="section-title">
-            <div class="st-left"><span class="icon-badge bg-purple"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="m3 17 6-6 4 4 8-8"/><path d="M15 7h6v6"/></svg></span>Class 10-A Insights</div>
-            <div class="week-select">This Week <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg></div>
+      <section class="card panel" style="margin-bottom:14px;">
+        <div class="section-title">
+          <div class="st-left"><span class="icon-badge bg-purple"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="6" y="3" width="12" height="18" rx="2"/><path d="M9 3v2h6V3"/><path d="M9 11h6M9 15h4"/></svg></span>All Assessments</div>
+          <div style="display:flex;align-items:center;gap:10px;">
+            <div class="pill-select" style="cursor:pointer;">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M22 10v6M2 10l10-5 10 5-10 5-10-5Z"/><path d="M6 12v5c0 1.5 3 3 6 3s6-1.5 6-3v-5"/></svg>
+              All Classes
+              <svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg>
+            </div>
+            <a class="view-all-btn" style="width:auto;margin-top:0;padding:9px 18px;" href="#">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14"/></svg>
+              New Assessment
+            </a>
+          </div>
+        </div>
+
+        <div class="assess-table">
+          <div class="assess-row assess-head">
+            <div>Assessment</div>
+            <div>Class</div>
+            <div>Due Date</div>
+            <div>Completion</div>
+            <div>Avg. Score</div>
+            <div>Status</div>
+            <div></div>
           </div>
 
-          <div class="chart-wrap">
-            <div>
-              <div class="perf-title" style="margin-bottom:6px;">Overall Class Activity</div>
-              <div class="chart-box">
-                <svg viewBox="0 0 320 150" preserveAspectRatio="none">
-                  <defs>
-                    <linearGradient id="areaGrad" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="0%" stop-color="#7C5CFC" stop-opacity="0.28"/>
-                      <stop offset="100%" stop-color="#7C5CFC" stop-opacity="0"/>
-                    </linearGradient>
-                  </defs>
-                  <path d="M0 118 L45 96 L90 60 L135 82 L180 44 L225 20 L270 66 L315 52 L315 150 L0 150 Z" fill="url(#areaGrad)"/>
-                  <path d="M0 118 L45 96 L90 60 L135 82 L180 44 L225 20 L270 66 L315 52" fill="none" stroke="#7C5CFC" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
-                  <circle cx="225" cy="20" r="5" fill="#fff" stroke="#7C5CFC" stroke-width="3"/>
-                  <rect x="196" y="-6" width="58" height="22" rx="11" fill="#7C5CFC"/>
-                  <text x="225" y="9" font-size="12" font-weight="700" fill="#fff" text-anchor="middle" font-family="Inter, sans-serif">85%</text>
-                  <circle cx="0" cy="118" r="3.5" fill="#7C5CFC"/>
-                  <circle cx="45" cy="96" r="3.5" fill="#7C5CFC"/>
-                  <circle cx="90" cy="60" r="3.5" fill="#7C5CFC"/>
-                  <circle cx="135" cy="82" r="3.5" fill="#7C5CFC"/>
-                  <circle cx="270" cy="66" r="3.5" fill="#7C5CFC"/>
-                  <circle cx="315" cy="52" r="3.5" fill="#7C5CFC"/>
-                </svg>
-                <div class="chart-axis">
-                  <span>Mon</span><span>Tue</span><span>Wed</span><span>Thu</span><span>Fri</span><span>Sat</span><span>Sun</span>
-                </div>
-              </div>
-            </div>
-
-            <div>
-              <div class="perf-title">Top Performance Areas</div>
-              <div class="perf-row">
-                <div class="perf-top"><span>Assessments</span><span class="pct">64%</span></div>
-                <div class="perf-track"><div class="perf-fill" style="width:64%"></div></div>
-              </div>
-              <div class="perf-row">
-                <div class="perf-top"><span>Career Exploration</span><span class="pct">62%</span></div>
-                <div class="perf-track"><div class="perf-fill" style="width:62%"></div></div>
-              </div>
-              <div class="perf-row">
-                <div class="perf-top"><span>Roadmap Progress</span><span class="pct">67%</span></div>
-                <div class="perf-track"><div class="perf-fill" style="width:67%"></div></div>
-              </div>
-              <div class="perf-row">
-                <div class="perf-top"><span>Weekly Goals</span><span class="pct">58%</span></div>
-                <div class="perf-track"><div class="perf-fill" style="width:58%"></div></div>
-              </div>
-            </div>
+          <div class="assess-row">
+            <div class="a-title"><span class="icon-badge bg-purple"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="8" width="18" height="11" rx="2"/><path d="M8.5 8V6.3a1.8 1.8 0 0 1 1.8-1.8h3.4a1.8 1.8 0 0 1 1.8 1.8V8"/></svg></span><div><strong>Career Aptitude Quiz</strong><span>Multiple choice · 20 questions</span></div></div>
+            <div>Class 10-A</div>
+            <div>Aug 28, 2026</div>
+            <div class="a-progress"><div class="perf-track"><div class="perf-fill" style="width:72%"></div></div><span>72%</span></div>
+            <div class="a-score">81%</div>
+            <div><span class="status-chip status-active">Active</span></div>
+            <div class="go-arrow"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12h16"/><path d="m13 5 7 7-7 7"/></svg></div>
           </div>
 
-          <div class="banner">
-            <div class="banner-left">
-              <span class="icon-badge bg-purple"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="m3 17 6-6 4 4 8-8"/><path d="M15 7h6v6"/></svg></span>
-              <div><strong>Class average improvement of 12% this week</strong><span>Keep up the great work! 🎉</span></div>
-            </div>
+          <div class="assess-row">
+            <div class="a-title"><span class="icon-badge bg-blue"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19V10M10 19V5M16 19v-7M22 19H2"/></svg></span><div><strong>Design Skills Checkpoint</strong><span>Practical · Figma submission</span></div></div>
+            <div>Class 10-A</div>
+            <div>Sep 2, 2026</div>
+            <div class="a-progress"><div class="perf-track"><div class="perf-fill" style="width:45%"></div></div><span>45%</span></div>
+            <div class="a-score">—</div>
+            <div><span class="status-chip status-active">Active</span></div>
+            <div class="go-arrow"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12h16"/><path d="m13 5 7 7-7 7"/></svg></div>
+          </div>
+
+          <div class="assess-row">
+            <div class="a-title"><span class="icon-badge bg-green"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="6" y="3" width="12" height="18" rx="2"/><path d="M9 3v2h6V3"/><path d="M9 11h6M9 15h4"/></svg></span><div><strong>Weekly Reflection Journal</strong><span>Short answer · 5 prompts</span></div></div>
+            <div>Class 10-A</div>
+            <div>Aug 22, 2026</div>
+            <div class="a-progress"><div class="perf-track"><div class="perf-fill" style="width:100%"></div></div><span>100%</span></div>
+            <div class="a-score">88%</div>
+            <div><span class="status-chip status-closed">Closed</span></div>
+            <div class="go-arrow"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12h16"/><path d="m13 5 7 7-7 7"/></svg></div>
+          </div>
+
+          <div class="assess-row">
+            <div class="a-title"><span class="icon-badge bg-orange"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="2.5" y="8.5" width="19" height="8.5" rx="4.2"/><path d="M7.2 10.8v3.9M5.3 12.75h3.8"/><circle cx="15.7" cy="11.6" r="1"/><circle cx="18" cy="13.9" r="1"/></svg></span><div><strong>UI/UX Simulation Debrief</strong><span>Written report</span></div></div>
+            <div>Class 10-A</div>
+            <div>Sep 5, 2026</div>
+            <div class="a-progress"><div class="perf-track"><div class="perf-fill" style="width:12%"></div></div><span>12%</span></div>
+            <div class="a-score">—</div>
+            <div><span class="status-chip status-draft">Draft</span></div>
+            <div class="go-arrow"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12h16"/><path d="m13 5 7 7-7 7"/></svg></div>
+          </div>
+
+          <div class="assess-row">
+            <div class="a-title"><span class="icon-badge bg-pink"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20.5s-7.5-4.6-9.6-9.2C1.1 8 2.7 4.8 6 4.1c2-.4 3.7.5 4.8 2.1a.9.9 0 0 0 1.4 0c1.1-1.6 2.8-2.5 4.8-2.1 3.3.7 4.9 3.9 3.6 7.2C19.5 15.9 12 20.5 12 20.5Z"/></svg></span><div><strong>Interest Discovery Survey</strong><span>Self-assessment · 15 questions</span></div></div>
+            <div>Class 10-A</div>
+            <div>Aug 15, 2026</div>
+            <div class="a-progress"><div class="perf-track"><div class="perf-fill" style="width:100%"></div></div><span>100%</span></div>
+            <div class="a-score">—</div>
+            <div><span class="status-chip status-closed">Closed</span></div>
             <div class="go-arrow"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12h16"/><path d="m13 5 7 7-7 7"/></svg></div>
           </div>
         </div>
-
-        <div class="card panel">
-          <div class="section-title">
-            <div class="st-left"><span class="icon-badge bg-indigo"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3.5" y="5" width="17" height="16" rx="2"/><path d="M8 3v4M16 3v4M3.5 10h17"/></svg></span>Today's Schedule</div>
-            <a class="view-all-link" href="tasks_events.html">View Calendar</a>
-          </div>
-          <div class="schedule">
-            <div class="sched-item">
-              <div class="sched-time">09:00 AM</div>
-              <div class="sched-line"><div class="sched-dot"></div><div class="sched-track"></div></div>
-              <div class="sched-body"><strong>Career Simulation – Round 2</strong><span class="sched-tag tag-purple">Simulation</span></div>
-            </div>
-            <div class="sched-item">
-              <div class="sched-time">11:00 AM</div>
-              <div class="sched-line"><div class="sched-dot"></div><div class="sched-track"></div></div>
-              <div class="sched-body"><strong>Roadmap Check-in</strong><span class="sched-tag tag-orange">Review</span></div>
-            </div>
-            <div class="sched-item">
-              <div class="sched-time">01:30 PM</div>
-              <div class="sched-line"><div class="sched-dot"></div><div class="sched-track"></div></div>
-              <div class="sched-body"><strong>Weekly Goal Review</strong><span class="sched-tag tag-green">Class Activity</span></div>
-            </div>
-            <div class="sched-item">
-              <div class="sched-time">03:00 PM</div>
-              <div class="sched-line"><div class="sched-dot"></div></div>
-              <div class="sched-body"><strong>Assessment Window Closing</strong><span class="sched-tag tag-pink">Reminder</span></div>
-            </div>
-          </div>
-          <a class="view-all-btn" href="tasks_events.html">View All Tasks &amp; Events <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12h16"/><path d="m13 5 7 7-7 7"/></svg></a>
-        </div>
       </section>
 
       <section class="two-col-row">
         <div class="card panel">
-          <div class="section-title"><div class="st-left"><span class="icon-badge bg-indigo"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3.5 2"/></svg></span>Class 10-A Quick Overview</div></div>
-          <div class="quick-grid">
-            <div class="quick-item">
-              <div class="icon-badge bg-purple"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="8" r="3.4"/><path d="M2.5 20c.6-3.6 3.3-6 6.5-6s5.9 2.4 6.5 6"/><circle cx="17.5" cy="8.5" r="2.6"/><path d="M15.8 14.3c2.6.4 4.6 2.5 5.1 5.7"/></svg></div>
-              <div class="qval">28</div><div class="qlabel">Total Students</div>
+          <div class="section-title"><div class="st-left"><span class="icon-badge bg-orange"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3.5 2"/></svg></span>Grading Queue</div></div>
+          <div class="schedule">
+            <div class="sched-item">
+              <div class="sched-line"><div class="sched-dot" style="background:var(--orange);box-shadow:0 0 0 4px var(--orange-tint);"></div><div class="sched-track"></div></div>
+              <div class="sched-body"><strong>Design Skills Checkpoint — Ananya Mehta</strong><span class="sched-tag tag-orange">Submitted 2 days ago</span></div>
             </div>
-            <div class="quick-item">
-              <div class="icon-badge bg-green"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="m8.5 12.5 2.3 2.3 4.7-5.1"/></svg></div>
-              <div class="qval">22</div><div class="qlabel">Active This Week</div>
+            <div class="sched-item">
+              <div class="sched-line"><div class="sched-dot" style="background:var(--orange);box-shadow:0 0 0 4px var(--orange-tint);"></div><div class="sched-track"></div></div>
+              <div class="sched-body"><strong>Design Skills Checkpoint — Ishaan Gupta</strong><span class="sched-tag tag-orange">Submitted 2 days ago</span></div>
             </div>
-            <div class="quick-item">
-              <div class="icon-badge bg-orange"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="m3 17 6-6 4 4 8-8"/><path d="M15 7h6v6"/></svg></div>
-              <div class="qval">67%</div><div class="qlabel">Average Progress</div>
+            <div class="sched-item">
+              <div class="sched-line"><div class="sched-dot" style="background:var(--orange);box-shadow:0 0 0 4px var(--orange-tint);"></div><div class="sched-track"></div></div>
+              <div class="sched-body"><strong>Career Aptitude Quiz — Neha Kapoor</strong><span class="sched-tag tag-orange">Submitted yesterday</span></div>
             </div>
-            <div class="quick-item">
-              <div class="icon-badge bg-red"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 9v4"/><path d="M10.3 3.9 2.7 17a2 2 0 0 0 1.7 3h15.2a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0Z"/><circle cx="12" cy="16.2" r=".6" fill="currentColor" stroke="none"/></svg></div>
-              <div class="qval">5</div><div class="qlabel">Need Attention</div>
+            <div class="sched-item">
+              <div class="sched-line"><div class="sched-dot" style="background:var(--orange);box-shadow:0 0 0 4px var(--orange-tint);"></div></div>
+              <div class="sched-body"><strong>Career Aptitude Quiz — Karan Singh</strong><span class="sched-tag tag-orange">Submitted yesterday</span></div>
             </div>
           </div>
+          <a class="view-all-btn" href="#">Review Submissions <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12h16"/><path d="m13 5 7 7-7 7"/></svg></a>
         </div>
 
         <div class="card panel">
-          <div class="section-title">
-            <div class="st-left"><span class="icon-badge bg-purple"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="8" r="3.4"/><path d="M2.5 20c.6-3.6 3.3-6 6.5-6s5.9 2.4 6.5 6"/><circle cx="17.5" cy="8.5" r="2.6"/><path d="M15.8 14.3c2.6.4 4.6 2.5 5.1 5.7"/></svg></span>Students Needing Attention</div>
-            <a class="view-all-link" href="Students.html">View All</a>
+          <div class="section-title"><div class="st-left"><span class="icon-badge bg-purple"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="m3 17 6-6 4 4 8-8"/><path d="M15 7h6v6"/></svg></span>Score Distribution</div></div>
+          <div class="perf-row">
+            <div class="perf-top"><span>90–100%</span><span class="pct">4 students</span></div>
+            <div class="perf-track"><div class="perf-fill" style="width:14%"></div></div>
           </div>
-          <div class="attn-grid">
-            <div class="attn-card">
-              <div class="attn-avatar" style="background:linear-gradient(135deg,#F0559B,#D93E82);">AM</div>
-              <div class="attn-body"><strong>Ananya Mehta</strong><div class="attn-track"><div class="attn-fill" style="width:35%"></div></div></div>
-              <div class="attn-dot"></div>
-            </div>
-            <div class="attn-card">
-              <div class="attn-avatar" style="background:linear-gradient(135deg,#F0913F,#D97328);">NK</div>
-              <div class="attn-body"><strong>Neha Kapoor</strong><div class="attn-track"><div class="attn-fill" style="width:40%"></div></div></div>
-              <div class="attn-dot"></div>
-            </div>
-            <div class="attn-card">
-              <div class="attn-avatar" style="background:linear-gradient(135deg,#4C8DF5,#2E6FE0);">IG</div>
-              <div class="attn-body"><strong>Ishaan Gupta</strong><div class="attn-track"><div class="attn-fill" style="width:45%"></div></div></div>
-              <div class="attn-dot"></div>
-            </div>
-            <div class="attn-card">
-              <div class="attn-avatar" style="background:linear-gradient(135deg,#F0559B,#D93E82);">KS</div>
-              <div class="attn-body"><strong>Karan Singh</strong><div class="attn-track"><div class="attn-fill" style="width:45%"></div></div></div>
-              <div class="attn-dot"></div>
-            </div>
+          <div class="perf-row">
+            <div class="perf-top"><span>75–89%</span><span class="pct">11 students</span></div>
+            <div class="perf-track"><div class="perf-fill" style="width:39%"></div></div>
+          </div>
+          <div class="perf-row">
+            <div class="perf-top"><span>60–74%</span><span class="pct">9 students</span></div>
+            <div class="perf-track"><div class="perf-fill" style="width:32%"></div></div>
+          </div>
+          <div class="perf-row">
+            <div class="perf-top"><span>Below 60%</span><span class="pct">4 students</span></div>
+            <div class="perf-track"><div class="perf-fill" style="width:14%;background:linear-gradient(90deg,var(--red),#D93E44);"></div></div>
           </div>
         </div>
       </section>
+    </main>
     </main>
   </div>
 </body>

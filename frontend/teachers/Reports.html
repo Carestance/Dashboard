@@ -1,0 +1,753 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>CareStance | Reports</title>
+<style>
+
+    @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@500;600;700&family=Inter:wght@400;500;600;700&display=swap');
+
+    :root{
+      --bg:#F5F3FC;
+      --card:#FFFFFF;
+      --ink:#241C3D;
+      --muted:#8C87A6;
+      --muted-soft:#B7B2CE;
+      --border:#EFEBFA;
+
+      --purple:#7C5CFC;   --purple-dark:#5F3DF5;  --purple-tint:#EFEBFE;
+      --pink:#F0559B;     --pink-tint:#FDE7F1;
+      --green:#1FAE74;    --green-tint:#E1F8EE;
+      --orange:#F0913F;   --orange-tint:#FDEDE0;
+      --blue:#4C8DF5;     --blue-tint:#E8F1FE;
+      --indigo:#6A63EE;   --indigo-tint:#ECEAFE;
+      --amber:#E9A824;    --amber-tint:#FCF1DC;
+      --red:#F0555C;      --red-tint:#FDE8E9;
+
+      --shadow:0 4px 22px rgba(110,80,210,.07);
+      --shadow-hover:0 14px 32px rgba(110,80,210,.16);
+      --r-lg:20px; --r-md:14px; --r-sm:10px;
+    }
+
+    *{box-sizing:border-box;}
+    html,body{margin:0;padding:0;}
+    body{
+      position:relative;
+      min-height:100vh;
+      background-color:var(--bg);
+      font-family:'Inter',sans-serif;
+      color:var(--ink);
+      -webkit-font-smoothing:antialiased;
+    }
+    body::before{
+      content:"";
+      position:fixed;
+      inset:0;
+      z-index:-2;
+      background:url('../shared/assets/p2.png') center top / cover no-repeat;
+    }
+    body::after{
+      content:"";
+      position:fixed;
+      inset:0;
+      z-index:-1;
+      background:
+        radial-gradient(60% 40% at 8% 100%, rgba(124,92,252,.08), transparent 70%),
+        radial-gradient(50% 35% at 95% 0%, rgba(240,85,155,.07), transparent 70%);
+      pointer-events:none;
+    }
+    h1,h2,h3,h4,.disp{font-family:'Poppins',sans-serif;}
+    a{text-decoration:none;}
+    button{font-family:inherit;border:none;background:none;cursor:pointer;}
+
+    .app-shell{display:flex;min-height:100vh;align-items:stretch;}
+
+    /* ---------- SIDEBAR ---------- */
+    .sidebar{
+      width:250px; flex-shrink:0;
+      background:var(--card);
+      border-radius:26px;
+      padding:22px 16px;
+      display:flex; flex-direction:column;
+      position:sticky; top:16px; height:calc(100vh - 32px);
+      margin:16px 0 16px 16px;
+      box-shadow:var(--shadow-hover);
+      overflow:hidden;
+      isolation:isolate;
+      transition:width .32s cubic-bezier(.4,0,.2,1), padding .32s cubic-bezier(.4,0,.2,1);
+    }
+    .sidebar.collapsed{width:88px;padding:22px 12px;}
+
+    .sidebar-bg{position:absolute;inset:0;z-index:0;}
+    .sidebar-bg img{
+      position:absolute;left:0;right:0;bottom:0;width:100%;object-fit:contain;object-position:bottom;opacity:1;
+      -webkit-mask-image:linear-gradient(180deg, transparent 0%, transparent 8%, rgba(0,0,0,.35) 22%, black 45%, black 100%);
+      mask-image:linear-gradient(180deg, transparent 0%, transparent 8%, rgba(0,0,0,.35) 22%, black 45%, black 100%);
+    }
+    .sidebar-bg::after{
+      content:"";position:absolute;inset:0;
+      background:linear-gradient(180deg,
+        rgba(255,255,255,.96) 0%,
+        rgba(255,255,255,.9) 20%,
+        rgba(255,255,255,.72) 34%,
+        rgba(255,255,255,.5) 46%,
+        rgba(255,255,255,.3) 58%,
+        rgba(255,255,255,.14) 68%,
+        rgba(255,255,255,.04) 78%,
+        rgba(255,255,255,0) 88%);
+    }
+
+    .brand-row{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:24px;transition:flex-direction .3s ease;position:relative;z-index:2;}
+    .sidebar.collapsed .brand-row{flex-direction:column;gap:14px;}
+    .brand{display:flex;align-items:center;gap:10px;min-width:0;}
+    .brand .logo{
+      width:38px;height:38px;border-radius:50%;flex-shrink:0;
+      background:linear-gradient(135deg,var(--purple),var(--purple-dark));
+      display:flex;align-items:center;justify-content:center;
+      color:#fff;font-weight:700;font-family:'Poppins',sans-serif;font-size:16px;
+      overflow:hidden;
+      transition:transform .3s ease;
+    }
+    .brand .logo img{width:100%;height:100%;object-fit:cover;display:block;}
+    .brand span{
+      font-weight:700;font-size:18px;color:var(--ink);white-space:nowrap;
+      opacity:1;max-width:150px;overflow:hidden;display:inline-block;font-family:'Poppins',sans-serif;
+      transition:opacity .2s ease, max-width .3s ease;
+    }
+    .sidebar.collapsed .brand span{opacity:0;max-width:0;display:none;}
+
+    .sidebar-toggle{
+      width:26px;height:26px;border-radius:50%;flex-shrink:0;
+      background:var(--purple-tint);color:var(--purple-dark);border:1px solid var(--border);
+      display:flex;align-items:center;justify-content:center;
+      cursor:pointer;
+      transition:transform .3s cubic-bezier(.4,0,.2,1), background .18s ease, color .18s ease;
+    }
+    .sidebar-toggle:hover{background:var(--purple);color:#fff;}
+    .sidebar-toggle svg{width:12px;height:12px;transition:transform .32s cubic-bezier(.4,0,.2,1);}
+    .sidebar.collapsed .sidebar-toggle svg{transform:rotate(180deg);}
+
+    .nav{display:flex;flex-direction:column;gap:4px;position:relative;z-index:2;}
+    .nav-item{
+      display:flex;align-items:center;gap:12px;
+      padding:11px 14px;border-radius:14px;position:relative;
+      color:var(--muted);font-size:13.6px;font-weight:600;
+      transition:background .2s ease,color .2s ease,padding .3s ease,transform .2s ease;
+    }
+    .nav-item svg{width:18px;height:18px;flex-shrink:0;transition:transform .25s cubic-bezier(.4,0,.2,1);}
+    .nav-item:hover{background:var(--purple-tint);color:var(--purple-dark);}
+    .nav-item:hover svg{transform:scale(1.1);}
+    .nav-item.active{background:linear-gradient(135deg,var(--purple),var(--purple-dark));color:#fff;font-weight:700;box-shadow:0 10px 20px rgba(124,92,252,.35);}
+    .nav-item span{
+      white-space:nowrap;opacity:1;max-width:180px;overflow:hidden;display:inline-block;
+      transition:opacity .2s ease, max-width .3s ease;
+    }
+    .sidebar.collapsed .nav-item{justify-content:center;padding:12px;width:44px;height:44px;margin:0 auto;}
+    .sidebar.collapsed .nav-item span{opacity:0;max-width:0;display:none;}
+
+    .nav-secondary{margin-top:10px;padding-top:12px;border-top:1px solid var(--border);position:relative;z-index:2;}
+
+    .sidebar-spacer{flex:1;position:relative;min-height:24px;}
+
+    .sidebar-footer{
+      margin-top:12px;background:var(--purple-tint);color:var(--purple-dark);
+      border:1px solid var(--border);
+      font-size:12px;font-weight:700;line-height:1.4;
+      padding:12px 14px;border-radius:14px;
+      display:flex;align-items:flex-start;gap:10px;position:relative;z-index:2;
+      transition:padding .3s ease,justify-content .3s ease;
+    }
+    .sidebar-footer .icon-circle{
+      width:26px;height:26px;border-radius:50%;background:#fff;flex-shrink:0;
+      display:flex;align-items:center;justify-content:center;color:var(--pink);
+    }
+    .sidebar-footer .icon-circle svg{width:13px;height:13px;}
+    .sidebar-footer span{
+      white-space:normal;opacity:1;max-width:180px;overflow:hidden;
+      transition:opacity .2s ease, max-width .3s ease;
+    }
+    .sidebar.collapsed .sidebar-footer{justify-content:center;padding:10px;}
+    .sidebar.collapsed .sidebar-footer span{opacity:0;max-width:0;display:none;}
+
+    /* ---------- MAIN / TOPBAR ---------- */
+    .main{flex:1;padding:26px 32px 40px;min-width:0;}
+    .topbar{display:flex;align-items:flex-start;justify-content:space-between;gap:16px;margin-bottom:22px;flex-wrap:wrap;}
+    .topbar h1{font-size:25px;margin:0 0 4px;color:var(--ink);font-weight:700;display:flex;align-items:center;gap:8px;}
+    .topbar p{margin:0;color:var(--muted);font-size:13.5px;}
+
+    .topbar-actions{display:flex;align-items:center;gap:12px;flex-shrink:0;flex-wrap:wrap;}
+    .pill-select{
+      display:flex;align-items:center;gap:8px;
+      background:#fff;padding:9px 14px;border-radius:40px;
+      box-shadow:var(--shadow);font-size:12.8px;font-weight:700;color:var(--ink);
+    }
+    .pill-select svg{width:15px;height:15px;color:var(--purple-dark);}
+    .pill-select .chev{color:var(--muted-soft);width:13px;height:13px;margin-left:2px;}
+
+    .bell-btn{
+      position:relative;width:38px;height:38px;border-radius:50%;
+      background:#fff;box-shadow:var(--shadow);
+      display:flex;align-items:center;justify-content:center;color:var(--ink);flex-shrink:0;
+    }
+    .bell-btn svg{width:17px;height:17px;}
+    .bell-btn .dot{
+      position:absolute;top:6px;right:7px;min-width:15px;height:15px;padding:0 3px;border-radius:50%;
+      background:var(--pink);color:#fff;font-size:9.5px;font-weight:700;
+      display:flex;align-items:center;justify-content:center;border:2px solid #fff;
+    }
+
+    .user-chip{
+      display:flex;align-items:center;gap:10px;
+      background:#fff;padding:6px 14px 6px 6px;border-radius:40px;
+      box-shadow:var(--shadow); flex-shrink:0;
+    }
+    .avatar{
+      width:34px;height:34px;border-radius:50%;
+      background:var(--purple-tint);
+      display:flex;align-items:center;justify-content:center;font-size:16px;
+    }
+    .user-chip strong{display:block;font-size:12.8px;color:var(--ink);font-weight:700;font-family:'Poppins',sans-serif;line-height:1.3;}
+    .user-chip .role{font-size:11px;color:var(--muted);}
+    .user-chip .chev{color:var(--muted-soft);width:15px;height:15px;}
+
+    /* ---------- CARD PRIMITIVES ---------- */
+    .card{background:var(--card);border-radius:var(--r-lg);box-shadow:var(--shadow);}
+    .panel{padding:22px;}
+    .section-title{
+      display:flex;align-items:center;justify-content:space-between;gap:10px;
+      font-size:15px;font-weight:700;color:var(--ink);margin:0 0 18px;flex-wrap:wrap;
+    }
+    .section-title .st-left{display:flex;align-items:center;gap:10px;}
+    .section-title .st-left small{display:block;font-size:11px;font-weight:600;color:var(--muted);margin-top:2px;}
+    .section-title .icon-badge{width:32px;height:32px;border-radius:10px;margin-bottom:0;}
+    .section-title .icon-badge svg{width:15px;height:15px;}
+
+    .icon-badge{
+      width:40px;height:40px;border-radius:12px;
+      display:flex;align-items:center;justify-content:center;margin-bottom:10px;flex-shrink:0;
+    }
+    .icon-badge svg{width:18px;height:18px;}
+    .bg-purple{background:var(--purple-tint);color:var(--purple-dark);}
+    .bg-pink{background:var(--pink-tint);color:var(--pink);}
+    .bg-green{background:var(--green-tint);color:var(--green);}
+    .bg-orange{background:var(--orange-tint);color:var(--orange);}
+    .bg-blue{background:var(--blue-tint);color:var(--blue);}
+    .bg-indigo{background:var(--indigo-tint);color:var(--indigo);}
+    .bg-amber{background:var(--amber-tint);color:var(--amber);}
+    .bg-red{background:var(--red-tint);color:var(--red);}
+
+    .mini-spark{width:100%;height:26px;display:block;margin-top:8px;}
+
+    /* ---------- STAT ROW ---------- */
+    .stats-row{display:grid;grid-template-columns:repeat(5,1fr) .9fr;gap:14px;margin-bottom:14px;}
+    .stat-card{padding:18px;}
+    .stat-card .label{font-size:11.5px;color:var(--muted);font-weight:600;margin-bottom:8px;}
+    .stat-card .value{font-size:22px;font-weight:700;color:var(--ink);line-height:1.2;font-family:'Poppins',sans-serif;}
+    .stat-card .sub{font-size:10.8px;color:var(--muted-soft);font-weight:600;margin-top:4px;}
+
+    .progress-card{padding:18px;display:flex;flex-direction:column;align-items:center;text-align:center;}
+    .ring{position:relative;width:84px;height:84px;display:flex;align-items:center;justify-content:center;margin-bottom:6px;}
+    .ring svg{width:100%;height:100%;}
+    .ring-value{position:absolute;font-size:16px;font-weight:700;color:var(--ink);font-family:'Poppins',sans-serif;}
+    .progress-card .caption{font-size:11px;color:var(--muted);font-weight:600;}
+    .progress-card .caption b{color:var(--green);font-weight:700;}
+
+    .week-select{
+      display:flex;align-items:center;gap:6px;background:var(--purple-tint);color:var(--purple-dark);
+      padding:6px 12px;border-radius:20px;font-size:11.5px;font-weight:700;cursor:pointer;
+    }
+    .week-select svg{width:12px;height:12px;}
+
+    .view-all-link{font-size:11.5px;font-weight:700;color:var(--purple-dark);}
+
+    /* ---------- REPORT TYPE CARDS ---------- */
+    .report-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:14px;}
+    .report-type-card{padding:20px;display:flex;flex-direction:column;gap:10px;transition:transform .2s ease, box-shadow .2s ease;}
+    .report-type-card:hover{transform:translateY(-3px);box-shadow:var(--shadow-hover);}
+    .report-type-card h3{font-size:13.8px;margin:0;font-weight:700;color:var(--ink);}
+    .report-type-card p{font-size:11.8px;color:var(--muted);margin:0;line-height:1.5;flex:1;}
+    .report-type-card .rt-meta{font-size:10.5px;color:var(--muted-soft);font-weight:600;}
+    .rt-btn{
+      display:flex;align-items:center;justify-content:center;gap:6px;
+      padding:9px;border-radius:30px;background:var(--purple-tint);color:var(--purple-dark);
+      font-size:11.8px;font-weight:700;transition:background .18s ease,color .18s ease;
+    }
+    .rt-btn:hover{background:var(--purple);color:#fff;}
+    .rt-btn svg{width:13px;height:13px;}
+
+    /* ---------- FILTER / SEARCH BAR ---------- */
+    .filter-bar{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-bottom:18px;}
+    .filter-left{display:flex;align-items:center;gap:10px;flex-wrap:wrap;}
+    .search-box{
+      display:flex;align-items:center;gap:8px;background:var(--bg);border:1px solid var(--border);
+      padding:9px 14px;border-radius:30px;min-width:220px;
+    }
+    .search-box svg{width:14px;height:14px;color:var(--muted-soft);flex-shrink:0;}
+    .search-box input{border:none;background:none;outline:none;font-size:12.5px;color:var(--ink);width:100%;font-family:'Inter',sans-serif;}
+    .search-box input::placeholder{color:var(--muted-soft);}
+    .filter-chip{
+      display:flex;align-items:center;gap:6px;background:var(--bg);border:1px solid var(--border);
+      padding:8px 13px;border-radius:30px;font-size:11.8px;font-weight:700;color:var(--ink);cursor:pointer;
+    }
+    .filter-chip svg{width:12px;height:12px;color:var(--muted);}
+    .export-actions{display:flex;gap:10px;}
+    .export-btn{
+      display:flex;align-items:center;gap:7px;padding:9px 16px;border-radius:30px;
+      font-size:11.8px;font-weight:700;box-shadow:var(--shadow);
+    }
+    .export-btn svg{width:13px;height:13px;}
+    .export-btn.solid{background:linear-gradient(135deg,var(--purple),var(--purple-dark));color:#fff;}
+    .export-btn.ghost{background:#fff;color:var(--ink);}
+
+    /* ---------- REPORT TABLE ---------- */
+    .rtable-wrap{overflow-x:auto;}
+    table.rtable{width:100%;border-collapse:collapse;min-width:760px;}
+    .rtable thead th{
+      text-align:left;font-size:10.8px;text-transform:uppercase;letter-spacing:.03em;
+      color:var(--muted-soft);font-weight:700;padding:0 14px 10px;
+    }
+    .rtable tbody tr{background:var(--bg);}
+    .rtable tbody td{padding:13px 14px;font-size:12.6px;color:var(--ink);vertical-align:middle;}
+    .rtable tbody tr td:first-child{border-radius:14px 0 0 14px;}
+    .rtable tbody tr td:last-child{border-radius:0 14px 14px 0;}
+    .rtable tbody tr{box-shadow:0 0 0 0 transparent;}
+    .rtable tbody tr + tr{box-shadow:0 8px 0 -7px var(--bg);}
+    .rtable tbody tr td{border-top:6px solid #fff;border-bottom:6px solid #fff;}
+
+    .stu-cell{display:flex;align-items:center;gap:10px;}
+    .stu-avatar{width:32px;height:32px;border-radius:50%;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:12.5px;color:#fff;font-weight:700;font-family:'Poppins',sans-serif;}
+    .stu-cell strong{font-size:12.6px;font-weight:700;color:var(--ink);}
+
+    .cell-track{width:80px;height:6px;border-radius:6px;background:var(--border);overflow:hidden;margin-bottom:4px;}
+    .cell-fill{height:100%;border-radius:6px;background:linear-gradient(90deg,var(--purple),var(--purple-dark));}
+    .cell-pct{font-size:11px;font-weight:700;color:var(--muted);}
+
+    .status-pill{display:inline-flex;align-items:center;gap:6px;font-size:11px;font-weight:700;padding:5px 11px;border-radius:20px;}
+    .status-pill .sdot{width:7px;height:7px;border-radius:50%;flex-shrink:0;}
+    .status-ontrack{background:var(--green-tint);color:var(--green);}
+    .status-ontrack .sdot{background:var(--green);}
+    .status-watch{background:var(--amber-tint);color:var(--amber);}
+    .status-watch .sdot{background:var(--amber);}
+    .status-risk{background:var(--red-tint);color:var(--red);}
+    .status-risk .sdot{background:var(--red);}
+
+    .last-active{font-size:11.5px;color:var(--muted);}
+
+    .table-footer{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-top:16px;flex-wrap:wrap;}
+    .table-footer .tf-note{font-size:11.5px;color:var(--muted);}
+    .legend{display:flex;align-items:center;gap:16px;font-size:11px;color:var(--muted);font-weight:600;}
+    .legend span{display:inline-flex;align-items:center;gap:6px;}
+    .legend .sdot{width:7px;height:7px;border-radius:50%;}
+
+    /* ---------- TWO COL ---------- */
+    .two-col-row{display:grid;grid-template-columns:1.5fr 1fr;gap:14px;margin-bottom:14px;}
+
+    /* ---------- BREAKDOWN ---------- */
+    .perf-title{font-size:12px;color:var(--muted);font-weight:700;margin-bottom:14px;}
+    .perf-row{margin-bottom:14px;}
+    .perf-row:last-child{margin-bottom:0;}
+    .perf-top{display:flex;align-items:center;justify-content:space-between;font-size:11.8px;font-weight:600;color:var(--ink);margin-bottom:6px;}
+    .perf-top .pct{font-weight:700;color:var(--muted);}
+    .perf-track{width:100%;height:6px;border-radius:6px;background:var(--border);overflow:hidden;}
+    .perf-fill{height:100%;border-radius:6px;background:linear-gradient(90deg,var(--purple),var(--purple-dark));}
+    .perf-fill.green{background:linear-gradient(90deg,#3FCB93,var(--green));}
+    .perf-fill.orange{background:linear-gradient(90deg,#F5AC6B,var(--orange));}
+    .perf-fill.blue{background:linear-gradient(90deg,#7CADF7,var(--blue));}
+
+    /* ---------- HISTORY ---------- */
+    .history-list{display:flex;flex-direction:column;}
+    .history-item{display:flex;align-items:center;gap:12px;padding:12px 0;border-bottom:1px solid var(--border);}
+    .history-item:last-child{border-bottom:none;padding-bottom:0;}
+    .history-item .icon-badge{margin-bottom:0;width:36px;height:36px;border-radius:10px;}
+    .history-item .icon-badge svg{width:16px;height:16px;}
+    .history-body{flex:1;min-width:0;}
+    .history-body strong{display:block;font-size:12.4px;font-weight:700;color:var(--ink);margin-bottom:3px;}
+    .history-body span{font-size:11px;color:var(--muted);}
+    .history-dl{
+      width:32px;height:32px;border-radius:50%;background:var(--purple-tint);color:var(--purple-dark);
+      display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:background .18s ease,color .18s ease;
+    }
+    .history-dl:hover{background:var(--purple);color:#fff;}
+    .history-dl svg{width:14px;height:14px;}
+
+    /* ---------- PRIVACY NOTE ---------- */
+    .privacy-note{
+      display:flex;align-items:flex-start;gap:10px;background:var(--indigo-tint);color:var(--indigo);
+      border-radius:14px;padding:13px 16px;font-size:11.5px;font-weight:600;line-height:1.5;margin-top:14px;
+    }
+    .privacy-note svg{width:16px;height:16px;flex-shrink:0;margin-top:1px;}
+    .privacy-note b{font-weight:700;}
+
+    /* ---------- RESPONSIVE ---------- */
+    @media (max-width:1180px){
+      .stats-row{grid-template-columns:repeat(3,1fr);}
+      .report-grid{grid-template-columns:repeat(2,1fr);}
+      .two-col-row{grid-template-columns:1fr;}
+    }
+    @media (max-width:900px){
+      .report-grid{grid-template-columns:1fr 1fr;}
+    }
+    @media (max-width:760px){
+      .sidebar{display:none;}
+      .main{padding:20px 16px 32px;}
+      .stats-row{grid-template-columns:1fr 1fr;}
+      .report-grid{grid-template-columns:1fr;}
+    }
+
+</style>
+</head>
+<body>
+  <div class="app-shell">
+    <aside class="sidebar" id="sidebar">
+      <div class="sidebar-bg">
+        <img src="../shared/assets/p1.png" alt="" onerror="this.style.display='none'" />
+      </div>
+      <div class="brand-row">
+        <div class="brand"><div class="logo"><img src="../shared/assets/logo.png" alt="CareStance" onerror="this.parentElement.textContent='S'" /></div><span>CareStance</span></div>
+        <button class="sidebar-toggle" id="sidebarToggle" aria-label="Collapse sidebar" onclick="document.getElementById('sidebar').classList.toggle('collapsed')">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="m15 6-6 6 6 6"/></svg>
+        </button>
+      </div>
+      <nav class="nav">
+        <a class="nav-item" href="dashboard.html" title="Dashboard"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 11.5 12 4l8 7.5"/><path d="M6 10v9a1 1 0 0 0 1 1h4v-6h2v6h4a1 1 0 0 0 1-1v-9"/></svg><span>Dashboard</span></a>
+        <a class="nav-item" href="classes.html" title="My Classes"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="8" height="8" rx="2"/><rect x="13" y="4" width="8" height="8" rx="2"/><rect x="3" y="14" width="8" height="6" rx="2"/><rect x="13" y="14" width="8" height="6" rx="2"/></svg><span>My Classes</span></a>
+        <a class="nav-item" href="Students.html" title="Students"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="8" r="3.4"/><path d="M2.5 20c.6-3.6 3.3-6 6.5-6s5.9 2.4 6.5 6"/><circle cx="17.5" cy="8.5" r="2.6"/><path d="M15.8 14.3c2.6.4 4.6 2.5 5.1 5.7"/></svg><span>Students</span></a>
+        <a class="nav-item" href="Assesments.html" title="Assessments"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="6" y="3" width="12" height="18" rx="2"/><path d="M9 3v2h6V3"/><path d="M9 11h6M9 15h4"/></svg><span>Assessments</span></a>
+        <a class="nav-item" href="Career_insights.html" title="Career Insights"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19V10M10 19V5M16 19v-7M22 19H2"/></svg><span>Career Insights</span></a>
+        <a class="nav-item" href="tasks_events.html" title="Tasks &amp; Events"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3.5" y="5" width="17" height="16" rx="2"/><path d="M8 3v4M16 3v4M3.5 10h17"/><path d="m8.2 14.5 2.1 2 4.3-4.3"/></svg><span>Tasks &amp; Events</span></a>
+        <a class="nav-item active" href="Reports.html" title="Reports"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M7 3h7l4 4v14a1 1 0 0 1-1 1H7a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1Z"/><path d="M14 3v4h4"/><path d="M9 13h6M9 17h6M9 9h2"/></svg><span>Reports</span></a>
+        <a class="nav-item" href="messages.html" title="Messages"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H8l-5 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2Z"/></svg><span>Messages</span></a>
+        <a class="nav-item" href="settings.html" title="Settings"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.9l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.9-.3 1.7 1.7 0 0 0-1 1.6V21a2 2 0 1 1-4 0v-.2a1.7 1.7 0 0 0-1-1.5 1.7 1.7 0 0 0-1.9.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.9 1.7 1.7 0 0 0-1.6-1H3a2 2 0 1 1 0-4h.2a1.7 1.7 0 0 0 1.5-1 1.7 1.7 0 0 0-.3-1.9l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.9.3H9a1.7 1.7 0 0 0 1-1.6V3a2 2 0 1 1 4 0v.2a1.7 1.7 0 0 0 1 1.6 1.7 1.7 0 0 0 1.9-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.9V9a1.7 1.7 0 0 0 1.6 1H21a2 2 0 1 1 0 4h-.2a1.7 1.7 0 0 0-1.6 1Z"/></svg><span>Settings</span></a>
+      </nav>
+
+      <div class="sidebar-spacer"></div>
+
+      <nav class="nav nav-secondary">
+        <a class="nav-item" href="login.html" title="Log out"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H6a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h3"/><path d="M16 17l5-5-5-5"/><path d="M21 12H9"/></svg><span>Log out</span></a>
+      </nav>
+
+      <div class="sidebar-footer" title="Empower futures, one student at a time.">
+        <div class="icon-circle"><svg viewBox="0 0 24 24" fill="currentColor" stroke="none"><path d="M12 20.5s-7.5-4.6-9.6-9.2C1.1 8 2.7 4.8 6 4.1c2-.4 3.7.5 4.8 2.1a.9.9 0 0 0 1.4 0c1.1-1.6 2.8-2.5 4.8-2.1 3.3.7 4.9 3.9 3.6 7.2C19.5 15.9 12 20.5 12 20.5Z"/></svg></div>
+        <span>Empower futures, one student at a time.</span>
+      </div>
+    </aside>
+
+    <main class="main">
+      <div class="topbar">
+        <div><h1>Reports <span>📊</span></h1><p>Class-wide and individual performance reports for Class 10-A.</p></div>
+        <div class="topbar-actions">
+          <div class="pill-select">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M22 10v6M2 10l10-5 10 5-10 5-10-5Z"/><path d="M6 12v5c0 1.5 3 3 6 3s6-1.5 6-3v-5"/></svg>
+            Class 10-A
+            <svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg>
+          </div>
+          <button class="bell-btn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M6 8a6 6 0 0 1 12 0c0 4.5 1.5 6 2 7H4c.5-1 2-2.5 2-7Z"/><path d="M10 20a2 2 0 0 0 4 0"/></svg><span class="dot">3</span></button>
+          <div class="user-chip">
+            <div class="avatar">🧑‍🏫</div>
+            <div><strong>Ms. Simran</strong><span class="role">Teacher</span></div>
+            <svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg>
+          </div>
+        </div>
+      </div>
+
+      <!-- SUMMARY STATS -->
+      <section class="stats-row">
+        <div class="card stat-card">
+          <div class="icon-badge bg-purple"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="m3 17 6-6 4 4 8-8"/><path d="M15 7h6v6"/></svg></div>
+          <div class="label">Class Average Progress</div>
+          <div class="value">67%</div>
+          <div class="sub">Across all metrics</div>
+          <svg class="mini-spark" viewBox="0 0 100 26" preserveAspectRatio="none"><path d="M0 20 Q10 16 20 17 T40 12 T60 14 T80 6 T100 8" fill="none" stroke="#7C5CFC" stroke-width="2.4" stroke-linecap="round"/></svg>
+        </div>
+
+        <div class="card stat-card">
+          <div class="icon-badge bg-blue"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="6" y="3" width="12" height="18" rx="2"/><path d="M9 3v2h6V3"/><path d="M9 11h6M9 15h4"/></svg></div>
+          <div class="label">Assessment Completion</div>
+          <div class="value">64%</div>
+          <div class="sub">Avg. completion rate</div>
+          <svg class="mini-spark" viewBox="0 0 100 26" preserveAspectRatio="none"><path d="M0 16 Q10 14 20 18 T40 10 T60 14 T80 12 T100 16" fill="none" stroke="#4C8DF5" stroke-width="2.4" stroke-linecap="round"/></svg>
+        </div>
+
+        <div class="card stat-card">
+          <div class="icon-badge bg-indigo"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19V10M10 19V5M16 19v-7M22 19H2"/></svg></div>
+          <div class="label">Roadmap Completion</div>
+          <div class="value">67%</div>
+          <div class="sub">Avg. across class</div>
+          <svg class="mini-spark" viewBox="0 0 100 26" preserveAspectRatio="none"><path d="M0 18 Q10 20 20 15 T40 16 T60 8 T80 10 T100 4" fill="none" stroke="#6A63EE" stroke-width="2.4" stroke-linecap="round"/></svg>
+        </div>
+
+        <div class="card stat-card">
+          <div class="icon-badge bg-green"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="m8.5 12.5 2.3 2.3 4.7-5.1"/></svg></div>
+          <div class="label">Students On Track</div>
+          <div class="value">23</div>
+          <div class="sub">82% of class</div>
+          <svg class="mini-spark" viewBox="0 0 100 26" preserveAspectRatio="none"><path d="M0 18 Q10 12 20 14 T40 10 T60 12 T80 6 T100 8" fill="none" stroke="#1FAE74" stroke-width="2.4" stroke-linecap="round"/></svg>
+        </div>
+
+        <div class="card stat-card">
+          <div class="icon-badge bg-red"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-3.9 3.6-7 8-7s8 3.1 8 7"/></svg></div>
+          <div class="label">Needing Attention</div>
+          <div class="value">5</div>
+          <div class="sub">18% of class</div>
+          <svg class="mini-spark" viewBox="0 0 100 26" preserveAspectRatio="none"><path d="M0 8 Q10 12 20 10 T40 16 T60 14 T80 20 T100 18" fill="none" stroke="#F0555C" stroke-width="2.4" stroke-linecap="round"/></svg>
+        </div>
+
+        <div class="card progress-card">
+          <div class="ring">
+            <svg viewBox="0 0 100 100">
+              <circle cx="50" cy="50" r="42" fill="none" stroke="#EFEBFE" stroke-width="9"/>
+              <circle cx="50" cy="50" r="42" fill="none" stroke="url(#ringGrad)" stroke-width="9"
+                      stroke-linecap="round" stroke-dasharray="263.9" stroke-dashoffset="79.2"
+                      transform="rotate(-90 50 50)"/>
+              <defs>
+                <linearGradient id="ringGrad" x1="0" y1="0" x2="1" y2="1">
+                  <stop offset="0%" stop-color="#7C5CFC"/>
+                  <stop offset="100%" stop-color="#5F3DF5"/>
+                </linearGradient>
+              </defs>
+            </svg>
+            <span class="ring-value">70%</span>
+          </div>
+          <div class="caption">Class Health<br/><b>Trending up</b></div>
+        </div>
+      </section>
+
+      <!-- QUICK REPORT GENERATOR -->
+      <section class="card panel" style="margin-bottom:14px;">
+        <div class="section-title">
+          <div class="st-left"><span class="icon-badge bg-purple"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M7 3h7l4 4v14a1 1 0 0 1-1 1H7a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1Z"/><path d="M14 3v4h4"/><path d="M9 13h6M9 17h6M9 9h2"/></svg></span>Generate a Report<small>Pick a report type to export a snapshot for Class 10-A</small></div>
+        </div>
+        <div class="report-grid">
+          <div class="card report-type-card">
+            <div class="icon-badge bg-purple"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="m3 17 6-6 4 4 8-8"/><path d="M15 7h6v6"/></svg></div>
+            <h3>Class Performance Summary</h3>
+            <p>Assessment, roadmap and weekly-goal completion for every student, plus the class trendline.</p>
+            <div class="rt-meta">Updated today · PDF</div>
+            <button class="rt-btn" onclick="window.print()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v13m0 0 4-4m-4 4-4-4"/><path d="M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2"/></svg>Generate</button>
+          </div>
+          <div class="card report-type-card">
+            <div class="icon-badge bg-indigo"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19V10M10 19V5M16 19v-7M22 19H2"/></svg></div>
+            <h3>Career Readiness Report</h3>
+            <p>Career-exploration activity, simulation completion and roadmap milestones by student.</p>
+            <div class="rt-meta">Updated today · PDF</div>
+            <button class="rt-btn" onclick="window.print()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v13m0 0 4-4m-4 4-4-4"/><path d="M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2"/></svg>Generate</button>
+          </div>
+          <div class="card report-type-card">
+            <div class="icon-badge bg-red"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-3.9 3.6-7 8-7s8 3.1 8 7"/></svg></div>
+            <h3>Students Needing Attention</h3>
+            <p>A focused list of at-risk and watch-list students with the metric driving each flag.</p>
+            <div class="rt-meta">Updated today · PDF</div>
+            <button class="rt-btn" onclick="window.print()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v13m0 0 4-4m-4 4-4-4"/><path d="M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2"/></svg>Generate</button>
+          </div>
+          <div class="card report-type-card">
+            <div class="icon-badge bg-green"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="8" r="3.4"/><path d="M2.5 20c.6-3.6 3.3-6 6.5-6s5.9 2.4 6.5 6"/><circle cx="17.5" cy="8.5" r="2.6"/><path d="M15.8 14.3c2.6.4 4.6 2.5 5.1 5.7"/></svg></div>
+            <h3>Individual Student Reports</h3>
+            <p>One-page progress reports for a single student, ready to share at a parent check-in.</p>
+            <div class="rt-meta">Per student · PDF</div>
+            <a class="rt-btn" href="Students.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12h16"/><path d="m13 5 7 7-7 7"/></svg>Choose Student</a>
+          </div>
+        </div>
+      </section>
+
+      <!-- FULL CLASS TABLE -->
+      <section class="card panel" style="margin-bottom:14px;">
+        <div class="section-title">
+          <div class="st-left"><span class="icon-badge bg-blue"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M3 9h18M9 9v11"/></svg></span>Class 10-A Report<small>Assessment, roadmap and weekly-goal progress by student</small></div>
+          <div class="week-select">This Week <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg></div>
+        </div>
+
+        <div class="filter-bar">
+          <div class="filter-left">
+            <div class="search-box">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>
+              <input id="studentSearch" type="text" placeholder="Search students..." oninput="filterTable()" />
+            </div>
+            <div class="filter-chip"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 6h16M7 12h10M10 18h4"/></svg>All Attention Levels</div>
+          </div>
+          <div class="export-actions">
+            <button class="export-btn ghost" onclick="window.print()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9V4h12v5M6 18h12v-6H6v6Z"/><path d="M6 14H4a1 1 0 0 1-1-1v-3a1 1 0 0 1 1-1h16a1 1 0 0 1 1 1v3a1 1 0 0 1-1 1h-2"/></svg>Print</button>
+            <button class="export-btn solid" onclick="window.print()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v13m0 0 4-4m-4 4-4-4"/><path d="M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2"/></svg>Export PDF</button>
+          </div>
+        </div>
+
+        <div class="rtable-wrap">
+          <table class="rtable" id="reportTable">
+            <thead>
+              <tr>
+                <th>Student</th>
+                <th>Assessments</th>
+                <th>Roadmap</th>
+                <th>Weekly Goal</th>
+                <th>Last Active</th>
+                <th>Attention</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><div class="stu-cell"><div class="stu-avatar" style="background:linear-gradient(135deg,#7C5CFC,#5F3DF5);">RS</div><strong>Rahul Sharma</strong></div></td>
+                <td><div class="cell-track"><div class="cell-fill" style="width:100%"></div></div><span class="cell-pct">100%</span></td>
+                <td><div class="cell-track"><div class="cell-fill" style="width:72%"></div></div><span class="cell-pct">72%</span></td>
+                <td><div class="cell-track"><div class="cell-fill" style="width:80%"></div></div><span class="cell-pct">80%</span></td>
+                <td class="last-active">Today</td>
+                <td><span class="status-pill status-ontrack"><span class="sdot"></span>On Track</span></td>
+              </tr>
+              <tr>
+                <td><div class="stu-cell"><div class="stu-avatar" style="background:linear-gradient(135deg,#F0559B,#D93E82);">AM</div><strong>Ananya Mehta</strong></div></td>
+                <td><div class="cell-track"><div class="cell-fill" style="width:80%"></div></div><span class="cell-pct">80%</span></td>
+                <td><div class="cell-track"><div class="cell-fill" style="width:35%"></div></div><span class="cell-pct">35%</span></td>
+                <td><div class="cell-track"><div class="cell-fill" style="width:20%"></div></div><span class="cell-pct">20%</span></td>
+                <td class="last-active">6 days ago</td>
+                <td><span class="status-pill status-risk"><span class="sdot"></span>At Risk</span></td>
+              </tr>
+              <tr>
+                <td><div class="stu-cell"><div class="stu-avatar" style="background:linear-gradient(135deg,#4C8DF5,#2E6FE0);">AK</div><strong>Arjun Kapoor</strong></div></td>
+                <td><div class="cell-track"><div class="cell-fill" style="width:100%"></div></div><span class="cell-pct">100%</span></td>
+                <td><div class="cell-track"><div class="cell-fill" style="width:65%"></div></div><span class="cell-pct">65%</span></td>
+                <td><div class="cell-track"><div class="cell-fill" style="width:70%"></div></div><span class="cell-pct">70%</span></td>
+                <td class="last-active">Yesterday</td>
+                <td><span class="status-pill status-watch"><span class="sdot"></span>Watch</span></td>
+              </tr>
+              <tr>
+                <td><div class="stu-cell"><div class="stu-avatar" style="background:linear-gradient(135deg,#1FAE74,#158457);">NK</div><strong>Neha Kapoor</strong></div></td>
+                <td><div class="cell-track"><div class="cell-fill" style="width:60%"></div></div><span class="cell-pct">60%</span></td>
+                <td><div class="cell-track"><div class="cell-fill" style="width:40%"></div></div><span class="cell-pct">40%</span></td>
+                <td><div class="cell-track"><div class="cell-fill" style="width:30%"></div></div><span class="cell-pct">30%</span></td>
+                <td class="last-active">4 days ago</td>
+                <td><span class="status-pill status-risk"><span class="sdot"></span>At Risk</span></td>
+              </tr>
+              <tr>
+                <td><div class="stu-cell"><div class="stu-avatar" style="background:linear-gradient(135deg,#F0913F,#D97328);">IG</div><strong>Ishaan Gupta</strong></div></td>
+                <td><div class="cell-track"><div class="cell-fill" style="width:70%"></div></div><span class="cell-pct">70%</span></td>
+                <td><div class="cell-track"><div class="cell-fill" style="width:45%"></div></div><span class="cell-pct">45%</span></td>
+                <td><div class="cell-track"><div class="cell-fill" style="width:38%"></div></div><span class="cell-pct">38%</span></td>
+                <td class="last-active">3 days ago</td>
+                <td><span class="status-pill status-watch"><span class="sdot"></span>Watch</span></td>
+              </tr>
+              <tr>
+                <td><div class="stu-cell"><div class="stu-avatar" style="background:linear-gradient(135deg,#6A63EE,#4B43D6);">KS</div><strong>Karan Singh</strong></div></td>
+                <td><div class="cell-track"><div class="cell-fill" style="width:55%"></div></div><span class="cell-pct">55%</span></td>
+                <td><div class="cell-track"><div class="cell-fill" style="width:45%"></div></div><span class="cell-pct">45%</span></td>
+                <td><div class="cell-track"><div class="cell-fill" style="width:33%"></div></div><span class="cell-pct">33%</span></td>
+                <td class="last-active">5 days ago</td>
+                <td><span class="status-pill status-risk"><span class="sdot"></span>At Risk</span></td>
+              </tr>
+              <tr>
+                <td><div class="stu-cell"><div class="stu-avatar" style="background:linear-gradient(135deg,#E9A824,#C98A0F);">PV</div><strong>Priya Verma</strong></div></td>
+                <td><div class="cell-track"><div class="cell-fill" style="width:90%"></div></div><span class="cell-pct">90%</span></td>
+                <td><div class="cell-track"><div class="cell-fill" style="width:78%"></div></div><span class="cell-pct">78%</span></td>
+                <td><div class="cell-track"><div class="cell-fill" style="width:85%"></div></div><span class="cell-pct">85%</span></td>
+                <td class="last-active">Today</td>
+                <td><span class="status-pill status-ontrack"><span class="sdot"></span>On Track</span></td>
+              </tr>
+              <tr>
+                <td><div class="stu-cell"><div class="stu-avatar" style="background:linear-gradient(135deg,#F0559B,#D93E82);">SD</div><strong>Sanya Das</strong></div></td>
+                <td><div class="cell-track"><div class="cell-fill" style="width:95%"></div></div><span class="cell-pct">95%</span></td>
+                <td><div class="cell-track"><div class="cell-fill" style="width:88%"></div></div><span class="cell-pct">88%</span></td>
+                <td><div class="cell-track"><div class="cell-fill" style="width:90%"></div></div><span class="cell-pct">90%</span></td>
+                <td class="last-active">Today</td>
+                <td><span class="status-pill status-ontrack"><span class="sdot"></span>On Track</span></td>
+              </tr>
+              <tr>
+                <td><div class="stu-cell"><div class="stu-avatar" style="background:linear-gradient(135deg,#4C8DF5,#2E6FE0);">VM</div><strong>Vikram Malhotra</strong></div></td>
+                <td><div class="cell-track"><div class="cell-fill" style="width:75%"></div></div><span class="cell-pct">75%</span></td>
+                <td><div class="cell-track"><div class="cell-fill" style="width:60%"></div></div><span class="cell-pct">60%</span></td>
+                <td><div class="cell-track"><div class="cell-fill" style="width:55%"></div></div><span class="cell-pct">55%</span></td>
+                <td class="last-active">2 days ago</td>
+                <td><span class="status-pill status-watch"><span class="sdot"></span>Watch</span></td>
+              </tr>
+              <tr>
+                <td><div class="stu-cell"><div class="stu-avatar" style="background:linear-gradient(135deg,#1FAE74,#158457);">TR</div><strong>Tara Reddy</strong></div></td>
+                <td><div class="cell-track"><div class="cell-fill" style="width:100%"></div></div><span class="cell-pct">100%</span></td>
+                <td><div class="cell-track"><div class="cell-fill" style="width:92%"></div></div><span class="cell-pct">92%</span></td>
+                <td><div class="cell-track"><div class="cell-fill" style="width:95%"></div></div><span class="cell-pct">95%</span></td>
+                <td class="last-active">Today</td>
+                <td><span class="status-pill status-ontrack"><span class="sdot"></span>On Track</span></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="table-footer">
+          <div class="tf-note">Showing 10 of 28 students</div>
+          <div class="legend">
+            <span><span class="sdot" style="background:var(--green);"></span>On Track</span>
+            <span><span class="sdot" style="background:var(--amber);"></span>Watch</span>
+            <span><span class="sdot" style="background:var(--red);"></span>At Risk</span>
+          </div>
+          <a class="view-all-link" href="Students.html">View Full Class List →</a>
+        </div>
+      </section>
+
+      <!-- BREAKDOWN + HISTORY -->
+      <section class="two-col-row">
+        <div class="card panel">
+          <div class="section-title">
+            <div class="st-left"><span class="icon-badge bg-purple"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="m3 17 6-6 4 4 8-8"/><path d="M15 7h6v6"/></svg></span>Performance Breakdown</div>
+          </div>
+          <div class="perf-row">
+            <div class="perf-top"><span>Assessment Completion</span><span class="pct">64%</span></div>
+            <div class="perf-track"><div class="perf-fill" style="width:64%"></div></div>
+          </div>
+          <div class="perf-row">
+            <div class="perf-top"><span>Career Exploration</span><span class="pct">62%</span></div>
+            <div class="perf-track"><div class="perf-fill blue" style="width:62%"></div></div>
+          </div>
+          <div class="perf-row">
+            <div class="perf-top"><span>Roadmap Progress</span><span class="pct">67%</span></div>
+            <div class="perf-track"><div class="perf-fill green" style="width:67%"></div></div>
+          </div>
+          <div class="perf-row">
+            <div class="perf-top"><span>Weekly Goals</span><span class="pct">58%</span></div>
+            <div class="perf-track"><div class="perf-fill orange" style="width:58%"></div></div>
+          </div>
+
+          <div class="privacy-note">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2 4 6v6c0 5 3.4 8.7 8 10 4.6-1.3 8-5 8-10V6l-8-4Z"/><path d="M12 8v5"/><circle cx="12" cy="16" r=".6" fill="currentColor" stroke="none"/></svg>
+            <div><b>Academic data only.</b> Reports show learning progress and engagement — never contact details, health information, or other private student data.</div>
+          </div>
+        </div>
+
+        <div class="card panel">
+          <div class="section-title">
+            <div class="st-left"><span class="icon-badge bg-indigo"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3.5 2"/></svg></span>Recently Generated</div>
+          </div>
+          <div class="history-list">
+            <div class="history-item">
+              <div class="icon-badge bg-purple"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="m3 17 6-6 4 4 8-8"/><path d="M15 7h6v6"/></svg></div>
+              <div class="history-body"><strong>Class Performance Summary</strong><span>Generated today, 8:40 AM</span></div>
+              <button class="history-dl" onclick="window.print()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v13m0 0 4-4m-4 4-4-4"/><path d="M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2"/></svg></button>
+            </div>
+            <div class="history-item">
+              <div class="icon-badge bg-red"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-3.9 3.6-7 8-7s8 3.1 8 7"/></svg></div>
+              <div class="history-body"><strong>Students Needing Attention</strong><span>Generated yesterday, 4:15 PM</span></div>
+              <button class="history-dl" onclick="window.print()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v13m0 0 4-4m-4 4-4-4"/><path d="M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2"/></svg></button>
+            </div>
+            <div class="history-item">
+              <div class="icon-badge bg-indigo"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19V10M10 19V5M16 19v-7M22 19H2"/></svg></div>
+              <div class="history-body"><strong>Career Readiness Report</strong><span>Generated Mon, 9:02 AM</span></div>
+              <button class="history-dl" onclick="window.print()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v13m0 0 4-4m-4 4-4-4"/><path d="M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2"/></svg></button>
+            </div>
+            <div class="history-item">
+              <div class="icon-badge bg-green"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="8" r="3.4"/><path d="M2.5 20c.6-3.6 3.3-6 6.5-6s5.9 2.4 6.5 6"/><circle cx="17.5" cy="8.5" r="2.6"/><path d="M15.8 14.3c2.6.4 4.6 2.5 5.1 5.7"/></svg></div>
+              <div class="history-body"><strong>Individual Report — Rahul Sharma</strong><span>Generated last Fri, 2:30 PM</span></div>
+              <button class="history-dl" onclick="window.print()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v13m0 0 4-4m-4 4-4-4"/><path d="M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2"/></svg></button>
+            </div>
+          </div>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <script>
+    function filterTable(){
+      var q = document.getElementById('studentSearch').value.trim().toLowerCase();
+      var rows = document.querySelectorAll('#reportTable tbody tr');
+      rows.forEach(function(row){
+        var name = row.querySelector('.stu-cell strong').textContent.toLowerCase();
+        row.style.display = name.includes(q) ? '' : 'none';
+      });
+    }
+  </script>
+</body>
+</html>
