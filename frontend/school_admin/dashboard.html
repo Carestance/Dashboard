@@ -1,0 +1,575 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>CareStance | School Admin Dashboard</title>
+<style>
+
+    @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@500;600;700&family=Inter:wght@400;500;600;700&display=swap');
+
+    :root{
+      --bg:#F5F3FC;
+      --card:#FFFFFF;
+      --ink:#241C3D;
+      --muted:#8C87A6;
+      --muted-soft:#B7B2CE;
+      --border:#EFEBFA;
+
+      --purple:#7C5CFC;   --purple-dark:#5F3DF5;  --purple-tint:#EFEBFE;
+      --pink:#F0559B;     --pink-tint:#FDE7F1;
+      --green:#1FAE74;    --green-tint:#E1F8EE;
+      --orange:#F0913F;   --orange-tint:#FDEDE0;
+      --blue:#4C8DF5;     --blue-tint:#E8F1FE;
+      --indigo:#6A63EE;   --indigo-tint:#ECEAFE;
+      --amber:#E9A824;    --amber-tint:#FCF1DC;
+      --red:#F0555C;      --red-tint:#FDE8E9;
+
+      --navy:#241C4D;
+
+      --shadow:0 4px 22px rgba(110,80,210,.07);
+      --shadow-hover:0 14px 32px rgba(110,80,210,.16);
+      --r-lg:20px; --r-md:14px; --r-sm:10px;
+    }
+
+    *{box-sizing:border-box;}
+    html,body{margin:0;padding:0;}
+    body{
+      position:relative;
+      min-height:100vh;
+      background-color:var(--bg);
+      font-family:'Inter',sans-serif;
+      color:var(--ink);
+      -webkit-font-smoothing:antialiased;
+    }
+    body::before{
+      content:"";
+      position:fixed;
+      inset:0;
+      z-index:-2;
+      background:url('../shared/assets/s3.png') center top / cover no-repeat;
+    }
+    body::after{
+      content:"";
+      position:fixed;
+      inset:0;
+      z-index:-1;
+      background:
+        radial-gradient(60% 40% at 8% 100%, rgba(124,92,252,.08), transparent 70%),
+        radial-gradient(50% 35% at 95% 0%, rgba(240,85,155,.07), transparent 70%);
+      pointer-events:none;
+    }
+    h1,h2,h3,h4,.disp{font-family:'Poppins',sans-serif;}
+    a{text-decoration:none;}
+
+    .app-shell{display:flex;min-height:100vh;align-items:stretch;}
+
+    /* ---------- SIDEBAR ---------- */
+    .sidebar{
+      width:250px; flex-shrink:0;
+      background:var(--card);
+      border-radius:26px;
+      padding:22px 16px;
+      display:flex; flex-direction:column;
+      position:sticky; top:16px; height:calc(100vh - 32px);
+      margin:16px 0 16px 16px;
+      box-shadow:var(--shadow-hover);
+      overflow:hidden;
+      isolation:isolate;
+      transition:width .32s cubic-bezier(.4,0,.2,1), padding .32s cubic-bezier(.4,0,.2,1);
+    }
+    .sidebar.collapsed{width:88px;padding:22px 12px;}
+
+    /* ---- decorative backdrop image (s1), tint over it so the nav stays readable ---- */
+    .sidebar-bg{position:absolute;inset:0;z-index:0;}
+    .sidebar-bg img{
+      position:absolute;left:0;right:0;bottom:0;width:100%;object-fit:contain;object-position:bottom;opacity:1;
+      -webkit-mask-image:linear-gradient(180deg, transparent 0%, transparent 8%, rgba(0,0,0,.35) 22%, black 45%, black 100%);
+      mask-image:linear-gradient(180deg, transparent 0%, transparent 8%, rgba(0,0,0,.35) 22%, black 45%, black 100%);
+    }
+    .sidebar-bg::after{
+      content:"";position:absolute;inset:0;
+      background:linear-gradient(180deg,
+        rgba(255,255,255,.96) 0%,
+        rgba(255,255,255,.9) 20%,
+        rgba(255,255,255,.72) 34%,
+        rgba(255,255,255,.5) 46%,
+        rgba(255,255,255,.3) 58%,
+        rgba(255,255,255,.14) 68%,
+        rgba(255,255,255,.04) 78%,
+        rgba(255,255,255,0) 88%);
+    }
+
+    .brand-row{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:24px;transition:flex-direction .3s ease;position:relative;z-index:2;}
+    .sidebar.collapsed .brand-row{flex-direction:column;gap:14px;}
+    .brand{display:flex;align-items:center;gap:10px;min-width:0;}
+    .brand .logo{
+      width:38px;height:38px;border-radius:50%;flex-shrink:0;
+      background:linear-gradient(135deg,var(--purple),var(--purple-dark));
+      display:flex;align-items:center;justify-content:center;
+      color:#fff;font-weight:700;font-family:'Poppins',sans-serif;font-size:16px;
+      overflow:hidden;
+      transition:transform .3s ease;
+    }
+    .brand .logo img{width:100%;height:100%;object-fit:cover;display:block;}
+    .brand-text{display:flex;flex-direction:column;min-width:0;}
+    .brand-text .name{
+      font-weight:700;font-size:18px;color:var(--ink);white-space:nowrap;
+      opacity:1;max-width:150px;overflow:hidden;font-family:'Poppins',sans-serif;line-height:1.2;
+      transition:opacity .2s ease, max-width .3s ease;
+    }
+    .brand-text .role{
+      font-weight:600;font-size:11px;color:var(--muted);white-space:nowrap;
+      opacity:1;max-width:150px;overflow:hidden;
+      transition:opacity .2s ease, max-width .3s ease;
+    }
+    .sidebar.collapsed .brand-text{opacity:0;max-width:0;display:none;}
+
+    .sidebar-toggle{
+      width:26px;height:26px;border-radius:50%;flex-shrink:0;
+      background:var(--purple-tint);color:var(--purple-dark);border:1px solid var(--border);
+      display:flex;align-items:center;justify-content:center;
+      cursor:pointer;
+      transition:transform .3s cubic-bezier(.4,0,.2,1), background .18s ease, color .18s ease;
+    }
+    .sidebar-toggle:hover{background:var(--purple);color:#fff;}
+    .sidebar-toggle svg{width:12px;height:12px;transition:transform .32s cubic-bezier(.4,0,.2,1);}
+    .sidebar.collapsed .sidebar-toggle svg{transform:rotate(180deg);}
+
+    .nav{display:flex;flex-direction:column;gap:4px;position:relative;z-index:2;}
+    .nav-item{
+      display:flex;align-items:center;gap:12px;
+      padding:11px 14px;border-radius:14px;position:relative;
+      color:var(--muted);font-size:13.6px;font-weight:600;
+      transition:background .2s ease,color .2s ease,padding .3s ease,transform .2s ease;
+    }
+    .nav-item svg{width:18px;height:18px;flex-shrink:0;transition:transform .25s cubic-bezier(.4,0,.2,1);}
+    .nav-item:hover{background:var(--purple-tint);color:var(--purple-dark);}
+    .nav-item:hover svg{transform:scale(1.1);}
+    .nav-item.active{background:linear-gradient(135deg,var(--purple),var(--purple-dark));color:#fff;font-weight:700;box-shadow:0 10px 20px rgba(124,92,252,.35);}
+    .nav-item span{
+      white-space:nowrap;opacity:1;max-width:180px;overflow:hidden;display:inline-block;
+      transition:opacity .2s ease, max-width .3s ease;
+    }
+    .sidebar.collapsed .nav-item{justify-content:center;padding:12px;width:44px;height:44px;margin:0 auto;}
+    .sidebar.collapsed .nav-item span{opacity:0;max-width:0;display:none;}
+
+    .nav-secondary{margin-top:10px;padding-top:12px;border-top:1px solid var(--border);position:relative;z-index:2;}
+
+    .sidebar-spacer{flex:1;position:relative;min-height:24px;}
+
+    .sidebar-footer{
+      margin-top:12px;background:var(--purple-tint);color:var(--purple-dark);
+      border:1px solid var(--border);
+      font-size:12px;font-weight:700;line-height:1.4;
+      padding:12px 14px;border-radius:14px;
+      display:flex;align-items:flex-start;gap:10px;position:relative;z-index:2;
+      transition:padding .3s ease,justify-content .3s ease;
+    }
+    .sidebar-footer .icon-circle{
+      width:26px;height:26px;border-radius:50%;background:#fff;flex-shrink:0;
+      display:flex;align-items:center;justify-content:center;color:var(--pink);
+    }
+    .sidebar-footer .icon-circle svg{width:13px;height:13px;}
+    .sidebar-footer span{
+      white-space:normal;opacity:1;max-width:180px;overflow:hidden;
+      transition:opacity .2s ease, max-width .3s ease;
+    }
+    .sidebar.collapsed .sidebar-footer{justify-content:center;padding:10px;}
+    .sidebar.collapsed .sidebar-footer span{opacity:0;max-width:0;display:none;}
+
+    /* ---------- MAIN / TOPBAR ---------- */
+    .main{flex:1;padding:26px 32px 40px;min-width:0;}
+    .topbar{display:flex;align-items:flex-start;justify-content:space-between;gap:16px;margin-bottom:22px;flex-wrap:wrap;}
+    .topbar h1{font-size:25px;margin:0 0 4px;color:var(--ink);font-weight:700;display:flex;align-items:center;gap:8px;}
+    .topbar p{margin:0;color:var(--muted);font-size:13.5px;}
+
+    .topbar-actions{display:flex;align-items:center;gap:12px;flex-shrink:0;}
+    .icon-btn{
+      position:relative;width:38px;height:38px;border-radius:50%;
+      background:#fff;box-shadow:var(--shadow);
+      display:flex;align-items:center;justify-content:center;color:var(--ink);flex-shrink:0;
+    }
+    .icon-btn svg{width:17px;height:17px;}
+    .icon-btn .dot{
+      position:absolute;top:6px;right:7px;width:9px;height:9px;border-radius:50%;
+      background:var(--pink);border:2px solid #fff;
+    }
+
+    .user-chip{
+      display:flex;align-items:center;gap:10px;
+      background:#fff;padding:6px 14px 6px 6px;border-radius:40px;
+      box-shadow:var(--shadow); flex-shrink:0;
+    }
+    .avatar{
+      width:34px;height:34px;border-radius:50%;
+      background:var(--purple-tint);
+      display:flex;align-items:center;justify-content:center;font-size:16px;
+      overflow:hidden;
+    }
+    .avatar img{width:100%;height:100%;object-fit:cover;display:block;}
+    .user-chip strong{display:block;font-size:12.8px;color:var(--ink);font-weight:700;font-family:'Poppins',sans-serif;line-height:1.3;}
+    .user-chip .role{font-size:11px;color:var(--muted);}
+    .user-chip .chev{color:var(--muted-soft);width:15px;height:15px;}
+
+    /* ---------- CARD PRIMITIVES ---------- */
+    .card{background:var(--card);border-radius:var(--r-lg);box-shadow:var(--shadow);}
+    .panel{padding:22px;}
+    .section-title{
+      display:flex;align-items:center;justify-content:space-between;gap:10px;
+      font-size:15px;font-weight:700;color:var(--ink);margin:0 0 18px;
+    }
+    .section-title .st-left{display:flex;align-items:center;gap:10px;}
+
+    .icon-circle-badge{
+      width:44px;height:44px;border-radius:50%;
+      display:flex;align-items:center;justify-content:center;flex-shrink:0;
+    }
+    .icon-circle-badge svg{width:20px;height:20px;}
+    .bg-purple{background:var(--purple-tint);color:var(--purple-dark);}
+    .bg-pink{background:var(--pink-tint);color:var(--pink);}
+    .bg-green{background:var(--green-tint);color:var(--green);}
+    .bg-orange{background:var(--orange-tint);color:var(--orange);}
+    .bg-blue{background:var(--blue-tint);color:var(--blue);}
+    .bg-indigo{background:var(--indigo-tint);color:var(--indigo);}
+    .bg-amber{background:var(--amber-tint);color:var(--amber);}
+    .bg-red{background:var(--red-tint);color:var(--red);}
+
+    .week-select{
+      display:flex;align-items:center;gap:6px;background:var(--purple-tint);color:var(--purple-dark);
+      padding:6px 12px;border-radius:20px;font-size:11.5px;font-weight:700;
+    }
+    .week-select svg{width:12px;height:12px;}
+
+    /* ---------- SCHOOL STAT ROW ---------- */
+    .stats-row{display:grid;grid-template-columns:repeat(6,1fr);gap:14px;margin-bottom:14px;}
+    .stat-card{padding:18px;display:flex;flex-direction:column;gap:12px;}
+    .stat-card .top-row{display:flex;align-items:center;justify-content:space-between;}
+    .stat-card .value{font-size:22px;font-weight:700;color:var(--ink);line-height:1.2;font-family:'Poppins',sans-serif;}
+    .stat-card .label{font-size:11.5px;color:var(--muted);font-weight:600;margin-top:2px;}
+    .stat-card .sub{font-size:10.8px;color:var(--green);font-weight:700;margin-top:8px;display:flex;align-items:center;gap:4px;}
+    .stat-card .sub svg{width:11px;height:11px;}
+
+    /* ---------- TWO COLUMN ROW ---------- */
+    .two-col-row{display:grid;grid-template-columns:1.55fr 1fr;gap:14px;margin-bottom:14px;}
+    .side-stack{display:flex;flex-direction:column;gap:14px;}
+
+    /* ---------- CHART ---------- */
+    .chart-box{position:relative;}
+    .chart-box svg{width:100%;height:auto;display:block;}
+    .chart-axis{display:flex;justify-content:space-between;font-size:10.5px;color:var(--muted-soft);font-weight:600;margin-top:6px;padding:0 2px;}
+    .chart-ylabels{position:absolute;left:-2px;top:0;bottom:26px;display:flex;flex-direction:column;justify-content:space-between;font-size:10px;color:var(--muted-soft);font-weight:600;}
+
+    /* ---------- ASSESSMENT COMPLETION (dark card) ---------- */
+    .dark-card{
+      background:linear-gradient(160deg,var(--navy),#3B2E7A);
+      border-radius:var(--r-lg); box-shadow:var(--shadow-hover);
+      padding:22px; color:#fff;
+    }
+    .dark-card h3{font-size:15px;font-weight:700;margin:0 0 18px;font-family:'Poppins',sans-serif;}
+    .donut-row{display:flex;align-items:center;gap:20px;}
+    .ring{position:relative;width:104px;height:104px;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+    .ring svg{width:100%;height:100%;}
+    .ring-value{position:absolute;font-size:22px;font-weight:700;color:#fff;font-family:'Poppins',sans-serif;}
+    .legend{display:flex;flex-direction:column;gap:12px;}
+    .legend-item{display:flex;align-items:center;gap:8px;font-size:12.5px;font-weight:600;}
+    .legend-dot{width:9px;height:9px;border-radius:50%;flex-shrink:0;}
+    .legend-item .lbl{flex:1;color:rgba(255,255,255,.8);white-space:nowrap;}
+    .legend-item .val{font-weight:700;color:#fff;}
+
+    /* ---------- CAREER INTERESTS ---------- */
+    .interest-row{display:flex;align-items:center;gap:12px;margin-bottom:16px;}
+    .interest-row:last-of-type{margin-bottom:10px;}
+    .interest-icon{width:32px;height:32px;border-radius:10px;flex-shrink:0;display:flex;align-items:center;justify-content:center;}
+    .interest-icon svg{width:15px;height:15px;}
+    .interest-body{flex:1;min-width:0;}
+    .interest-top{display:flex;align-items:center;justify-content:space-between;font-size:12px;font-weight:700;color:var(--ink);margin-bottom:6px;}
+    .interest-track{width:100%;height:6px;border-radius:6px;background:var(--border);overflow:hidden;}
+    .interest-fill{height:100%;border-radius:6px;background:linear-gradient(90deg,var(--purple),var(--purple-dark));}
+
+    /* ---------- STUDENTS REQUIRING ATTENTION ---------- */
+    .attn-panel{display:flex;align-items:center;gap:14px;flex-wrap:wrap;}
+    .attn-stats{display:flex;align-items:center;gap:22px;flex:1;flex-wrap:wrap;}
+    .attn-stat{display:flex;align-items:center;gap:10px;}
+    .attn-stat .icon-circle-badge{width:38px;height:38px;}
+    .attn-stat .icon-circle-badge svg{width:16px;height:16px;}
+    .attn-stat .num{font-size:18px;font-weight:700;color:var(--ink);font-family:'Poppins',sans-serif;line-height:1.2;}
+    .attn-stat .txt{font-size:10.8px;color:var(--muted);font-weight:600;max-width:96px;line-height:1.3;}
+    .attn-cta{
+      display:flex;align-items:center;gap:10px;
+      background:linear-gradient(135deg,var(--navy),#3B2E7A);color:#fff;
+      padding:14px 20px;border-radius:16px;font-size:13px;font-weight:700;
+      flex-shrink:0; white-space:nowrap;
+    }
+    .attn-cta svg{width:15px;height:15px;}
+
+    /* ---------- BOTTOM BANNER ---------- */
+    .quote-banner{
+      position:relative;border-radius:26px;overflow:hidden;
+      padding:34px 40px;margin-top:14px;min-height:180px;
+      display:flex;align-items:center;justify-content:space-between;gap:20px;
+      background:linear-gradient(120deg,#EFEBFE 0%, #F5F3FC 55%, #FDE7F1 100%);
+      box-shadow:var(--shadow-hover);
+    }
+    .quote-banner .qb-bg{
+      position:absolute;inset:0;z-index:0;
+      background:url('../shared/assets/s2.png') center bottom / cover no-repeat;
+      opacity:.9;
+    }
+    .quote-banner .qb-fade{
+      position:absolute;inset:0;z-index:1;
+      background:linear-gradient(90deg, rgba(245,243,252,.97) 0%, rgba(245,243,252,.75) 38%, rgba(245,243,252,.15) 70%, rgba(245,243,252,0) 100%);
+    }
+    .quote-banner .qb-content{position:relative;z-index:2;display:flex;align-items:center;gap:18px;max-width:480px;}
+    .quote-banner .quote-mark{font-size:44px;font-weight:700;color:var(--purple-dark);font-family:'Poppins',sans-serif;line-height:1;flex-shrink:0;}
+    .quote-banner p{font-size:21px;font-weight:700;color:var(--ink);margin:0;font-family:'Poppins',sans-serif;line-height:1.35;}
+    .quote-banner .qb-btn{
+      position:relative;z-index:2;flex-shrink:0;
+      display:flex;align-items:center;gap:8px;
+      background:#fff;color:var(--ink);font-weight:700;font-size:13px;
+      padding:13px 22px;border-radius:30px;box-shadow:var(--shadow);
+    }
+    .quote-banner .qb-btn svg{width:14px;height:14px;color:var(--purple-dark);}
+
+    /* ---------- RESPONSIVE ---------- */
+    @media (max-width:1180px){
+      .stats-row{grid-template-columns:repeat(3,1fr);}
+      .two-col-row{grid-template-columns:1fr;}
+    }
+    @media (max-width:900px){
+      .attn-panel{flex-direction:column;align-items:stretch;}
+      .attn-cta{justify-content:center;}
+      .quote-banner{flex-direction:column;text-align:center;padding:28px 24px;}
+      .quote-banner .qb-content{max-width:100%;flex-direction:column;}
+    }
+    @media (max-width:760px){
+      .sidebar{display:none;}
+      .main{padding:20px 16px 32px;}
+      .stats-row{grid-template-columns:1fr 1fr;}
+    }
+
+</style>
+</head>
+<body>
+  <div class="app-shell">
+    <aside class="sidebar" id="sidebar">
+      <div class="sidebar-bg">
+        <img src="../shared/assets/s1.png" alt="" onerror="this.style.display='none'" />
+      </div>
+      <div class="brand-row">
+        <div class="brand">
+          <div class="logo"><img src="../shared/assets/logo.png" alt="CareStance" onerror="this.parentElement.textContent='S'" /></div>
+          <div class="brand-text"><span class="name">CareStance</span><span class="role">School Admin</span></div>
+        </div>
+        <button class="sidebar-toggle" id="sidebarToggle" aria-label="Collapse sidebar" onclick="document.getElementById('sidebar').classList.toggle('collapsed')">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="m15 6-6 6 6 6"/></svg>
+        </button>
+      </div>
+      <nav class="nav">
+        <a class="nav-item active" href="dashboard.html" title="Home"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 11.5 12 4l8 7.5"/><path d="M6 10v9a1 1 0 0 0 1 1h4v-6h2v6h4a1 1 0 0 0 1-1v-9"/></svg><span>Home</span></a>
+        <a class="nav-item" href="stats.html" title="Stats"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19V10M10 19V5M16 19v-7M22 19H2"/></svg><span>Stats</span></a>
+        <a class="nav-item" href="reports.html" title="Reports"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M7 3h7l4 4v14a1 1 0 0 1-1 1H7a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1Z"/><path d="M14 3v4h4"/><path d="M9 13h6M9 17h6M9 9h2"/></svg><span>Reports</span></a>
+        <a class="nav-item" href="classes.html" title="Classes"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="8" height="8" rx="2"/><rect x="13" y="4" width="8" height="8" rx="2"/><rect x="3" y="14" width="8" height="6" rx="2"/><rect x="13" y="14" width="8" height="6" rx="2"/></svg><span>Classes</span></a>
+      </nav>
+
+      <div class="sidebar-spacer"></div>
+
+      <nav class="nav nav-secondary">
+        <a class="nav-item" href="login.html" title="Log out"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H6a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h3"/><path d="M16 17l5-5-5-5"/><path d="M21 12H9"/></svg><span>Log out</span></a>
+      </nav>
+
+      <div class="sidebar-footer" title="Every insight helps us build a better tomorrow.">
+        <div class="icon-circle"><svg viewBox="0 0 24 24" fill="currentColor" stroke="none"><path d="M12 20.5s-7.5-4.6-9.6-9.2C1.1 8 2.7 4.8 6 4.1c2-.4 3.7.5 4.8 2.1a.9.9 0 0 0 1.4 0c1.1-1.6 2.8-2.5 4.8-2.1 3.3.7 4.9 3.9 3.6 7.2C19.5 15.9 12 20.5 12 20.5Z"/></svg></div>
+        <span>Every insight helps us build a better tomorrow.</span>
+      </div>
+    </aside>
+
+    <main class="main">
+      <div class="topbar">
+        <div><h1>Good Morning, Priya <span>👋</span></h1><p>Here's what's happening across your school today.</p></div>
+        <div class="topbar-actions">
+          <button class="icon-btn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M6 8a6 6 0 0 1 12 0c0 4.5 1.5 6 2 7H4c.5-1 2-2.5 2-7Z"/><path d="M10 20a2 2 0 0 0 4 0"/></svg><span class="dot"></span></button>
+          <button class="icon-btn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.9l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.9-.3 1.7 1.7 0 0 0-1 1.6V21a2 2 0 1 1-4 0v-.2a1.7 1.7 0 0 0-1-1.5 1.7 1.7 0 0 0-1.9.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.9 1.7 1.7 0 0 0-1.6-1H3a2 2 0 1 1 0-4h.2a1.7 1.7 0 0 0 1.5-1 1.7 1.7 0 0 0-.3-1.9l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.9.3H9a1.7 1.7 0 0 0 1-1.6V3a2 2 0 1 1 4 0v.2a1.7 1.7 0 0 0 1 1.6 1.7 1.7 0 0 0 1.9-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.9V9a1.7 1.7 0 0 0 1.6 1H21a2 2 0 1 1 0 4h-.2a1.7 1.7 0 0 0-1.6 1Z"/></svg></button>
+          <div class="user-chip">
+            <div class="avatar">👩‍💼</div>
+            <div><strong>Priya Sharma</strong><span class="role">School Admin</span></div>
+            <svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg>
+          </div>
+        </div>
+      </div>
+
+      <section class="stats-row">
+        <div class="card stat-card">
+          <div class="top-row"><div class="icon-circle-badge bg-purple"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="8" r="3.4"/><path d="M2.5 20c.6-3.6 3.3-6 6.5-6s5.9 2.4 6.5 6"/><circle cx="17.5" cy="8.5" r="2.6"/><path d="M15.8 14.3c2.6.4 4.6 2.5 5.1 5.7"/></svg></div></div>
+          <div class="value">1,240</div>
+          <div class="label">Students</div>
+          <div class="sub"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 19V5M5 12l7-7 7 7"/></svg>6% vs last month</div>
+        </div>
+
+        <div class="card stat-card">
+          <div class="top-row"><div class="icon-circle-badge bg-blue"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M22 10 12 5 2 10l10 5 10-5Z"/><path d="M6 12v5c0 1.5 3 3 6 3s6-1.5 6-3v-5"/></svg></div></div>
+          <div class="value">68</div>
+          <div class="label">Teachers</div>
+          <div class="sub"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 19V5M5 12l7-7 7 7"/></svg>4% vs last month</div>
+        </div>
+
+        <div class="card stat-card">
+          <div class="top-row"><div class="icon-circle-badge bg-indigo"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2Z"/></svg></div></div>
+          <div class="value">42</div>
+          <div class="label">Classes</div>
+          <div class="sub"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 19V5M5 12l7-7 7 7"/></svg>6% vs last month</div>
+        </div>
+
+        <div class="card stat-card">
+          <div class="top-row"><div class="icon-circle-badge bg-purple"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="8" r="3.4"/><path d="M2.5 20c.6-3.6 3.3-6 6.5-6s5.9 2.4 6.5 6"/><path d="m15 8 2.2 2.2L21.5 6"/></svg></div></div>
+          <div class="value">978</div>
+          <div class="label">Active Students</div>
+          <div class="sub"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 19V5M5 12l7-7 7 7"/></svg>12% vs last month</div>
+        </div>
+
+        <div class="card stat-card">
+          <div class="top-row"><div class="icon-circle-badge bg-indigo"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="6" y="3" width="12" height="18" rx="2"/><path d="M9 3v2h6V3"/><path d="m9.2 13.5 2.1 2 4.3-4.3"/></svg></div></div>
+          <div class="value">84%</div>
+          <div class="label">Assessment Completion</div>
+          <div class="sub"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 19V5M5 12l7-7 7 7"/></svg>6% vs last month</div>
+        </div>
+
+        <div class="card stat-card">
+          <div class="top-row"><div class="icon-circle-badge bg-blue"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="5"/><circle cx="12" cy="12" r="1" fill="currentColor" stroke="none"/></svg></div></div>
+          <div class="value">62%</div>
+          <div class="label">Roadmap Completion</div>
+          <div class="sub"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 19V5M5 12l7-7 7 7"/></svg>5% vs last month</div>
+        </div>
+      </section>
+
+      <section class="two-col-row">
+        <div class="card panel">
+          <div class="section-title">
+            <div class="st-left"><span class="icon-circle-badge bg-purple" style="width:36px;height:36px;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="m3 17 6-6 4 4 8-8"/><path d="M15 7h6v6"/></svg></span>Student Engagement Over Time</div>
+            <div class="week-select">This Week <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg></div>
+          </div>
+
+          <div class="chart-box">
+            <svg viewBox="0 0 700 260" preserveAspectRatio="none">
+              <defs>
+                <linearGradient id="areaGrad" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="0%" stop-color="#7C5CFC" stop-opacity="0.28"/>
+                  <stop offset="100%" stop-color="#7C5CFC" stop-opacity="0"/>
+                </linearGradient>
+              </defs>
+              <line x1="0" y1="10" x2="700" y2="10" stroke="#EFEBFA" stroke-width="1.5"/>
+              <line x1="0" y1="70" x2="700" y2="70" stroke="#EFEBFA" stroke-width="1.5"/>
+              <line x1="0" y1="130" x2="700" y2="130" stroke="#EFEBFA" stroke-width="1.5"/>
+              <line x1="0" y1="190" x2="700" y2="190" stroke="#EFEBFA" stroke-width="1.5"/>
+              <line x1="0" y1="230" x2="700" y2="230" stroke="#EFEBFA" stroke-width="1.5"/>
+              <path d="M0 190 L100 100 L200 155 L300 60 L400 130 L500 168 L600 92 L700 155 L700 260 L0 260 Z" fill="url(#areaGrad)"/>
+              <path d="M0 190 L100 100 L200 155 L300 60 L400 130 L500 168 L600 92 L700 155" fill="none" stroke="#7C5CFC" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+              <circle cx="700" cy="155" r="6" fill="#fff" stroke="#7C5CFC" stroke-width="3"/>
+              <rect x="646" y="118" width="76" height="26" rx="13" fill="#7C5CFC"/>
+              <text x="684" y="135" font-size="13" font-weight="700" fill="#fff" text-anchor="middle" font-family="Inter, sans-serif">Sun 53%</text>
+              <circle cx="0" cy="190" r="4.5" fill="#7C5CFC"/>
+              <circle cx="100" cy="100" r="4.5" fill="#7C5CFC"/>
+              <circle cx="200" cy="155" r="4.5" fill="#7C5CFC"/>
+              <circle cx="300" cy="60" r="4.5" fill="#7C5CFC"/>
+              <circle cx="400" cy="130" r="4.5" fill="#7C5CFC"/>
+              <circle cx="500" cy="168" r="4.5" fill="#7C5CFC"/>
+              <circle cx="600" cy="92" r="4.5" fill="#7C5CFC"/>
+            </svg>
+            <div class="chart-axis">
+              <span>Mon</span><span>Tue</span><span>Wed</span><span>Thu</span><span>Fri</span><span>Sat</span><span>Sun</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="side-stack">
+          <div class="dark-card">
+            <h3>Assessment Completion</h3>
+            <div class="donut-row">
+              <div class="ring">
+                <svg viewBox="0 0 100 100">
+                  <circle cx="50" cy="50" r="42" fill="none" stroke="rgba(255,255,255,.12)" stroke-width="11"/>
+                  <circle cx="50" cy="50" r="42" fill="none" stroke="#B7A6FF" stroke-width="11"
+                          stroke-linecap="round" stroke-dasharray="263.9" stroke-dashoffset="42.2"
+                          transform="rotate(-90 50 50)"/>
+                  <circle cx="50" cy="50" r="42" fill="none" stroke="#7C5CFC" stroke-width="11"
+                          stroke-linecap="round" stroke-dasharray="263.9" stroke-dashoffset="221.7"
+                          transform="rotate(52 50 50)"/>
+                </svg>
+                <span class="ring-value">84%</span>
+              </div>
+              <div class="legend">
+                <div class="legend-item"><span class="legend-dot" style="background:#7C5CFC;"></span><span class="lbl">Completed</span><span class="val">84%</span></div>
+                <div class="legend-item"><span class="legend-dot" style="background:#B7A6FF;"></span><span class="lbl">In Progress</span><span class="val">12%</span></div>
+                <div class="legend-item"><span class="legend-dot" style="background:rgba(255,255,255,.25);"></span><span class="lbl">Not Started</span><span class="val">4%</span></div>
+              </div>
+            </div>
+          </div>
+
+          <div class="card panel">
+            <div class="section-title" style="margin-bottom:16px;">Top Student Career Interests</div>
+
+            <div class="interest-row">
+              <div class="interest-icon bg-purple"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M14.7 6.3a1 1 0 0 0 0-1.4l-1.6-1.6a1 1 0 0 0-1.4 0L4 11l1 5 5 1 7.7-7.7Z"/><path d="m14 8 2 2"/></svg></div>
+              <div class="interest-body"><div class="interest-top"><span>Engineering</span><span>218</span></div><div class="interest-track"><div class="interest-fill" style="width:92%;background:linear-gradient(90deg,#7C5CFC,#5F3DF5);"></div></div></div>
+            </div>
+            <div class="interest-row">
+              <div class="interest-icon bg-red"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M19 15V9a2 2 0 0 0-2-2h-3V4a2 2 0 0 0-4 0v3H7a2 2 0 0 0-2 2v6a2 2 0 0 0 2 2h3v3a2 2 0 0 0 4 0v-3h3a2 2 0 0 0 2-2Z"/></svg></div>
+              <div class="interest-body"><div class="interest-top"><span>Medicine</span><span>173</span></div><div class="interest-track"><div class="interest-fill" style="width:73%;background:linear-gradient(90deg,#F0555C,#D93E45);"></div></div></div>
+            </div>
+            <div class="interest-row">
+              <div class="interest-icon bg-blue"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="13" rx="2"/><path d="M8 21h8M12 17v4"/></svg></div>
+              <div class="interest-body"><div class="interest-top"><span>Design</span><span>96</span></div><div class="interest-track"><div class="interest-fill" style="width:40%;background:linear-gradient(90deg,#4C8DF5,#2E6FE0);"></div></div></div>
+            </div>
+            <div class="interest-row">
+              <div class="interest-icon bg-green"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 17 9 11l4 4 8-8"/><path d="M15 7h6v6"/></svg></div>
+              <div class="interest-body"><div class="interest-top"><span>Management</span><span>81</span></div><div class="interest-track"><div class="interest-fill" style="width:34%;background:linear-gradient(90deg,#1FAE74,#158C5C);"></div></div></div>
+            </div>
+            <div class="interest-row">
+              <div class="interest-icon bg-amber"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v18M5 7h14l-2 6H7L5 7Z"/><circle cx="7" cy="18" r="2"/><circle cx="17" cy="18" r="2"/></svg></div>
+              <div class="interest-body"><div class="interest-top"><span>Law</span><span>54</span></div><div class="interest-track"><div class="interest-fill" style="width:23%;background:linear-gradient(90deg,#E9A824,#C6890F);"></div></div></div>
+            </div>
+
+            <a class="view-all-link" href="reports.html" style="display:inline-block;margin-top:6px;font-size:11.5px;font-weight:700;color:var(--purple-dark);">View full report →</a>
+          </div>
+        </div>
+      </section>
+
+      <section class="card panel attn-panel">
+        <div class="attn-stats">
+          <div class="attn-stat">
+            <div class="icon-circle-badge bg-purple"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3.5 2"/></svg></div>
+            <div><div class="num">16</div><div class="txt">No activity for 14 days</div></div>
+          </div>
+          <div class="attn-stat">
+            <div class="icon-circle-badge bg-blue"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3.5" y="5" width="17" height="16" rx="2"/><path d="M8 3v4M16 3v4M3.5 10h17"/></svg></div>
+            <div><div class="num">14</div><div class="txt">Multiple incomplete assessments</div></div>
+          </div>
+          <div class="attn-stat">
+            <div class="icon-circle-badge bg-orange"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="4.5"/><circle cx="12" cy="12" r=".8" fill="currentColor" stroke="none"/></svg></div>
+            <div><div class="num">9</div><div class="txt">Roadmap stagnation</div></div>
+          </div>
+          <div class="attn-stat">
+            <div class="icon-circle-badge bg-indigo"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="8" r="3.4"/><path d="M2.5 20c.6-3.6 3.3-6 6.5-6s5.9 2.4 6.5 6"/><circle cx="17.5" cy="8.5" r="2.6"/><path d="M15.8 14.3c2.6.4 4.6 2.5 5.1 5.7"/></svg></div>
+            <div><div class="num">5</div><div class="txt">Repeatedly missed goals</div></div>
+          </div>
+          <div class="attn-stat">
+            <div class="icon-circle-badge bg-pink"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M19.5 12.6 12 20l-7.5-7.4A4.7 4.7 0 1 1 11 6.3l1 1 1-1a4.7 4.7 0 1 1 6.5 6.3Z"/></svg></div>
+            <div><div class="num">3</div><div class="txt">Low engagement</div></div>
+          </div>
+        </div>
+        <a class="attn-cta" href="reports.html">47 students require attention <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12h16"/><path d="m13 5 7 7-7 7"/></svg></a>
+      </section>
+
+      <section class="quote-banner">
+        <div class="qb-bg"></div>
+        <div class="qb-fade"></div>
+        <div class="qb-content">
+          <span class="quote-mark">&ldquo;</span>
+          <p>Every insight helps<br/>us build a better tomorrow.</p>
+        </div>
+        <a class="qb-btn" href="reports.html">View Reports <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12h16"/><path d="m13 5 7 7-7 7"/></svg></a>
+      </section>
+    </main>
+  </div>
+</body>
+</html>
