@@ -1,0 +1,751 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>CareStance | Classes</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@500;600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#F5F3FE;
+    --card:#FFFFFF;
+    --primary:#7C5CFC;
+    --primary-dark:#5B3DF0;
+    --primary-soft:#EFEBFF;
+    --navy:#1E1147;
+    --text:#231B3B;
+    --muted:#8A83A3;
+    --border:#ECE8FB;
+    --success:#22C55E;
+    --warning:#F59E0B;
+    --danger:#EF4444;
+    --pink:#EC4899;
+    --shadow: 0 10px 30px -14px rgba(76,53,166,0.18);
+    --shadow-hover: 0 14px 32px rgba(110,80,210,.16);
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;width:100%;overflow-x:hidden;}
+  body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);}
+  h1,h2,h3,h4{font-family:'Poppins',sans-serif;margin:0;}
+  a{text-decoration:none;color:inherit;}
+  .app{display:flex;min-height:100vh;width:100%;max-width:100vw;}
+
+  /* ---------- SIDEBAR (matches dashboard.html) ---------- */
+  .sidebar{
+    width:250px; flex-shrink:0;
+    background:var(--card);
+    border-radius:26px;
+    padding:22px 16px;
+    display:flex; flex-direction:column;
+    position:sticky; top:16px; height:calc(100vh - 32px);
+    margin:16px 0 16px 16px;
+    box-shadow:var(--shadow-hover);
+    overflow:hidden;
+    isolation:isolate;
+    transition:width .32s cubic-bezier(.4,0,.2,1), padding .32s cubic-bezier(.4,0,.2,1);
+  }
+  .sidebar.collapsed{width:88px;padding:22px 12px;}
+
+  .sidebar-bg{position:absolute;inset:0;z-index:0;}
+  .sidebar-bg img{
+    position:absolute;left:0;right:0;bottom:0;width:100%;object-fit:contain;object-position:bottom;opacity:1;
+    -webkit-mask-image:linear-gradient(180deg, transparent 0%, transparent 8%, rgba(0,0,0,.35) 22%, black 45%, black 100%);
+    mask-image:linear-gradient(180deg, transparent 0%, transparent 8%, rgba(0,0,0,.35) 22%, black 45%, black 100%);
+  }
+  .sidebar-bg::after{
+    content:"";position:absolute;inset:0;
+    background:linear-gradient(180deg,
+      rgba(255,255,255,.96) 0%,
+      rgba(255,255,255,.9) 20%,
+      rgba(255,255,255,.72) 34%,
+      rgba(255,255,255,.5) 46%,
+      rgba(255,255,255,.3) 58%,
+      rgba(255,255,255,.14) 68%,
+      rgba(255,255,255,.04) 78%,
+      rgba(255,255,255,0) 88%);
+  }
+
+  .brand-row{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:24px;transition:flex-direction .3s ease;position:relative;z-index:2;}
+  .sidebar.collapsed .brand-row{flex-direction:column;gap:14px;}
+  .brand{display:flex;align-items:center;gap:10px;min-width:0;}
+  .brand .logo{
+    width:38px;height:38px;border-radius:50%;flex-shrink:0;
+    background:linear-gradient(135deg,#7C5CFC,#5F3DF5);
+    display:flex;align-items:center;justify-content:center;
+    color:#fff;font-weight:700;font-family:'Poppins',sans-serif;font-size:16px;
+    overflow:hidden;
+    transition:transform .3s ease;
+  }
+  .brand .logo img{width:100%;height:100%;object-fit:cover;display:block;}
+  .brand-text{display:flex;flex-direction:column;min-width:0;}
+  .brand-text .name{
+    font-weight:700;font-size:18px;color:#241C3D;white-space:nowrap;
+    opacity:1;max-width:150px;overflow:hidden;font-family:'Poppins',sans-serif;line-height:1.2;
+    transition:opacity .2s ease, max-width .3s ease;
+  }
+  .brand-text .role{
+    font-weight:600;font-size:11px;color:#8C87A6;white-space:nowrap;
+    opacity:1;max-width:150px;overflow:hidden;
+    transition:opacity .2s ease, max-width .3s ease;
+  }
+  .sidebar.collapsed .brand-text{opacity:0;max-width:0;display:none;}
+
+  .sidebar-toggle{
+    width:26px;height:26px;border-radius:50%;flex-shrink:0;
+    background:#EFEBFE;color:#5F3DF5;border:1px solid #EFEBFA;
+    display:flex;align-items:center;justify-content:center;
+    cursor:pointer;
+    transition:transform .3s cubic-bezier(.4,0,.2,1), background .18s ease, color .18s ease;
+  }
+  .sidebar-toggle:hover{background:#7C5CFC;color:#fff;}
+  .sidebar-toggle svg{width:12px;height:12px;transition:transform .32s cubic-bezier(.4,0,.2,1);}
+  .sidebar.collapsed .sidebar-toggle svg{transform:rotate(180deg);}
+
+  .nav{display:flex;flex-direction:column;gap:4px;position:relative;z-index:2;}
+  .nav-item{
+    display:flex;align-items:center;gap:12px;
+    padding:11px 14px;border-radius:14px;position:relative;
+    color:#8C87A6;font-size:13.6px;font-weight:600;text-decoration:none;cursor:pointer;
+    transition:background .2s ease,color .2s ease,padding .3s ease,transform .2s ease;
+  }
+  .nav-item svg{width:18px;height:18px;flex-shrink:0;transition:transform .25s cubic-bezier(.4,0,.2,1);}
+  .nav-item:hover{background:#EFEBFE;color:#5F3DF5;}
+  .nav-item:hover svg{transform:scale(1.1);}
+  .nav-item.active{background:linear-gradient(135deg,#7C5CFC,#5F3DF5);color:#fff;font-weight:700;box-shadow:0 10px 20px rgba(124,92,252,.35);}
+  .nav-item span{
+    white-space:nowrap;opacity:1;max-width:180px;overflow:hidden;display:inline-block;
+    transition:opacity .2s ease, max-width .3s ease;
+  }
+  .sidebar.collapsed .nav-item{justify-content:center;padding:12px;width:44px;height:44px;margin:0 auto;}
+  .sidebar.collapsed .nav-item span{opacity:0;max-width:0;display:none;}
+
+  .nav-secondary{margin-top:10px;padding-top:12px;border-top:1px solid #EFEBFA;position:relative;z-index:2;}
+
+  .sidebar-spacer{flex:1;position:relative;min-height:24px;}
+
+  .sidebar-footer{
+    margin-top:12px;background:#EFEBFE;color:#5F3DF5;
+    border:1px solid #EFEBFA;
+    font-size:12px;font-weight:700;line-height:1.4;
+    padding:12px 14px;border-radius:14px;
+    display:flex;align-items:flex-start;gap:10px;position:relative;z-index:2;
+    transition:padding .3s ease,justify-content .3s ease;
+  }
+  .sidebar-footer .icon-circle{
+    width:26px;height:26px;border-radius:50%;background:#fff;flex-shrink:0;
+    display:flex;align-items:center;justify-content:center;color:#F0559B;
+  }
+  .sidebar-footer .icon-circle svg{width:13px;height:13px;}
+  .sidebar-footer span{
+    white-space:normal;opacity:1;max-width:180px;overflow:hidden;
+    transition:opacity .2s ease, max-width .3s ease;
+  }
+  .sidebar.collapsed .sidebar-footer{justify-content:center;padding:10px;}
+  .sidebar.collapsed .sidebar-footer span{opacity:0;max-width:0;display:none;}
+
+  /* ---------- MAIN / TOPBAR ---------- */
+  .main{flex:1; min-width:0; padding:26px 34px 54px; max-width:1400px;}
+  .topbar{display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:22px; flex-wrap:wrap; gap:16px;}
+  .topbar h1{font-size:26px;}
+  .topbar p{margin:6px 0 0; color:var(--muted); font-size:14px; max-width:520px;}
+  .top-actions{display:flex; align-items:center; gap:12px;}
+  .icon-btn{
+    width:38px;height:38px;border-radius:50%;background:#fff;border:1px solid var(--border);
+    display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0;
+  }
+  .avatar-sm{width:34px;height:34px;border-radius:50%;background:var(--primary-soft); color:var(--primary-dark);
+    display:flex;align-items:center;justify-content:center;font-weight:700;font-size:12px;}
+  .profile-chip{display:flex;align-items:center;gap:8px; background:#fff;border:1px solid var(--border);
+    padding:6px 12px 6px 6px;border-radius:30px;}
+  .profile-chip strong{display:block;font-size:12.5px;}
+  .profile-chip span{font-size:10.5px;color:var(--muted);}
+
+  section{margin-bottom:36px;}
+  .section-head{display:flex; align-items:baseline; justify-content:space-between; margin-bottom:16px; flex-wrap:wrap; gap:8px;}
+  .section-head h2{font-size:18px;}
+  .section-head .sub{font-size:12.5px; color:var(--muted); margin-top:3px;}
+
+  /* ---------- CLASS & SECTION TABS ---------- */
+  .class-tabs{display:flex; gap:10px; flex-wrap:wrap; margin-bottom:24px;}
+  .class-tab{
+    padding:12px 22px; border-radius:16px 16px 6px 6px; background:#fff; border:1px solid var(--border);
+    font-family:'Poppins',sans-serif; font-weight:700; font-size:13.5px; color:var(--muted); cursor:pointer;
+    transition:transform .2s ease, box-shadow .2s ease, background .2s ease, color .2s ease; text-align:left;
+  }
+  .class-tab .ctab-sub{display:block; font-size:10px; font-weight:600; opacity:.75; margin-top:3px;}
+  .class-tab:hover{transform:translateY(-2px);}
+  .class-tab.active{
+    background:linear-gradient(135deg,var(--primary),var(--primary-dark)); color:#fff; border-color:transparent;
+    box-shadow:0 12px 22px rgba(124,92,252,.32); transform:translateY(-3px);
+  }
+
+  /* ---------- CLASS ID CARD ---------- */
+  .id-card{
+    position:relative; background:linear-gradient(135deg,#2C1B67,#1E1147); border-radius:28px;
+    padding:30px 32px; color:#fff; overflow:hidden; box-shadow:var(--shadow);
+    display:flex; justify-content:space-between; align-items:center; gap:24px; flex-wrap:wrap;
+  }
+  .id-card::before{
+    content:""; position:absolute; inset:0;
+    background: radial-gradient(circle at 10% 15%, rgba(124,92,252,.45), transparent 45%),
+                radial-gradient(circle at 92% 88%, rgba(236,72,153,.3), transparent 42%);
+  }
+  .id-card::after{
+    content:""; position:absolute; top:18px; right:18px; width:70px; height:70px; border-radius:50%;
+    border:1.5px dashed rgba(255,255,255,.18);
+  }
+  .id-left{display:flex; align-items:center; gap:20px; position:relative; flex:1; min-width:230px;}
+  .id-emblem{
+    width:66px;height:66px;border-radius:20px; background:rgba(255,255,255,.1); border:1px solid rgba(255,255,255,.28);
+    display:flex;align-items:center;justify-content:center; font-family:'Poppins',sans-serif; font-weight:800; font-size:20px; flex-shrink:0;
+  }
+  .id-label{font-size:11px; letter-spacing:.07em; text-transform:uppercase; color:#C9C0F0; font-weight:700; margin-bottom:5px;}
+  .id-main h2{font-size:25px; color:#fff;}
+  .id-stats{display:flex; gap:24px; margin-top:14px; flex-wrap:wrap;}
+  .id-stat .n{font-family:'Poppins',sans-serif; font-weight:800; font-size:18px;}
+  .id-stat .l{font-size:10.5px; color:#C9C0F0;}
+  .id-teacher{
+    position:relative; display:flex; align-items:center; gap:12px; background:rgba(255,255,255,.08);
+    border:1px solid rgba(255,255,255,.2); padding:10px 18px 10px 10px; border-radius:40px; flex-shrink:0;
+  }
+  .id-teacher .av{
+    width:42px;height:42px;border-radius:50%;background:linear-gradient(160deg,#FFE9B8,#FFD98A);color:#5B3DF0;
+    display:flex;align-items:center;justify-content:center;font-weight:800;font-size:14px;flex-shrink:0;
+  }
+  .id-teacher strong{display:block;font-size:13px;color:#fff;}
+  .id-teacher span{font-size:10.5px;color:#C9C0F0;}
+
+  /* ---------- ROSTER / SPOTLIGHT ---------- */
+  .roster-controls{display:flex; flex-wrap:wrap; gap:16px; align-items:center; justify-content:space-between; margin-bottom:16px;}
+  .ctrl-group{display:flex; gap:8px; align-items:center; flex-wrap:wrap;}
+  .ctrl-label{font-size:11px; font-weight:700; color:var(--muted); text-transform:uppercase; letter-spacing:.05em; margin-right:2px;}
+  .chip-btn{
+    font-size:12px; font-weight:700; padding:8px 14px; border-radius:20px; border:1px solid var(--border);
+    background:#fff; color:var(--muted); cursor:pointer; transition:.2s; display:flex; align-items:center; gap:5px;
+  }
+  .chip-btn:hover{border-color:var(--primary);}
+  .chip-btn.active{background:var(--primary); color:#fff; border-color:var(--primary);}
+  .chip-btn .arrow{font-size:11px;}
+
+  .roster-card{background:var(--card); border-radius:26px; padding:8px 8px 4px; box-shadow:var(--shadow); border:1px solid var(--border);}
+  .spot-row{
+    display:flex; align-items:center; gap:16px; padding:14px 18px; border-bottom:1px dashed var(--border);
+  }
+  .spot-row:last-child{border-bottom:none;}
+  .spot-rank{width:28px; text-align:center; font-family:'Poppins',sans-serif; font-weight:800; color:var(--primary); font-size:13px; flex-shrink:0;}
+  .spot-rank.medal{font-size:18px;}
+  .spot-av{
+    width:38px;height:38px;border-radius:50%; background:var(--primary-soft); color:var(--primary-dark);
+    display:flex;align-items:center;justify-content:center;font-weight:700;font-size:12px; flex-shrink:0;
+  }
+  .spot-name{flex:1 1 150px; min-width:130px;}
+  .spot-name strong{display:block; font-size:14px;}
+  .spot-name span{font-size:11.5px; color:var(--muted);}
+  .spot-bar-wrap{width:140px; height:8px; border-radius:8px; background:var(--border); overflow:hidden; flex-shrink:0;}
+  .spot-bar{height:100%; border-radius:8px; background:linear-gradient(90deg,var(--primary),#B18CFF);}
+  .spot-score{width:50px; text-align:right; font-family:'Poppins',sans-serif; font-weight:800; font-size:14px; flex-shrink:0;}
+  .spot-tag{font-size:10.5px; font-weight:800; padding:5px 10px; border-radius:20px; white-space:nowrap; flex-shrink:0;}
+  .tag-top{background:#FFF6DC; color:#B5730A;}
+  .tag-attention{background:#FDEAEA; color:var(--danger);}
+  .tag-steady{background:var(--primary-soft); color:var(--primary-dark);}
+  .roster-empty{padding:30px 18px; text-align:center; color:var(--muted); font-size:13px;}
+
+  @media (max-width:680px){
+    .spot-bar-wrap{display:none;}
+    .spot-name span{display:block;}
+  }
+
+  /* ---------- SUBJECT TEACHERS ---------- */
+  .teacher-row{display:flex; gap:16px; overflow-x:auto; padding:6px 2px 16px;}
+  .teacher-card{
+    flex:0 0 auto; width:186px; background:var(--card); border:1px solid var(--border); border-radius:20px;
+    padding:16px; box-shadow:var(--shadow); transition:transform .2s ease;
+  }
+  .teacher-card:hover{transform:translateY(-4px);}
+  .teacher-card .t-ic{
+    width:40px;height:40px;border-radius:12px; display:flex;align-items:center;justify-content:center;
+    font-size:18px; margin-bottom:12px;
+  }
+  .teacher-card .t-sub{font-family:'Poppins',sans-serif; font-weight:700; font-size:13.5px; margin-bottom:10px;}
+  .teacher-card .t-name{display:flex; align-items:center; gap:8px;}
+  .teacher-card .t-av{
+    width:26px;height:26px;border-radius:50%; background:var(--primary-soft); color:var(--primary-dark);
+    display:flex;align-items:center;justify-content:center; font-size:10px; font-weight:700; flex-shrink:0;
+  }
+  .teacher-card .t-name span{font-size:11.5px; font-weight:600;}
+
+  /* ---------- TIMETABLE CORKBOARD ---------- */
+  .board{
+    background:linear-gradient(180deg,#FBFAFF,#F2EEFF);
+    border-radius:28px; padding:36px 30px 30px; position:relative; box-shadow:var(--shadow);
+    border:1px solid var(--border); overflow:hidden;
+  }
+  .board::before{
+    content:""; position:absolute; inset:0;
+    background-image:radial-gradient(rgba(124,92,252,.08) 1.6px, transparent 1.6px);
+    background-size:20px 20px; pointer-events:none;
+  }
+  .sticky-grid{
+    display:grid; grid-template-columns:repeat(auto-fit, minmax(190px,1fr)); gap:34px 24px;
+    position:relative; padding-top:8px;
+  }
+  .sticky{
+    background:var(--note-bg,#fff); border-radius:3px 3px 12px 12px; padding:18px 15px 16px; position:relative;
+    box-shadow:0 12px 22px -10px rgba(40,20,90,.22), 0 2px 4px rgba(40,20,90,.08);
+    transform:rotate(var(--rot,-2deg)); transition:transform .25s ease, box-shadow .25s ease; min-height:210px;
+  }
+  .sticky:hover{transform:rotate(0deg) translateY(-5px); box-shadow:0 20px 32px -12px rgba(40,20,90,.28); z-index:5;}
+  .sticky::before{
+    content:""; position:absolute; top:-9px; left:50%; transform:translateX(-50%); width:14px; height:14px; border-radius:50%;
+    background:radial-gradient(circle at 35% 30%, #fff, var(--pin,#7C5CFC) 60%, #3c2c85 100%);
+    box-shadow:0 3px 5px rgba(0,0,0,.28); z-index:2;
+  }
+  .sticky-tape{
+    position:absolute; top:-11px; left:16px; width:54px; height:20px; background:var(--tape, rgba(124,92,252,.4));
+    border-radius:2px; opacity:.85; transform:rotate(-6deg);
+  }
+  .sticky-day{font-family:'Poppins',sans-serif; font-weight:800; font-size:14.5px; margin-bottom:1px;}
+  .sticky-sub{font-size:10.5px; color:var(--muted); margin-bottom:12px; font-weight:600;}
+  .sticky-periods{display:flex; flex-direction:column; gap:9px;}
+  .period-row{display:flex; align-items:flex-start; gap:8px; font-size:11.5px;}
+  .period-time{font-family:'Poppins',sans-serif; font-weight:700; font-size:9.5px; color:var(--muted); width:62px; flex-shrink:0; padding-top:1px;}
+  .period-ic{font-size:13px; flex-shrink:0;}
+  .period-name{font-weight:700; line-height:1.2;}
+  .period-teacher{font-size:9.5px; color:var(--muted);}
+  .period-break{
+    font-size:9.5px; color:var(--muted); font-style:italic; padding:2px 0 2px 70px; opacity:.8;
+    border-top:1px dashed rgba(35,27,59,.12); margin-top:2px;
+  }
+  .board-note{margin-top:22px; position:relative; font-size:11.5px; color:var(--muted); text-align:center;}
+
+  @media (max-width:980px){
+    .sidebar{display:none;}
+    .main{padding:20px;}
+  }
+</style>
+</head>
+<body>
+<div class="app">
+
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-bg">
+      <img src="../shared/assets/s1.png" alt="" onerror="this.style.display='none'" />
+    </div>
+    <div class="brand-row">
+      <div class="brand">
+        <div class="logo"><img src="../shared/assets/logo.png" alt="CareStance" onerror="this.parentElement.textContent='S'" /></div>
+        <div class="brand-text"><span class="name">CareStance</span><span class="role">School Admin</span></div>
+      </div>
+      <button class="sidebar-toggle" id="sidebarToggle" aria-label="Collapse sidebar" onclick="document.getElementById('sidebar').classList.toggle('collapsed')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="m15 6-6 6 6 6"/></svg>
+      </button>
+    </div>
+    <nav class="nav">
+      <a class="nav-item" href="dashboard.html" title="Home"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 11.5 12 4l8 7.5"/><path d="M6 10v9a1 1 0 0 0 1 1h4v-6h2v6h4a1 1 0 0 0 1-1v-9"/></svg><span>Home</span></a>
+      <a class="nav-item" href="stats.html" title="Stats"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19V10M10 19V5M16 19v-7M22 19H2"/></svg><span>Stats</span></a>
+      <a class="nav-item" href="reports.html" title="Reports"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M7 3h7l4 4v14a1 1 0 0 1-1 1H7a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1Z"/><path d="M14 3v4h4"/><path d="M9 13h6M9 17h6M9 9h2"/></svg><span>Reports</span></a>
+      <a class="nav-item active" href="classes.html" title="Classes"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="8" height="8" rx="2"/><rect x="13" y="4" width="8" height="8" rx="2"/><rect x="3" y="14" width="8" height="6" rx="2"/><rect x="13" y="14" width="8" height="6" rx="2"/></svg><span>Classes</span></a>
+    </nav>
+
+    <div class="sidebar-spacer"></div>
+
+    <nav class="nav nav-secondary">
+      <a class="nav-item" href="login.html" title="Log out"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H6a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h3"/><path d="M16 17l5-5-5-5"/><path d="M21 12H9"/></svg><span>Log out</span></a>
+    </nav>
+
+    <div class="sidebar-footer" title="Every insight helps us build a better tomorrow.">
+      <div class="icon-circle"><svg viewBox="0 0 24 24" fill="currentColor" stroke="none"><path d="M12 20.5s-7.5-4.6-9.6-9.2C1.1 8 2.7 4.8 6 4.1c2-.4 3.7.5 4.8 2.1a.9.9 0 0 0 1.4 0c1.1-1.6 2.8-2.5 4.8-2.1 3.3.7 4.9 3.9 3.6 7.2C19.5 15.9 12 20.5 12 20.5Z"/></svg></div>
+      <span>Every insight helps us build a better tomorrow.</span>
+    </div>
+  </aside>
+
+  <main class="main">
+
+    <div class="topbar">
+      <div>
+        <h1>Classes 🏫</h1>
+        <p>Pick a class and section to see its roster, subject teachers, and this week's timetable — all in one place.</p>
+      </div>
+      <div class="top-actions">
+        <div class="icon-btn">🔔</div>
+        <div class="icon-btn">⚙️</div>
+        <div class="profile-chip">
+          <div class="avatar-sm">PS</div>
+          <div><strong>Priya Sharma</strong><span>School Admin</span></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- CLASS & SECTION PICKER -->
+    <div class="class-tabs" id="classTabs"></div>
+
+    <!-- CLASS ID CARD -->
+    <section>
+      <div class="id-card">
+        <div class="id-left">
+          <div class="id-emblem" id="idEmblem">10A</div>
+          <div class="id-main">
+            <div class="id-label">Class Profile</div>
+            <h2 id="idClassName">Class 10 · Section A</h2>
+            <div class="id-stats">
+              <div class="id-stat"><div class="n" id="idStrength">42</div><div class="l">Students</div></div>
+              <div class="id-stat"><div class="n" id="idAvg">84%</div><div class="l">Class Average</div></div>
+              <div class="id-stat"><div class="n" id="idAttendance">93%</div><div class="l">Attendance</div></div>
+            </div>
+          </div>
+        </div>
+        <div class="id-teacher">
+          <div class="av" id="idTeacherAv">KN</div>
+          <div><strong id="idTeacherName">Mrs. Kavita Nair</strong><span id="idTeacherSub">Class Teacher · Mathematics</span></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- STUDENT SPOTLIGHT -->
+    <section>
+      <div class="section-head">
+        <div><h2>Performance Spotlight</h2><div class="sub">Top scorers and students who need a nudge, ranked by marks</div></div>
+      </div>
+      <div class="roster-controls">
+        <div class="ctrl-group">
+          <span class="ctrl-label">Sort</span>
+          <button class="chip-btn active" data-sort="score">Marks <span class="arrow">↓</span></button>
+          <button class="chip-btn" data-sort="name">Name <span class="arrow"></span></button>
+        </div>
+        <div class="ctrl-group">
+          <span class="ctrl-label">Filter</span>
+          <button class="chip-btn active" data-filter="all">All Students</button>
+          <button class="chip-btn" data-filter="top">Top Performers</button>
+          <button class="chip-btn" data-filter="attention">Needs Attention</button>
+        </div>
+      </div>
+      <div class="roster-card">
+        <div id="rosterList"></div>
+      </div>
+    </section>
+
+    <!-- SUBJECT TEACHERS -->
+    <section>
+      <div class="section-head">
+        <div><h2>Subject Teachers</h2><div class="sub">Who teaches what for this class</div></div>
+      </div>
+      <div class="teacher-row" id="teacherRow"></div>
+    </section>
+
+    <!-- TIMETABLE -->
+    <section>
+      <div class="section-head">
+        <div><h2>Weekly Timetable</h2><div class="sub">Pinned to the noticeboard — hover a note to read it straight</div></div>
+      </div>
+      <div class="board">
+        <div class="sticky-grid" id="stickyGrid"></div>
+        <div class="board-note">🎉 Saturdays are half days — Activity Club after Period 3</div>
+      </div>
+    </section>
+
+  </main>
+</div>
+
+<script>
+  const SUBJECTS = {
+    Math:    {icon:'📐', color:'#7C5CFC', tint:'#EFEBFF', label:'Mathematics'},
+    Science: {icon:'🧪', color:'#22C1DC', tint:'#E3F8FB', label:'Science'},
+    English: {icon:'📖', color:'#EC4899', tint:'#FDEAF3', label:'English'},
+    Social:  {icon:'🌍', color:'#F59E0B', tint:'#FFF6E0', label:'Social Studies'},
+    Hindi:   {icon:'✒️', color:'#6A63EE', tint:'#ECEAFE', label:'Hindi'},
+    CompSci: {icon:'💻', color:'#22C55E', tint:'#E1F8EE', label:'Computer Sci.'},
+    PE:      {icon:'🏸', color:'#4C8DF5', tint:'#E8F1FE', label:'Physical Ed.'},
+    Club:    {icon:'🎨', color:'#B18CFF', tint:'#F1EBFF', label:'Activity Club'}
+  };
+
+  const DAYS = ['Mon','Tue','Wed','Thu','Fri','Sat'];
+  const DAY_FULL = {Mon:'Monday',Tue:'Tuesday',Wed:'Wednesday',Thu:'Thursday',Fri:'Friday',Sat:'Saturday'};
+  const DAY_STYLES = [
+    {bg:'#EFEBFF', tape:'#7C5CFC', pin:'#7C5CFC', rot:'-2.5deg'},
+    {bg:'#FDEAF3', tape:'#EC4899', pin:'#EC4899', rot:'1.5deg'},
+    {bg:'#E8F1FE', tape:'#4C8DF5', pin:'#4C8DF5', rot:'-1deg'},
+    {bg:'#E1F8EE', tape:'#1FAE74', pin:'#1FAE74', rot:'2deg'},
+    {bg:'#FDEDE0', tape:'#F0913F', pin:'#F0913F', rot:'-2deg'},
+    {bg:'#ECEAFE', tape:'#6A63EE', pin:'#6A63EE', rot:'1deg'}
+  ];
+  const WEEKDAY_TIMES = ['8:00–8:45','8:45–9:30','9:30–10:15','10:30–11:15','11:15–12:00','12:40–1:25'];
+  const SAT_TIMES = ['8:00–8:45','8:45–9:30','9:30–10:15'];
+
+  const CLASSES = {
+    '10A': {
+      label:'Class 10', section:'A', strength:42, avg:84, attendance:93,
+      classTeacher:{name:'Mrs. Kavita Nair', subject:'Mathematics'},
+      teachers:[
+        {code:'Math', teacher:'Mrs. Kavita Nair'},
+        {code:'Science', teacher:'Mr. Arjun Malhotra'},
+        {code:'English', teacher:'Ms. Leela Fernandes'},
+        {code:'Social', teacher:'Ms. Farah Sheikh'},
+        {code:'Hindi', teacher:'Mr. Rakesh Yadav'},
+        {code:'CompSci', teacher:'Ms. Neha Kulkarni'},
+        {code:'PE', teacher:'Mr. Vikram Sethi'}
+      ],
+      roster:[
+        {roll:3,  name:'Ananya Singh', score:98.1, attendance:97},
+        {roll:7,  name:'Aarav Khanna', score:92.9, attendance:95},
+        {roll:11, name:'Naina Iyer', score:90.8, attendance:96},
+        {roll:14, name:'Kabir Gill', score:90.2, attendance:89},
+        {roll:18, name:'Ritika Chawla', score:87.4, attendance:92},
+        {roll:22, name:'Yash Oberoi', score:85.0, attendance:88},
+        {roll:27, name:'Ishaan Verma', score:79.6, attendance:84},
+        {roll:33, name:'Diya Kapoor', score:68.3, attendance:81},
+        {roll:40, name:'Aditya Rana', score:61.5, attendance:76}
+      ],
+      timetable:{
+        Mon:['Math','Science','English','Social','Hindi','CompSci'],
+        Tue:['Science','Math','PE','English','Social','Hindi'],
+        Wed:['English','Hindi','Math','Science','CompSci','Social'],
+        Thu:['Social','English','Science','Math','PE','Hindi'],
+        Fri:['Hindi','CompSci','Social','PE','English','Math'],
+        Sat:['Math','Science','Club']
+      }
+    },
+    '10B': {
+      label:'Class 10', section:'B', strength:44, avg:81, attendance:90,
+      classTeacher:{name:'Mr. Arjun Malhotra', subject:'Science'},
+      teachers:[
+        {code:'Science', teacher:'Mr. Arjun Malhotra'},
+        {code:'Math', teacher:'Mr. Dev Anand'},
+        {code:'English', teacher:'Ms. Leela Fernandes'},
+        {code:'Social', teacher:'Ms. Farah Sheikh'},
+        {code:'Hindi', teacher:'Mr. Rakesh Yadav'},
+        {code:'CompSci', teacher:'Ms. Neha Kulkarni'},
+        {code:'PE', teacher:'Mr. Vikram Sethi'}
+      ],
+      roster:[
+        {roll:2,  name:'Rohan Kapoor', score:96.4, attendance:96},
+        {roll:6,  name:'Tanvi Verma', score:93.6, attendance:94},
+        {roll:10, name:'Dev Patel', score:91.5, attendance:93},
+        {roll:15, name:'Riya Mehta', score:89.7, attendance:90},
+        {roll:19, name:'Karan Bhatia', score:84.2, attendance:87},
+        {roll:24, name:"Simone D'Souza", score:81.0, attendance:91},
+        {roll:29, name:'Zara Ahmed', score:74.8, attendance:83},
+        {roll:35, name:'Manav Joshi', score:65.1, attendance:79},
+        {roll:41, name:'Priyanshu Rao', score:58.9, attendance:74}
+      ],
+      timetable:{
+        Mon:['Science','Math','Social','English','CompSci','Hindi'],
+        Tue:['Math','Science','English','PE','Hindi','Social'],
+        Wed:['Social','English','CompSci','Math','Science','Hindi'],
+        Thu:['English','Social','Math','Hindi','Science','PE'],
+        Fri:['CompSci','Hindi','Science','Social','Math','English'],
+        Sat:['Science','Math','Club']
+      }
+    },
+    '9A': {
+      label:'Class 9', section:'A', strength:40, avg:83, attendance:91,
+      classTeacher:{name:'Ms. Leela Fernandes', subject:'English'},
+      teachers:[
+        {code:'English', teacher:'Ms. Leela Fernandes'},
+        {code:'Math', teacher:'Mrs. Kavita Nair'},
+        {code:'Science', teacher:'Ms. Priya Ramesh'},
+        {code:'Social', teacher:'Ms. Farah Sheikh'},
+        {code:'Hindi', teacher:'Mr. Rakesh Yadav'},
+        {code:'CompSci', teacher:'Ms. Neha Kulkarni'},
+        {code:'PE', teacher:'Mr. Vikram Sethi'}
+      ],
+      roster:[
+        {roll:4,  name:'Meher Jain', score:94.8, attendance:98},
+        {roll:8,  name:'Arnav Chopra', score:90.3, attendance:92},
+        {roll:12, name:'Sanya Kohli', score:88.7, attendance:95},
+        {roll:16, name:'Vivaan Menon', score:86.1, attendance:90},
+        {roll:21, name:'Ira Bhatt', score:82.5, attendance:88},
+        {roll:25, name:'Rehan Qureshi', score:77.9, attendance:85},
+        {roll:30, name:'Anaya Trivedi', score:70.2, attendance:82},
+        {roll:34, name:'Kartik Saxena', score:63.4, attendance:78},
+        {roll:38, name:'Fatima Sheikh', score:55.7, attendance:71}
+      ],
+      timetable:{
+        Mon:['English','Social','Math','Science','CompSci','Hindi'],
+        Tue:['Math','English','Science','Hindi','PE','Social'],
+        Wed:['Science','Math','English','Social','Hindi','CompSci'],
+        Thu:['Hindi','Science','Social','English','Math','PE'],
+        Fri:['Social','CompSci','Hindi','Math','Science','English'],
+        Sat:['English','Math','Club']
+      }
+    }
+  };
+
+  let currentClassKey = '10A';
+  let currentFilter = 'all';
+  let currentSort = {field:'score', dir:'desc'};
+
+  function initials(name){
+    const stripped = name.replace(/^(Mr\.|Mrs\.|Ms\.|Dr\.)\s*/,'');
+    return stripped.split(' ').filter(Boolean).map(p=>p[0]).join('').slice(0,2).toUpperCase();
+  }
+  function firstTwoNames(name){
+    return name.replace(/^(Mr\.|Mrs\.|Ms\.|Dr\.)\s*/,'');
+  }
+
+  function buildTabs(){
+    const wrap = document.getElementById('classTabs');
+    wrap.innerHTML = Object.keys(CLASSES).map(key=>{
+      const c = CLASSES[key];
+      return `<button class="class-tab" data-key="${key}">${c.label}<span class="ctab-sub">Section ${c.section} · ${c.strength} students</span></button>`;
+    }).join('');
+    wrap.querySelectorAll('.class-tab').forEach(btn=>{
+      btn.addEventListener('click', ()=>selectClass(btn.dataset.key));
+    });
+  }
+
+  function selectClass(key){
+    currentClassKey = key;
+    currentFilter = 'all';
+    currentSort = {field:'score', dir:'desc'};
+    document.querySelectorAll('.class-tab').forEach(t=>t.classList.toggle('active', t.dataset.key===key));
+    document.querySelectorAll('.chip-btn[data-filter]').forEach(b=>b.classList.toggle('active', b.dataset.filter==='all'));
+    document.querySelectorAll('.chip-btn[data-sort]').forEach(b=>{
+      b.classList.toggle('active', b.dataset.sort==='score');
+      const arrow = b.querySelector('.arrow');
+      if(arrow) arrow.textContent = b.dataset.sort==='score' ? '↓' : '';
+    });
+    renderIdCard();
+    renderRoster();
+    renderTeachers();
+    renderTimetable();
+  }
+
+  function renderIdCard(){
+    const c = CLASSES[currentClassKey];
+    document.getElementById('idEmblem').textContent = c.label.replace('Class ','') + c.section;
+    document.getElementById('idClassName').textContent = `${c.label} · Section ${c.section}`;
+    document.getElementById('idStrength').textContent = c.strength;
+    document.getElementById('idAvg').textContent = c.avg + '%';
+    document.getElementById('idAttendance').textContent = c.attendance + '%';
+    document.getElementById('idTeacherAv').textContent = initials(c.classTeacher.name);
+    document.getElementById('idTeacherName').textContent = c.classTeacher.name;
+    document.getElementById('idTeacherSub').textContent = `Class Teacher · ${c.classTeacher.subject}`;
+  }
+
+  function renderRoster(){
+    const c = CLASSES[currentClassKey];
+    let list = c.roster.map(s=>{
+      let tag = 'steady';
+      if(s.score >= 90) tag = 'top';
+      else if(s.score < 70) tag = 'attention';
+      return {...s, tag};
+    });
+    if(currentFilter==='top') list = list.filter(s=>s.tag==='top');
+    if(currentFilter==='attention') list = list.filter(s=>s.tag==='attention');
+
+    list.sort((a,b)=>{
+      if(currentSort.field==='name'){
+        return currentSort.dir==='asc' ? a.name.localeCompare(b.name) : b.name.localeCompare(a.name);
+      }
+      return currentSort.dir==='asc' ? a.score - b.score : b.score - a.score;
+    });
+
+    const wrap = document.getElementById('rosterList');
+    if(list.length===0){
+      wrap.innerHTML = `<div class="roster-empty">No students match this filter right now.</div>`;
+      return;
+    }
+
+    const isRankedByScore = currentSort.field==='score' && currentSort.dir==='desc';
+    const medals = ['🥇','🥈','🥉'];
+
+    wrap.innerHTML = list.map((s,i)=>{
+      const rankDisplay = (isRankedByScore && i<3) ? medals[i] : (i+1);
+      const isMedal = isRankedByScore && i<3;
+      const tagHtml = s.tag==='top' ? '<span class="spot-tag tag-top">Top Scorer</span>'
+                    : s.tag==='attention' ? '<span class="spot-tag tag-attention">Needs Support</span>'
+                    : '<span class="spot-tag tag-steady">Steady</span>';
+      return `<div class="spot-row">
+        <div class="spot-rank ${isMedal?'medal':''}">${rankDisplay}</div>
+        <div class="spot-av">${initials(s.name)}</div>
+        <div class="spot-name"><strong>${s.name}</strong><span>Roll No. ${s.roll} · ${s.attendance}% attendance</span></div>
+        <div class="spot-bar-wrap"><div class="spot-bar" style="width:${s.score}%"></div></div>
+        <div class="spot-score">${s.score}%</div>
+        ${tagHtml}
+      </div>`;
+    }).join('');
+  }
+
+  function renderTeachers(){
+    const c = CLASSES[currentClassKey];
+    const wrap = document.getElementById('teacherRow');
+    wrap.innerHTML = c.teachers.map(t=>{
+      const meta = SUBJECTS[t.code];
+      return `<div class="teacher-card">
+        <div class="t-ic" style="background:${meta.tint};color:${meta.color};">${meta.icon}</div>
+        <div class="t-sub">${meta.label}</div>
+        <div class="t-name"><div class="t-av">${initials(t.teacher)}</div><span>${t.teacher}</span></div>
+      </div>`;
+    }).join('');
+  }
+
+  function teacherFor(code){
+    const c = CLASSES[currentClassKey];
+    const t = c.teachers.find(t=>t.code===code);
+    return t ? firstTwoNames(t.teacher) : '';
+  }
+
+  function renderTimetable(){
+    const c = CLASSES[currentClassKey];
+    const wrap = document.getElementById('stickyGrid');
+    wrap.innerHTML = DAYS.map((day,i)=>{
+      const subs = c.timetable[day];
+      const style = DAY_STYLES[i];
+      const times = day==='Sat' ? SAT_TIMES : WEEKDAY_TIMES;
+      const periodsHtml = subs.map((code, idx)=>{
+        const meta = SUBJECTS[code];
+        const teacherLine = code==='Club' ? 'Open activity' : teacherFor(code);
+        let row = `<div class="period-row">
+          <span class="period-time">${times[idx]}</span>
+          <span class="period-ic">${meta.icon}</span>
+          <div><div class="period-name">${meta.label}</div><div class="period-teacher">${teacherLine}</div></div>
+        </div>`;
+        if(day!=='Sat' && idx===2) row += `<div class="period-break">10:15–10:30 · Short Break</div>`;
+        if(day!=='Sat' && idx===4) row += `<div class="period-break">12:00–12:40 · Lunch</div>`;
+        return row;
+      }).join('');
+      return `<div class="sticky" style="--note-bg:${style.bg};--tape:${style.tape};--pin:${style.pin};--rot:${style.rot};">
+        <div class="sticky-tape"></div>
+        <div class="sticky-day">${DAY_FULL[day]}</div>
+        <div class="sticky-sub">${day==='Sat' ? 'Half day' : `${subs.length} periods`}</div>
+        <div class="sticky-periods">${periodsHtml}</div>
+      </div>`;
+    }).join('');
+  }
+
+  document.querySelectorAll('.chip-btn[data-filter]').forEach(btn=>{
+    btn.addEventListener('click', ()=>{
+      currentFilter = btn.dataset.filter;
+      document.querySelectorAll('.chip-btn[data-filter]').forEach(b=>b.classList.remove('active'));
+      btn.classList.add('active');
+      renderRoster();
+    });
+  });
+
+  document.querySelectorAll('.chip-btn[data-sort]').forEach(btn=>{
+    btn.addEventListener('click', ()=>{
+      const field = btn.dataset.sort;
+      if(currentSort.field===field){
+        currentSort.dir = currentSort.dir==='desc' ? 'asc' : 'desc';
+      } else {
+        currentSort.field = field;
+        currentSort.dir = field==='name' ? 'asc' : 'desc';
+      }
+      document.querySelectorAll('.chip-btn[data-sort]').forEach(b=>{
+        b.classList.remove('active');
+        const arrow = b.querySelector('.arrow');
+        if(arrow) arrow.textContent = '';
+      });
+      btn.classList.add('active');
+      const arrow = btn.querySelector('.arrow');
+      if(arrow) arrow.textContent = currentSort.dir==='desc' ? '↓' : '↑';
+      renderRoster();
+    });
+  });
+
+  buildTabs();
+  selectClass('10A');
+</script>
+</body>
+</html>

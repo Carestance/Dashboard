@@ -1,0 +1,641 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>CareStance · Results</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@500;600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#F5F3FE;
+    --card:#FFFFFF;
+    --primary:#7C5CFC;
+    --primary-dark:#5B3DF0;
+    --primary-soft:#EFEBFF;
+    --navy:#1E1147;
+    --navy-soft:#2C1B67;
+    --text:#231B3B;
+    --muted:#8A83A3;
+    --border:#ECE8FB;
+    --success:#22C55E;
+    --warning:#F59E0B;
+    --danger:#EF4444;
+    --pink:#EC4899;
+    --gold: linear-gradient(160deg,#FFD98A,#F5A623);
+    --silver: linear-gradient(160deg,#E4E2F5,#B7B2D6);
+    --bronze: linear-gradient(160deg,#F2C199,#C77F4C);
+    --shadow: 0 10px 30px -14px rgba(76,53,166,0.18);
+    --shadow-hover: 0 14px 32px rgba(110,80,210,.16);
+  }
+  *{box-sizing:border-box;}
+  html,body{
+    margin:0;
+    width:100%;
+    overflow-x:hidden;
+  }
+  body{
+    font-family:'Inter',sans-serif;
+    background:var(--bg);
+    color:var(--text);
+  }
+  h1,h2,h3,h4{font-family:'Poppins',sans-serif; margin:0;}
+  .app{display:flex; min-height:100vh; width:100%; max-width:100vw;}
+
+  /* ---------- SIDEBAR (matches dashboard.html) ---------- */
+  .avatar-sm{width:34px;height:34px;border-radius:50%;background:var(--primary-soft); color:var(--primary-dark);
+    display:flex;align-items:center;justify-content:center;font-weight:700;font-size:12px;}
+
+  .sidebar{
+    width:250px; flex-shrink:0;
+    background:var(--card);
+    border-radius:26px;
+    padding:22px 16px;
+    display:flex; flex-direction:column;
+    position:sticky; top:16px; height:calc(100vh - 32px);
+    margin:16px 0 16px 16px;
+    box-shadow:var(--shadow-hover);
+    overflow:hidden;
+    isolation:isolate;
+    transition:width .32s cubic-bezier(.4,0,.2,1), padding .32s cubic-bezier(.4,0,.2,1);
+  }
+  .sidebar.collapsed{width:88px;padding:22px 12px;}
+
+  .sidebar-bg{position:absolute;inset:0;z-index:0;}
+  .sidebar-bg img{
+    position:absolute;left:0;right:0;bottom:0;width:100%;object-fit:contain;object-position:bottom;opacity:1;
+    -webkit-mask-image:linear-gradient(180deg, transparent 0%, transparent 8%, rgba(0,0,0,.35) 22%, black 45%, black 100%);
+    mask-image:linear-gradient(180deg, transparent 0%, transparent 8%, rgba(0,0,0,.35) 22%, black 45%, black 100%);
+  }
+  .sidebar-bg::after{
+    content:"";position:absolute;inset:0;
+    background:linear-gradient(180deg,
+      rgba(255,255,255,.96) 0%,
+      rgba(255,255,255,.9) 20%,
+      rgba(255,255,255,.72) 34%,
+      rgba(255,255,255,.5) 46%,
+      rgba(255,255,255,.3) 58%,
+      rgba(255,255,255,.14) 68%,
+      rgba(255,255,255,.04) 78%,
+      rgba(255,255,255,0) 88%);
+  }
+
+  .brand-row{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:24px;transition:flex-direction .3s ease;position:relative;z-index:2;}
+  .sidebar.collapsed .brand-row{flex-direction:column;gap:14px;}
+  .brand{display:flex;align-items:center;gap:10px;min-width:0;}
+  .brand .logo{
+    width:38px;height:38px;border-radius:50%;flex-shrink:0;
+    background:linear-gradient(135deg,#7C5CFC,#5F3DF5);
+    display:flex;align-items:center;justify-content:center;
+    color:#fff;font-weight:700;font-family:'Poppins',sans-serif;font-size:16px;
+    overflow:hidden;
+    transition:transform .3s ease;
+  }
+  .brand .logo img{width:100%;height:100%;object-fit:cover;display:block;}
+  .brand-text{display:flex;flex-direction:column;min-width:0;}
+  .brand-text .name{
+    font-weight:700;font-size:18px;color:#241C3D;white-space:nowrap;
+    opacity:1;max-width:150px;overflow:hidden;font-family:'Poppins',sans-serif;line-height:1.2;
+    transition:opacity .2s ease, max-width .3s ease;
+  }
+  .brand-text .role{
+    font-weight:600;font-size:11px;color:#8C87A6;white-space:nowrap;
+    opacity:1;max-width:150px;overflow:hidden;
+    transition:opacity .2s ease, max-width .3s ease;
+  }
+  .sidebar.collapsed .brand-text{opacity:0;max-width:0;display:none;}
+
+  .sidebar-toggle{
+    width:26px;height:26px;border-radius:50%;flex-shrink:0;
+    background:#EFEBFE;color:#5F3DF5;border:1px solid #EFEBFA;
+    display:flex;align-items:center;justify-content:center;
+    cursor:pointer;
+    transition:transform .3s cubic-bezier(.4,0,.2,1), background .18s ease, color .18s ease;
+  }
+  .sidebar-toggle:hover{background:#7C5CFC;color:#fff;}
+  .sidebar-toggle svg{width:12px;height:12px;transition:transform .32s cubic-bezier(.4,0,.2,1);}
+  .sidebar.collapsed .sidebar-toggle svg{transform:rotate(180deg);}
+
+  .nav{display:flex;flex-direction:column;gap:4px;position:relative;z-index:2;}
+  .nav-item{
+    display:flex;align-items:center;gap:12px;
+    padding:11px 14px;border-radius:14px;position:relative;
+    color:#8C87A6;font-size:13.6px;font-weight:600;text-decoration:none;cursor:pointer;
+    transition:background .2s ease,color .2s ease,padding .3s ease,transform .2s ease;
+  }
+  .nav-item svg{width:18px;height:18px;flex-shrink:0;transition:transform .25s cubic-bezier(.4,0,.2,1);}
+  .nav-item:hover{background:#EFEBFE;color:#5F3DF5;}
+  .nav-item:hover svg{transform:scale(1.1);}
+  .nav-item.active{background:linear-gradient(135deg,#7C5CFC,#5F3DF5);color:#fff;font-weight:700;box-shadow:0 10px 20px rgba(124,92,252,.35);}
+  .nav-item span{
+    white-space:nowrap;opacity:1;max-width:180px;overflow:hidden;display:inline-block;
+    transition:opacity .2s ease, max-width .3s ease;
+  }
+  .sidebar.collapsed .nav-item{justify-content:center;padding:12px;width:44px;height:44px;margin:0 auto;}
+  .sidebar.collapsed .nav-item span{opacity:0;max-width:0;display:none;}
+
+  .nav-secondary{margin-top:10px;padding-top:12px;border-top:1px solid #EFEBFA;position:relative;z-index:2;}
+
+  .sidebar-spacer{flex:1;position:relative;min-height:24px;}
+
+  .sidebar-footer{
+    margin-top:12px;background:#EFEBFE;color:#5F3DF5;
+    border:1px solid #EFEBFA;
+    font-size:12px;font-weight:700;line-height:1.4;
+    padding:12px 14px;border-radius:14px;
+    display:flex;align-items:flex-start;gap:10px;position:relative;z-index:2;
+    transition:padding .3s ease,justify-content .3s ease;
+  }
+  .sidebar-footer .icon-circle{
+    width:26px;height:26px;border-radius:50%;background:#fff;flex-shrink:0;
+    display:flex;align-items:center;justify-content:center;color:#F0559B;
+  }
+  .sidebar-footer .icon-circle svg{width:13px;height:13px;}
+  .sidebar-footer span{
+    white-space:normal;opacity:1;max-width:180px;overflow:hidden;
+    transition:opacity .2s ease, max-width .3s ease;
+  }
+  .sidebar.collapsed .sidebar-footer{justify-content:center;padding:10px;}
+  .sidebar.collapsed .sidebar-footer span{opacity:0;max-width:0;display:none;}
+
+  /* ---------- MAIN ---------- */
+  .main{flex:1; min-width:0; padding:26px 34px 50px; max-width:1400px;}
+  .topbar{display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:26px; flex-wrap:wrap; gap:16px;}
+  .topbar h1{font-size:26px;}
+  .topbar p{margin:6px 0 0; color:var(--muted); font-size:14px;}
+  .top-actions{display:flex; align-items:center; gap:12px;}
+  .term-select{
+    background:#fff; border:1px solid var(--border); padding:9px 14px; border-radius:12px;
+    font-family:'Inter'; font-weight:600; font-size:13px; color:var(--text); cursor:pointer;
+  }
+  .icon-btn{
+    width:38px;height:38px;border-radius:50%;background:#fff;border:1px solid var(--border);
+    display:flex;align-items:center;justify-content:center;cursor:pointer;
+  }
+  .profile-chip{display:flex;align-items:center;gap:8px; background:#fff;border:1px solid var(--border);
+    padding:6px 12px 6px 6px;border-radius:30px;}
+  .profile-chip strong{display:block;font-size:12.5px;}
+  .profile-chip span{font-size:10.5px;color:var(--muted);}
+
+  section{margin-bottom:34px;}
+  .section-head{display:flex; align-items:baseline; justify-content:space-between; margin-bottom:16px;}
+  .section-head h2{font-size:18px;}
+  .section-head .sub{font-size:12.5px; color:var(--muted); margin-top:3px;}
+  .link-more{font-size:12.5px; color:var(--primary-dark); font-weight:700; text-decoration:none; white-space:nowrap;}
+
+  /* ---------- PODIUM ---------- */
+  .podium-wrap{
+    background:var(--navy);
+    border-radius:26px; padding:34px 30px 0; position:relative; overflow:hidden;
+    box-shadow:var(--shadow);
+  }
+  .podium-wrap::before{
+    content:""; position:absolute; inset:0;
+    background: radial-gradient(circle at 15% 20%, rgba(124,92,252,0.35), transparent 45%),
+                radial-gradient(circle at 85% 10%, rgba(236,72,153,0.25), transparent 40%);
+  }
+  .podium-title{position:relative; color:#fff; display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;}
+  .podium-title h2{color:#fff; font-size:18px;}
+  .podium-title .sub{color:#C9C0F0; font-size:12.5px;}
+  .podium{position:relative; display:flex; align-items:flex-end; justify-content:center; gap:18px; padding-top:18px;}
+  .pod-card{
+    width:170px; text-align:center; color:#fff; position:relative;
+  }
+  .pod-avatar{
+    width:64px; height:64px; border-radius:50%; margin:0 auto 8px; display:flex; align-items:center; justify-content:center;
+    font-family:'Poppins'; font-weight:700; font-size:20px; color:#2C1B67; border:3px solid rgba(255,255,255,0.85);
+  }
+  .pod-card.rank-1 .pod-avatar{width:78px;height:78px;font-size:24px; background:linear-gradient(160deg,#FFE9B8,#FFD98A);}
+  .pod-card.rank-2 .pod-avatar{background:linear-gradient(160deg,#F1EFFF,#E4E2F5);}
+  .pod-card.rank-3 .pod-avatar{background:linear-gradient(160deg,#F6D9C2,#F2C199);}
+  .pod-name{font-weight:700; font-size:14.5px;}
+  .pod-class{font-size:11px; color:#C9C0F0; margin-bottom:10px;}
+  .pod-score{font-family:'Poppins'; font-weight:800; font-size:15px; margin-bottom:10px;}
+  .pod-stand{
+    border-radius:16px 16px 0 0; display:flex; align-items:flex-start; justify-content:center; padding-top:10px;
+    position:relative;
+  }
+  .pod-card.rank-1 .pod-stand{height:118px; background:linear-gradient(180deg,#8A6BFF,#6B45F0);}
+  .pod-card.rank-2 .pod-stand{height:86px; background:linear-gradient(180deg,#4B3A8A,#382A66);}
+  .pod-card.rank-3 .pod-stand{height:64px; background:linear-gradient(180deg,#4B3A8A,#382A66);}
+  .ribbon{
+    font-family:'Poppins'; font-weight:800; font-size:20px; color:#fff;
+  }
+  .crown{position:absolute; top:-30px; left:50%; transform:translateX(-50%); font-size:22px;}
+
+  .rank-strip{
+    position:relative; display:flex; gap:10px; overflow-x:auto; padding:20px 0 26px; margin-top:6px;
+  }
+  .rank-pill{
+    flex:0 0 auto; display:flex; align-items:center; gap:10px; background:rgba(255,255,255,0.06);
+    border:1px solid rgba(255,255,255,0.12); padding:8px 14px 8px 8px; border-radius:40px; color:#fff; min-width:190px;
+  }
+  .rank-pill .num{
+    width:24px;height:24px;border-radius:50%;background:rgba(255,255,255,0.14); font-size:11.5px; font-weight:700;
+    display:flex;align-items:center;justify-content:center; flex:none;
+  }
+  .rank-pill .rp-av{
+    width:30px;height:30px;border-radius:50%; background:var(--primary-soft); color:var(--primary-dark);
+    font-size:11px; font-weight:700; display:flex;align-items:center;justify-content:center; flex:none;
+  }
+  .rank-pill .rp-name{font-size:12.5px; font-weight:600; line-height:1.2;}
+  .rank-pill .rp-score{font-size:10.5px; color:#C9C0F0;}
+
+  /* ---------- SUBJECT MASTERY RINGS ---------- */
+  .rings-card{background:var(--card); border-radius:26px; padding:26px 28px; box-shadow:var(--shadow); border:1px solid var(--border);}
+  .rings-row{display:flex; flex-wrap:wrap; gap:26px; justify-content:space-between;}
+  .ring-item{
+    flex:1 1 130px; display:flex; flex-direction:column; align-items:center; text-align:center;
+    padding-top:10px;
+  }
+  .ring-item:nth-child(even){margin-top:22px;}
+  .ring{
+    width:96px; height:96px; border-radius:50%;
+    display:flex; align-items:center; justify-content:center; position:relative;
+    background: conic-gradient(var(--ring-color) calc(var(--pct) * 1%), #F0EDFC 0);
+  }
+  .ring::before{
+    content:""; position:absolute; inset:9px; border-radius:50%; background:#fff;
+  }
+  .ring .ring-inner{position:relative; display:flex; flex-direction:column; align-items:center;}
+  .ring .ring-icon{font-size:18px; line-height:1;}
+  .ring .ring-pct{font-family:'Poppins'; font-weight:800; font-size:13px; color:var(--text);}
+  .ring-label{margin-top:10px; font-weight:700; font-size:13px;}
+  .ring-trend{font-size:11px; margin-top:2px;}
+  .trend-up{color:var(--success);}
+  .trend-down{color:var(--danger);}
+
+  /* ---------- WATCHLIST ---------- */
+  .watch-list{display:flex; flex-direction:column; gap:12px;}
+  .watch-row{
+    position:relative; background:var(--card); border:1px solid var(--border); border-radius:16px;
+    padding:14px 18px 14px 26px; display:flex; align-items:center; gap:16px; box-shadow:var(--shadow);
+  }
+  .watch-tab{
+    position:absolute; left:-1px; top:14px; bottom:14px; width:6px; border-radius:6px;
+  }
+  .sev-critical .watch-tab{background:var(--danger);}
+  .sev-warning .watch-tab{background:var(--warning);}
+  .sev-watch .watch-tab{background:var(--primary);}
+  .watch-av{
+    width:40px;height:40px;border-radius:50%;background:var(--primary-soft);color:var(--primary-dark);
+    display:flex;align-items:center;justify-content:center;font-weight:700;font-size:13px; flex:none;
+  }
+  .watch-mid{flex:1; min-width:160px;}
+  .watch-mid strong{display:block; font-size:14px;}
+  .watch-mid span{font-size:12px; color:var(--muted);}
+  .watch-tag{
+    font-size:11px; font-weight:700; padding:5px 10px; border-radius:20px; white-space:nowrap;
+  }
+  .sev-critical .watch-tag{background:#FDEAEA; color:var(--danger);}
+  .sev-warning .watch-tag{background:#FEF3DC; color:#B5730A;}
+  .sev-watch .watch-tag{background:var(--primary-soft); color:var(--primary-dark);}
+  .watch-spark{display:flex; align-items:flex-end; gap:2px; height:24px; flex:none;}
+  .watch-spark i{width:4px; background:var(--border); border-radius:2px; display:block;}
+  .sev-critical .watch-spark i{background:#FBD3D3;}
+  .watch-action{
+    font-size:12px; font-weight:700; color:var(--primary-dark); border:1px solid var(--primary-soft);
+    background:var(--primary-soft); padding:8px 14px; border-radius:10px; cursor:pointer; white-space:nowrap;
+  }
+
+  /* ---------- CLASS LEDGER ---------- */
+  .ledger{background:var(--card); border-radius:26px; padding:8px 8px 4px; box-shadow:var(--shadow); border:1px solid var(--border);}
+  .ledger-row{border-bottom:1px dashed var(--border);}
+  .ledger-row:last-child{border-bottom:none;}
+  .ledger-row summary{
+    list-style:none; cursor:pointer; display:flex; align-items:center; gap:16px; padding:16px 18px;
+  }
+  .ledger-row summary::-webkit-details-marker{display:none;}
+  .ledger-num{
+    font-family:'Poppins'; font-weight:800; color:var(--primary); font-size:13px; width:26px;
+  }
+  .ledger-name{flex:1 1 160px; min-width:120px;}
+  .ledger-name strong{display:block; font-size:14.5px;}
+  .ledger-name span{font-size:11.5px; color:var(--muted);}
+  .ledger-leader{
+    flex:2; height:1px; background:repeating-linear-gradient(to right, var(--border) 0 6px, transparent 6px 11px);
+    margin:0 8px; min-width:40px;
+  }
+  .ledger-bar-wrap{width:140px; height:8px; border-radius:8px; background:var(--border); overflow:hidden; flex:none;}
+  .ledger-bar{height:100%; border-radius:8px; background:linear-gradient(90deg,var(--primary),#B18CFF);}
+  .ledger-score{font-family:'Poppins'; font-weight:800; font-size:14px; width:44px; text-align:right;}
+  .ledger-badge{
+    font-size:11px; font-weight:800; padding:5px 10px; border-radius:8px; width:30px; text-align:center;
+  }
+  .band-a{background:#E7F9EE; color:var(--success);}
+  .band-b{background:#EFEBFF; color:var(--primary-dark);}
+  .band-c{background:#FEF3DC; color:#B5730A;}
+  .ledger-chevron{color:var(--muted); transition:transform .2s ease;}
+  details[open] .ledger-chevron{transform:rotate(180deg);}
+  .ledger-detail{padding:0 18px 20px 62px; display:flex; gap:28px; flex-wrap:wrap;}
+  .ld-item{font-size:12.5px; color:var(--muted);}
+  .ld-item strong{display:block; color:var(--text); font-size:14px; font-family:'Poppins'; font-weight:700;}
+
+  /* ---------- BANNER ---------- */
+  .banner{
+    background:linear-gradient(120deg,#EFEAFF,#F7E9FB); border-radius:24px; padding:26px 32px;
+    display:flex; justify-content:space-between; align-items:center; gap:20px; flex-wrap:wrap;
+  }
+  .banner p{font-family:'Poppins'; font-weight:700; font-size:18px; margin:0; color:var(--navy);}
+  .banner .go{
+    background:var(--navy); color:#fff; border:none; padding:12px 20px; border-radius:14px; font-weight:700;
+    cursor:pointer; font-size:13px;
+  }
+
+  @media (max-width: 980px){
+    .sidebar{display:none;}
+    .main{padding:20px;}
+    .podium{flex-direction:row; flex-wrap:wrap;}
+  }
+</style>
+</head>
+<body>
+<div class="app">
+
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-bg">
+      <img src="../shared/assets/s1.png" alt="" onerror="this.style.display='none'" />
+    </div>
+    <div class="brand-row">
+      <div class="brand">
+        <div class="logo"><img src="../shared/assets/logo.png" alt="CareStance" onerror="this.parentElement.textContent='S'" /></div>
+        <div class="brand-text"><span class="name">CareStance</span><span class="role">School Admin</span></div>
+      </div>
+      <button class="sidebar-toggle" id="sidebarToggle" aria-label="Collapse sidebar" onclick="document.getElementById('sidebar').classList.toggle('collapsed')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="m15 6-6 6 6 6"/></svg>
+      </button>
+    </div>
+    <nav class="nav">
+      <a class="nav-item" href="dashboard.html" title="Home"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 11.5 12 4l8 7.5"/><path d="M6 10v9a1 1 0 0 0 1 1h4v-6h2v6h4a1 1 0 0 0 1-1v-9"/></svg><span>Home</span></a>
+      <a class="nav-item" href="stats.html" title="Stats"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19V10M10 19V5M16 19v-7M22 19H2"/></svg><span>Stats</span></a>
+      <a class="nav-item active" href="reports.html" title="Reports"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M7 3h7l4 4v14a1 1 0 0 1-1 1H7a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1Z"/><path d="M14 3v4h4"/><path d="M9 13h6M9 17h6M9 9h2"/></svg><span>Reports</span></a>
+      <a class="nav-item" href="classes.html" title="Classes"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="8" height="8" rx="2"/><rect x="13" y="4" width="8" height="8" rx="2"/><rect x="3" y="14" width="8" height="6" rx="2"/><rect x="13" y="14" width="8" height="6" rx="2"/></svg><span>Classes</span></a>
+    </nav>
+
+    <div class="sidebar-spacer"></div>
+
+    <nav class="nav nav-secondary">
+      <a class="nav-item" href="login.html" title="Log out"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H6a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h3"/><path d="M16 17l5-5-5-5"/><path d="M21 12H9"/></svg><span>Log out</span></a>
+    </nav>
+
+    <div class="sidebar-footer" title="Every insight helps us build a better tomorrow.">
+      <div class="icon-circle"><svg viewBox="0 0 24 24" fill="currentColor" stroke="none"><path d="M12 20.5s-7.5-4.6-9.6-9.2C1.1 8 2.7 4.8 6 4.1c2-.4 3.7.5 4.8 2.1a.9.9 0 0 0 1.4 0c1.1-1.6 2.8-2.5 4.8-2.1 3.3.7 4.9 3.9 3.6 7.2C19.5 15.9 12 20.5 12 20.5Z"/></svg></div>
+      <span>Every insight helps us build a better tomorrow.</span>
+    </div>
+  </aside>
+
+  <main class="main">
+
+    <div class="topbar">
+      <div>
+        <h1>Results Overview 🏆</h1>
+        <p>How the school performed this term — top scorers, subject mastery, and who needs a nudge.</p>
+      </div>
+      <div class="top-actions">
+        <select class="term-select">
+          <option>Term 2 · 2026</option>
+          <option>Term 1 · 2026</option>
+          <option>Annual · 2025</option>
+        </select>
+        <div class="icon-btn">🔔</div>
+        <div class="icon-btn">⚙️</div>
+        <div class="profile-chip">
+          <div class="avatar-sm">PS</div>
+          <div><strong>Priya Sharma</strong><span>School Admin</span></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- TOP STUDENTS PODIUM -->
+    <section>
+      <div class="podium-wrap">
+        <div class="podium-title">
+          <div>
+            <h2>Top Performers</h2>
+            <div class="sub">Highest aggregate score across all subjects</div>
+          </div>
+        </div>
+        <div class="podium">
+          <div class="pod-card rank-2">
+            <div class="pod-avatar">RK</div>
+            <div class="pod-name">Rohan Kapoor</div>
+            <div class="pod-class">Class 10-B</div>
+            <div class="pod-score">96.4%</div>
+            <div class="pod-stand"><span class="ribbon">2</span></div>
+          </div>
+          <div class="pod-card rank-1">
+            <div class="crown">👑</div>
+            <div class="pod-avatar">AS</div>
+            <div class="pod-name">Ananya Singh</div>
+            <div class="pod-class">Class 10-A</div>
+            <div class="pod-score">98.1%</div>
+            <div class="pod-stand"><span class="ribbon">1</span></div>
+          </div>
+          <div class="pod-card rank-3">
+            <div class="pod-avatar">MJ</div>
+            <div class="pod-name">Meher Jain</div>
+            <div class="pod-class">Class 9-A</div>
+            <div class="pod-score">94.8%</div>
+            <div class="pod-stand"><span class="ribbon">3</span></div>
+          </div>
+        </div>
+        <div class="rank-strip">
+          <div class="rank-pill"><div class="num">4</div><div class="rp-av">TV</div><div><div class="rp-name">Tanvi Verma</div><div class="rp-score">93.6%</div></div></div>
+          <div class="rank-pill"><div class="num">5</div><div class="rp-av">AK</div><div><div class="rp-name">Aarav Khanna</div><div class="rp-score">92.9%</div></div></div>
+          <div class="rank-pill"><div class="num">6</div><div class="rp-av">SR</div><div><div class="rp-name">Sara Reddy</div><div class="rp-score">92.1%</div></div></div>
+          <div class="rank-pill"><div class="num">7</div><div class="rp-av">DP</div><div><div class="rp-name">Dev Patel</div><div class="rp-score">91.5%</div></div></div>
+          <div class="rank-pill"><div class="num">8</div><div class="rp-av">NI</div><div><div class="rp-name">Naina Iyer</div><div class="rp-score">90.8%</div></div></div>
+          <div class="rank-pill"><div class="num">9</div><div class="rp-av">KG</div><div><div class="rp-name">Kabir Gill</div><div class="rp-score">90.2%</div></div></div>
+          <div class="rank-pill"><div class="num">10</div><div class="rp-av">RM</div><div><div class="rp-name">Riya Mehta</div><div class="rp-score">89.7%</div></div></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SUBJECT-WISE MASTERY -->
+    <section>
+      <div class="section-head">
+        <div><h2>Subject-wise Mastery</h2><div class="sub">Average score per subject, school-wide</div></div>
+        <a class="link-more" href="#">Full breakdown →</a>
+      </div>
+      <div class="rings-card">
+        <div class="rings-row">
+          <div class="ring-item">
+            <div class="ring" style="--pct:88; --ring-color:#7C5CFC;"><div class="ring-inner"><span class="ring-icon">📐</span><span class="ring-pct">88%</span></div></div>
+            <div class="ring-label">Mathematics</div>
+            <div class="ring-trend trend-up">▲ 4% vs last term</div>
+          </div>
+          <div class="ring-item">
+            <div class="ring" style="--pct:82; --ring-color:#22C1DC;"><div class="ring-inner"><span class="ring-icon">🧪</span><span class="ring-pct">82%</span></div></div>
+            <div class="ring-label">Science</div>
+            <div class="ring-trend trend-up">▲ 2% vs last term</div>
+          </div>
+          <div class="ring-item">
+            <div class="ring" style="--pct:91; --ring-color:#EC4899;"><div class="ring-inner"><span class="ring-icon">📖</span><span class="ring-pct">91%</span></div></div>
+            <div class="ring-label">English</div>
+            <div class="ring-trend trend-up">▲ 6% vs last term</div>
+          </div>
+          <div class="ring-item">
+            <div class="ring" style="--pct:74; --ring-color:#F59E0B;"><div class="ring-inner"><span class="ring-icon">🌍</span><span class="ring-pct">74%</span></div></div>
+            <div class="ring-label">Social Studies</div>
+            <div class="ring-trend trend-down">▼ 3% vs last term</div>
+          </div>
+          <div class="ring-item">
+            <div class="ring" style="--pct:85; --ring-color:#22C55E;"><div class="ring-inner"><span class="ring-icon">💻</span><span class="ring-pct">85%</span></div></div>
+            <div class="ring-label">Computer Sci.</div>
+            <div class="ring-trend trend-up">▲ 8% vs last term</div>
+          </div>
+          <div class="ring-item">
+            <div class="ring" style="--pct:79; --ring-color:#B18CFF;"><div class="ring-inner"><span class="ring-icon">🎨</span><span class="ring-pct">79%</span></div></div>
+            <div class="ring-label">Arts</div>
+            <div class="ring-trend trend-up">▲ 1% vs last term</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- STUDENTS NEEDING ATTENTION -->
+    <section>
+      <div class="section-head">
+        <div><h2>Students Needing Attention</h2><div class="sub">Flagged by falling scores, missed assessments, or low engagement</div></div>
+        <a class="link-more" href="#">View all 23 →</a>
+      </div>
+      <div class="watch-list">
+        <div class="watch-row sev-critical">
+          <div class="watch-tab"></div>
+          <div class="watch-av">VS</div>
+          <div class="watch-mid"><strong>Vikram Suri</strong><span>Class 9-B · Dropped 22% since last term</span></div>
+          <div class="watch-spark"><i style="height:18px"></i><i style="height:14px"></i><i style="height:10px"></i><i style="height:6px"></i></div>
+          <div class="watch-tag">Critical</div>
+          <button class="watch-action">Notify</button>
+        </div>
+        <div class="watch-row sev-warning">
+          <div class="watch-tab"></div>
+          <div class="watch-av">PN</div>
+          <div class="watch-mid"><strong>Priya Nair</strong><span>Class 8-A · 3 missed assessments</span></div>
+          <div class="watch-spark"><i style="height:12px"></i><i style="height:16px"></i><i style="height:9px"></i><i style="height:11px"></i></div>
+          <div class="watch-tag">Warning</div>
+          <button class="watch-action">Notify</button>
+        </div>
+        <div class="watch-row sev-watch">
+          <div class="watch-tab"></div>
+          <div class="watch-av">AA</div>
+          <div class="watch-mid"><strong>Arjun Anand</strong><span>Class 10-C · Low engagement, 9 days inactive</span></div>
+          <div class="watch-spark"><i style="height:16px"></i><i style="height:13px"></i><i style="height:15px"></i><i style="height:8px"></i></div>
+          <div class="watch-tag">Watch</div>
+          <button class="watch-action">Notify</button>
+        </div>
+        <div class="watch-row sev-warning">
+          <div class="watch-tab"></div>
+          <div class="watch-av">SD</div>
+          <div class="watch-mid"><strong>Sneha Das</strong><span>Class 7-A · Repeated missed goals</span></div>
+          <div class="watch-spark"><i style="height:10px"></i><i style="height:12px"></i><i style="height:14px"></i><i style="height:7px"></i></div>
+          <div class="watch-tag">Warning</div>
+          <button class="watch-action">Notify</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- CLASS RESULTS LEDGER -->
+    <section>
+      <div class="section-head">
+        <div><h2>Class Results</h2><div class="sub">Average score and pass rate, by class</div></div>
+        <a class="link-more" href="#">Export ledger →</a>
+      </div>
+      <div class="ledger">
+        <details class="ledger-row" open>
+          <summary>
+            <span class="ledger-num">01</span>
+            <div class="ledger-name"><strong>Class 10-A</strong><span>32 students</span></div>
+            <span class="ledger-leader"></span>
+            <div class="ledger-bar-wrap"><div class="ledger-bar" style="width:94%"></div></div>
+            <span class="ledger-score">94%</span>
+            <span class="ledger-badge band-a">A</span>
+            <span class="ledger-chevron">▾</span>
+          </summary>
+          <div class="ledger-detail">
+            <div class="ld-item">Pass rate<strong>100%</strong></div>
+            <div class="ld-item">Top subject<strong>English</strong></div>
+            <div class="ld-item">Needs attention<strong>1 student</strong></div>
+            <div class="ld-item">Class teacher<strong>Mr. Suresh Nair</strong></div>
+          </div>
+        </details>
+        <details class="ledger-row">
+          <summary>
+            <span class="ledger-num">02</span>
+            <div class="ledger-name"><strong>Class 9-A</strong><span>29 students</span></div>
+            <span class="ledger-leader"></span>
+            <div class="ledger-bar-wrap"><div class="ledger-bar" style="width:88%"></div></div>
+            <span class="ledger-score">88%</span>
+            <span class="ledger-badge band-a">A</span>
+            <span class="ledger-chevron">▾</span>
+          </summary>
+          <div class="ledger-detail">
+            <div class="ld-item">Pass rate<strong>97%</strong></div>
+            <div class="ld-item">Top subject<strong>Mathematics</strong></div>
+            <div class="ld-item">Needs attention<strong>2 students</strong></div>
+            <div class="ld-item">Class teacher<strong>Ms. Kavita Rao</strong></div>
+          </div>
+        </details>
+        <details class="ledger-row">
+          <summary>
+            <span class="ledger-num">03</span>
+            <div class="ledger-name"><strong>Class 10-B</strong><span>30 students</span></div>
+            <span class="ledger-leader"></span>
+            <div class="ledger-bar-wrap"><div class="ledger-bar" style="width:81%"></div></div>
+            <span class="ledger-score">81%</span>
+            <span class="ledger-badge band-b">B</span>
+            <span class="ledger-chevron">▾</span>
+          </summary>
+          <div class="ledger-detail">
+            <div class="ld-item">Pass rate<strong>93%</strong></div>
+            <div class="ld-item">Top subject<strong>Computer Science</strong></div>
+            <div class="ld-item">Needs attention<strong>3 students</strong></div>
+            <div class="ld-item">Class teacher<strong>Mr. Anil Bose</strong></div>
+          </div>
+        </details>
+        <details class="ledger-row">
+          <summary>
+            <span class="ledger-num">04</span>
+            <div class="ledger-name"><strong>Class 8-A</strong><span>27 students</span></div>
+            <span class="ledger-leader"></span>
+            <div class="ledger-bar-wrap"><div class="ledger-bar" style="width:76%"></div></div>
+            <span class="ledger-score">76%</span>
+            <span class="ledger-badge band-b">B</span>
+            <span class="ledger-chevron">▾</span>
+          </summary>
+          <div class="ledger-detail">
+            <div class="ld-item">Pass rate<strong>89%</strong></div>
+            <div class="ld-item">Top subject<strong>Arts</strong></div>
+            <div class="ld-item">Needs attention<strong>4 students</strong></div>
+            <div class="ld-item">Class teacher<strong>Ms. Fatima Sheikh</strong></div>
+          </div>
+        </details>
+        <details class="ledger-row">
+          <summary>
+            <span class="ledger-num">05</span>
+            <div class="ledger-name"><strong>Class 7-A</strong><span>26 students</span></div>
+            <span class="ledger-leader"></span>
+            <div class="ledger-bar-wrap"><div class="ledger-bar" style="width:68%"></div></div>
+            <span class="ledger-score">68%</span>
+            <span class="ledger-badge band-c">C</span>
+            <span class="ledger-chevron">▾</span>
+          </summary>
+          <div class="ledger-detail">
+            <div class="ld-item">Pass rate<strong>81%</strong></div>
+            <div class="ld-item">Top subject<strong>Science</strong></div>
+            <div class="ld-item">Needs attention<strong>6 students</strong></div>
+            <div class="ld-item">Class teacher<strong>Mr. Deepak Joshi</strong></div>
+          </div>
+        </details>
+      </div>
+    </section>
+
+    <div class="banner">
+      <p>"Every result tells a story worth acting on."</p>
+      <button class="go">Generate Full Report →</button>
+    </div>
+
+  </main>
+</div>
+</body>
+</html>
