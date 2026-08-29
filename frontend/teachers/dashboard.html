@@ -182,6 +182,10 @@
       background:#fff;padding:9px 14px;border-radius:40px;
       box-shadow:var(--shadow);font-size:12.8px;font-weight:700;color:var(--ink);
     }
+    .pill-select select{
+      appearance:none;-webkit-appearance:none;border:0;outline:0;background:transparent;
+      color:var(--ink);font:inherit;font-size:12.8px;font-weight:700;cursor:pointer;min-width:86px;
+    }
     .pill-select svg{width:15px;height:15px;color:var(--purple-dark);}
     .pill-select .chev{color:var(--muted-soft);width:13px;height:13px;margin-left:2px;}
 
@@ -370,7 +374,7 @@
       </div>
       <nav class="nav">
         <a class="nav-item active" href="dashboard.html" title="Dashboard"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 11.5 12 4l8 7.5"/><path d="M6 10v9a1 1 0 0 0 1 1h4v-6h2v6h4a1 1 0 0 0 1-1v-9"/></svg><span>Dashboard</span></a>
-        <a class="nav-item" href="classes.html" title="My Classes"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="8" height="8" rx="2"/><rect x="13" y="4" width="8" height="8" rx="2"/><rect x="3" y="14" width="8" height="6" rx="2"/><rect x="13" y="14" width="8" height="6" rx="2"/></svg><span>My Classes</span></a>
+        <a class="nav-item" href="Students.html" title="My Classes"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="8" height="8" rx="2"/><rect x="13" y="4" width="8" height="8" rx="2"/><rect x="3" y="14" width="8" height="6" rx="2"/><rect x="13" y="14" width="8" height="6" rx="2"/></svg><span>My Classes</span></a>
         <a class="nav-item" href="Students.html" title="Students"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="8" r="3.4"/><path d="M2.5 20c.6-3.6 3.3-6 6.5-6s5.9 2.4 6.5 6"/><circle cx="17.5" cy="8.5" r="2.6"/><path d="M15.8 14.3c2.6.4 4.6 2.5 5.1 5.7"/></svg><span>Students</span></a>
         <a class="nav-item" href="Assesments.html" title="Assessments"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="6" y="3" width="12" height="18" rx="2"/><path d="M9 3v2h6V3"/><path d="M9 11h6M9 15h4"/></svg><span>Assessments</span></a>
         <a class="nav-item" href="Career_insights.html" title="Career Insights"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19V10M10 19V5M16 19v-7M22 19H2"/></svg><span>Career Insights</span></a>
@@ -398,7 +402,7 @@
         <div class="topbar-actions">
           <div class="pill-select">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M22 10v6M2 10l10-5 10 5-10 5-10-5Z"/><path d="M6 12v5c0 1.5 3 3 6 3s6-1.5 6-3v-5"/></svg>
-            Class 10-A
+            <select id="classSelector" aria-label="Choose class"><option value="">Loading classes…</option></select>
             <svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg>
           </div>
           <button class="bell-btn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M6 8a6 6 0 0 1 12 0c0 4.5 1.5 6 2 7H4c.5-1 2-2.5 2-7Z"/><path d="M10 20a2 2 0 0 0 4 0"/></svg><span class="dot">3</span></button>
@@ -622,5 +626,35 @@
       </section>
     </main>
   </div>
+  <script>
+    (() => {
+      const apiBase = location.protocol === 'file:' ? 'http://localhost:3000' : '';
+      const auth = JSON.parse(sessionStorage.getItem('carestanceAuth') || 'null');
+      const loginUrl = location.protocol === 'file:' ? '../login.html' : '/login.html';
+      if (!auth?.token) { location.replace(loginUrl); return; }
+      const metricValues = document.querySelectorAll('.stats-row .stat-card .value');
+      const quickValues = document.querySelectorAll('.quick-item .qval');
+      const classSelector = document.getElementById('classSelector');
+      const showError = (message) => { const box = document.createElement('div'); box.textContent = message; box.style.cssText = 'margin:0 0 16px;padding:12px 16px;border-radius:12px;background:#FDE8E9;color:#B62E47;font-size:13px;font-weight:600;'; document.querySelector('.main').prepend(box); };
+      const pct = (value) => `${value}%`;
+      const escapeHtml = (value) => String(value).replace(/[&<>'"]/g, (char) => ({ '&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;' }[char]));
+      const render = (data) => {
+        document.querySelector('.topbar h1').innerHTML = `Good morning, ${escapeHtml(auth.user.name)} <span>👋</span>`;
+        document.querySelector('.user-chip strong').textContent = auth.user.name;
+        classSelector.innerHTML = data.availableClasses.map((item) => `<option value="${item.id}">${escapeHtml(item.name)}</option>`).join('');
+        classSelector.value = String(data.class.id);
+        [data.metrics.totalStudents, data.metrics.activeThisWeek, pct(data.metrics.assessmentCompletion), pct(data.metrics.averageProgress), data.metrics.studentsNeedingAttention].forEach((value, index) => { if (metricValues[index]) metricValues[index].textContent = value; });
+        [data.metrics.totalStudents, data.metrics.activeThisWeek, pct(data.metrics.averageProgress), data.metrics.studentsNeedingAttention].forEach((value, index) => { if (quickValues[index]) quickValues[index].textContent = value; });
+        document.querySelector('.ring-value').textContent = pct(data.metrics.engagementScore);
+        const areas = Object.values(data.performanceAreas); document.querySelectorAll('.perf-row').forEach((row, index) => { const value = areas[index] || 0; row.querySelector('.pct').textContent = pct(value); row.querySelector('.perf-fill').style.width = pct(value); });
+        document.querySelector('.schedule').innerHTML = data.upcomingEvents.length ? data.upcomingEvents.map((event, index) => { const time = new Date(event.starts_at).toLocaleTimeString([], { hour:'2-digit', minute:'2-digit' }); return `<div class="sched-item"><div class="sched-time">${time}</div><div class="sched-line"><div class="sched-dot"></div>${index < data.upcomingEvents.length - 1 ? '<div class="sched-track"></div>' : ''}</div><div class="sched-body"><strong>${escapeHtml(event.title)}</strong><span class="sched-tag tag-purple">${escapeHtml(event.event_type.replace('_',' '))}</span></div></div>`; }).join('') : '<p>No events scheduled for today.</p>';
+        document.querySelector('.attn-grid').innerHTML = data.attentionStudents.length ? data.attentionStudents.slice(0, 4).map((student) => { const initials = student.name.split(' ').map((part) => part[0]).join(''); return `<div class="attn-card" title="${escapeHtml(student.signals.join('; '))}"><div class="attn-avatar" style="background:linear-gradient(135deg,#F0559B,#D93E82);">${initials}</div><div class="attn-body"><strong>${escapeHtml(student.name)}</strong><div class="attn-track"><div class="attn-fill" style="width:${student.roadmapProgress}%"></div></div></div><div class="attn-dot"></div></div>`; }).join('') : '<p>All students are currently on track.</p>';
+      };
+      const loadDashboard = (classId = '') => fetch(`${apiBase}/api/v1/teacher/dashboard${classId ? `?classId=${encodeURIComponent(classId)}` : ''}`, { headers:{ Authorization:`Bearer ${auth.token}` } }).then(async (response) => { const body = await response.json(); if (response.status === 401) { sessionStorage.removeItem('carestanceAuth'); location.replace(loginUrl); return; } if (!response.ok) throw new Error(body.error || 'Could not load dashboard data.'); render(body.data); }).catch((error) => showError(`Live dashboard data could not be loaded: ${error.message}`));
+      classSelector.addEventListener('change', () => loadDashboard(classSelector.value));
+      loadDashboard();
+      document.querySelectorAll('a[href="login.html"]').forEach((link) => link.addEventListener('click', (event) => { event.preventDefault(); sessionStorage.removeItem('carestanceAuth'); location.assign(loginUrl); }));
+    })();
+  </script>
 </body>
 </html>

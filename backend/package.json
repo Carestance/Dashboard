@@ -1,0 +1,20 @@
+{
+  "name": "carestance-dashboard-api",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "node --watch src/server.js",
+    "start": "node src/server.js",
+    "seed": "node src/database/seed.js",
+    "test": "npm run seed && node --test"
+  },
+  "dependencies": {
+    "better-sqlite3": "^12.8.0",
+    "bcryptjs": "^3.0.3",
+    "cors": "^2.8.5",
+    "dotenv": "^17.2.3",
+    "express": "^5.1.0",
+    "jsonwebtoken": "^9.0.2"
+  }
+}
