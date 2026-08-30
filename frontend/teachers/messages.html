@@ -147,6 +147,9 @@
     .bell-btn{position:relative;width:38px;height:38px;border-radius:50%;background:#fff;box-shadow:var(--shadow);display:flex;align-items:center;justify-content:center;color:var(--ink);flex-shrink:0;}
     .bell-btn svg{width:17px;height:17px;}
     .bell-btn .dot{position:absolute;top:6px;right:7px;min-width:15px;height:15px;padding:0 3px;border-radius:50%;background:var(--pink);color:#fff;font-size:9.5px;font-weight:700;display:flex;align-items:center;justify-content:center;border:2px solid #fff;}
+    .topbar-actions{position:relative;}
+    .notification-menu{display:none;position:absolute;z-index:20;right:104px;top:46px;width:300px;background:#fff;border:1px solid var(--border);border-radius:16px;box-shadow:var(--shadow-hover);padding:12px;}
+    .notification-menu.open{display:block;}.notification-menu h4{margin:2px 4px 10px;font-size:13px;}.notification-item{padding:10px;border-radius:10px;background:var(--purple-tint);font-size:12px;margin-top:7px;line-height:1.45;}.notification-item b{display:block;color:var(--ink);}.notification-empty{padding:15px;color:var(--muted);font-size:12px;text-align:center;}
     .user-chip{display:flex;align-items:center;gap:10px;background:#fff;padding:6px 14px 6px 6px;border-radius:40px;box-shadow:var(--shadow);flex-shrink:0;}
     .avatar-emoji{width:34px;height:34px;border-radius:50%;background:var(--purple-tint);display:flex;align-items:center;justify-content:center;font-size:16px;}
     .user-chip strong{display:block;font-size:12.8px;color:var(--ink);font-weight:700;line-height:1.3;}
@@ -276,7 +279,7 @@
     /* ---------- RESPONSIVE ---------- */
     @media (max-width:1000px){
       .msg-shell{grid-template-columns:1fr;}
-      .chat-panel{display:none;}
+      .chat-panel{display:flex;min-height:520px;}
     }
     @media (max-width:760px){
       .sidebar{display:none;}
@@ -322,7 +325,8 @@
       <div class="topbar">
         <div><h1>Messages <span>💬</span></h1><p id="topSub">Stay on top of parent &amp; admin conversations.</p></div>
         <div class="topbar-actions">
-          <button class="bell-btn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M6 8a6 6 0 0 1 12 0c0 4.5 1.5 6 2 7H4c.5-1 2-2.5 2-7Z"/><path d="M10 20a2 2 0 0 0 4 0"/></svg><span class="dot">3</span></button>
+          <button class="bell-btn" id="notificationButton" aria-label="Open notifications"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M6 8a6 6 0 0 1 12 0c0 4.5 1.5 6 2 7H4c.5-1 2-2.5 2-7Z"/><path d="M10 20a2 2 0 0 0 4 0"/></svg><span class="dot">3</span></button>
+          <div class="notification-menu" id="notificationMenu"><h4>Notifications</h4><div id="notificationItems"></div></div>
           <div class="user-chip">
             <div class="avatar-emoji">🧑‍🏫</div>
             <div><strong>Ms. Simran</strong><span class="role">Teacher</span></div>
@@ -531,6 +535,7 @@
     const c = conversations.find(x=>x.id===id);
     if(c.unread>0) c.unread = 0;
     renderList();
+    if (window.innerWidth <= 1000) document.getElementById("chatPanel").scrollIntoView({behavior:"smooth",block:"start"});
   }
 
   function renderChat(){
@@ -616,6 +621,20 @@
   }
 
   renderList();
+  const notificationItems = [
+    ['Assessment window closes today','Reminder for Class 10-A'],
+    ['Ananya Mehta needs attention','Roadmap progress is below target'],
+    ['New parent message','Neha Kapoor sent you a message']
+  ];
+  const notificationButton = document.getElementById('notificationButton');
+  const notificationMenu = document.getElementById('notificationMenu');
+  document.getElementById('notificationItems').innerHTML = notificationItems.map(([title, detail]) => `<div class="notification-item"><b>${title}</b>${detail}</div>`).join('');
+  notificationButton.addEventListener('click', () => {
+    notificationMenu.classList.toggle('open');
+    const dot = notificationButton.querySelector('.dot');
+    if (notificationMenu.classList.contains('open') && dot) dot.remove();
+  });
+  document.addEventListener('click', (event) => { if (!event.target.closest('.topbar-actions')) notificationMenu.classList.remove('open'); });
 </script>
 </body>
 </html>

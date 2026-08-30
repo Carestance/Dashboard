@@ -732,5 +732,23 @@
       document.getElementById('tableNote').textContent = 'Showing ' + visible + ' of 28 students';
     }
   </script>
+  <script>
+    (() => {
+      const api = location.protocol === 'file:' ? 'http://localhost:3000' : '';
+      const auth = JSON.parse(sessionStorage.getItem('carestanceAuth') || 'null');
+      if (!auth?.token) { location.replace(location.protocol === 'file:' ? '../login.html' : '/login.html'); return; }
+      const escapeHtml = (value) => String(value ?? '—').replace(/[&<>"']/g, (char) => ({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;' }[char]));
+      const statusLabel = (status) => status === 'at_risk' ? 'At Risk' : status === 'on_track' ? 'On Track' : 'Watch';
+      const relativeDate = (days) => days === 0 ? 'Today' : days === 1 ? 'Yesterday' : `${days} days ago`;
+      const bar = (value, level = '') => `<div class="cell-track"><div class="cell-fill ${level}" style="width:${value}%"></div></div><span class="cell-pct ${level}">${value}%</span>`;
+      const render = (data) => {
+        const tbody = document.querySelector('#studentTable tbody');
+        tbody.innerHTML = data.students.map((student) => { const initials = student.name.split(' ').map((part) => part[0]).join(''); const level = student.attentionStatus === 'at_risk' ? 'low' : student.attentionStatus === 'watch' ? 'mid' : ''; return `<tr data-status="${student.attentionStatus === 'at_risk' ? 'risk' : student.attentionStatus}"><td><a href="student.html?id=${student.id}" class="stu-cell"><div class="stu-avatar">${initials}</div><div><strong>${escapeHtml(student.name)}</strong><span class="stu-class">${escapeHtml(student.className)}</span></div></a></td><td>${bar(student.assessmentCompletion, level)}</td><td>${bar(student.roadmapProgress, level)}</td><td>${bar(student.weeklyGoalCompletion, level)}</td><td class="last-active">${relativeDate(student.lastActiveDays)}</td><td><span class="status-pill status-${student.attentionStatus === 'at_risk' ? 'risk' : student.attentionStatus}"><span class="sdot"></span>${statusLabel(student.attentionStatus)}</span></td></tr>`; }).join('');
+        document.querySelector('.topbar p').textContent = `${data.class.name}: live academic and development progress`;
+        if (typeof applyFilters === 'function') applyFilters();
+      };
+      fetch(`${api}/api/v1/teacher/dashboard`, { headers:{ Authorization:`Bearer ${auth.token}` } }).then((r) => r.json()).then((dashboard) => fetch(`${api}/api/v1/teacher/classes/${dashboard.data.class.id}/students`, { headers:{ Authorization:`Bearer ${auth.token}` } })).then((r) => r.json()).then((roster) => { if (!roster.data) throw Error(roster.error); render(roster.data); }).catch((error) => { const main = document.querySelector('.main'); const alert = document.createElement('p'); alert.textContent = `Unable to load live roster: ${error.message}`; alert.style.color = '#b52b47'; main.prepend(alert); });
+    })();
+  </script>
 </body>
 </html>
