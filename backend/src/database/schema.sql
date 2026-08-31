@@ -54,6 +54,23 @@ CREATE TABLE IF NOT EXISTS skill_gaps (
 CREATE TABLE IF NOT EXISTS roadmaps (
   id INTEGER PRIMARY KEY, student_id INTEGER NOT NULL REFERENCES school_students(id), title TEXT NOT NULL, progress_percent REAL NOT NULL DEFAULT 0 CHECK(progress_percent BETWEEN 0 AND 100), updated_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
+-- A growth map belongs to a learner and a specific career, not to a whole class.
+CREATE TABLE IF NOT EXISTS career_growth_maps (
+  id INTEGER PRIMARY KEY, student_id INTEGER NOT NULL REFERENCES school_students(id), career_area TEXT NOT NULL,
+  title TEXT NOT NULL, assessment_score REAL, progress_percent REAL NOT NULL DEFAULT 0 CHECK(progress_percent BETWEEN 0 AND 100),
+  generated_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP, updated_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  UNIQUE(student_id, career_area)
+);
+CREATE TABLE IF NOT EXISTS growth_map_skills (
+  id INTEGER PRIMARY KEY, growth_map_id INTEGER NOT NULL REFERENCES career_growth_maps(id) ON DELETE CASCADE,
+  skill_name TEXT NOT NULL, current_level TEXT NOT NULL, target_level TEXT NOT NULL,
+  rationale TEXT NOT NULL, sequence INTEGER NOT NULL
+);
+CREATE TABLE IF NOT EXISTS growth_map_tasks (
+  id INTEGER PRIMARY KEY, growth_map_id INTEGER NOT NULL REFERENCES career_growth_maps(id) ON DELETE CASCADE,
+  student_id INTEGER NOT NULL REFERENCES school_students(id), title TEXT NOT NULL, description TEXT NOT NULL,
+  task_type TEXT NOT NULL, due_at TEXT, sequence INTEGER NOT NULL, completed_at TEXT
+);
 CREATE TABLE IF NOT EXISTS task_assignments (
   id INTEGER PRIMARY KEY, class_id INTEGER NOT NULL REFERENCES classes(id), title TEXT NOT NULL, type TEXT NOT NULL, due_at TEXT, created_by INTEGER REFERENCES users(id)
 );

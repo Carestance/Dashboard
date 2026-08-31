@@ -55,8 +55,12 @@ export function buildTeacherDashboard({ teacherUserId, organizationId, classId }
   const activities = db.prepare(`SELECT substr(occurred_at, 1, 10) AS day, COUNT(DISTINCT student_id) AS active_students
     FROM student_activity_events WHERE student_id IN (SELECT student_id FROM class_enrollments WHERE class_id = ?)
     AND occurred_at >= datetime('now', '-6 days') GROUP BY day ORDER BY day`).all(classIdValue);
-  const events = db.prepare(`SELECT id, title, event_type, starts_at, ends_at FROM events
-    WHERE organization_id = ? AND (class_id = ? OR class_id IS NULL) AND date(starts_at) = date('now') ORDER BY starts_at`).all(organizationId, classIdValue);
+  const upcomingWork = db.prepare(`SELECT id, title, event_type AS type, starts_at AS due_at, 'event' AS kind FROM events
+    WHERE organization_id=? AND (class_id=? OR class_id IS NULL) AND starts_at >= datetime('now')
+    UNION ALL
+    SELECT id, title, type, due_at, 'task' AS kind FROM task_assignments
+    WHERE class_id=? AND due_at >= datetime('now')
+    ORDER BY due_at LIMIT 12`).all(organizationId, classIdValue, classIdValue);
   const attention = attentionStudents.filter((student) => student.status !== 'on_track').sort((a, b) => b.signals.length - a.signals.length || a.roadmap_progress - b.roadmap_progress);
   const assessmentCompletion = percent(completedAssessments, assessments);
   const weeklyGoalCompletion = percent(completedWeeklyGoals, weeklyGoals);
@@ -74,7 +78,7 @@ export function buildTeacherDashboard({ teacherUserId, organizationId, classId }
     },
     performanceAreas: { assessments: assessmentCompletion, careerExploration: percent(careerExploration, attentionStudents.length), roadmapProgress: averageRoadmap, weeklyGoals: weeklyGoalCompletion },
     activitySeries: activities,
-    upcomingEvents: events,
+    upcomingWork,
     attentionStudents: attention.slice(0, 8).map((student) => ({ id: student.id, name: `${student.first_name} ${student.last_name}`, status: student.status, roadmapProgress: Math.round(student.roadmap_progress), lastActiveDays: student.lastActiveDays, signals: student.signals })),
     availableClasses: db.prepare(`SELECT c.id, c.name FROM classes c JOIN teacher_class_assignments tca ON tca.class_id = c.id WHERE tca.teacher_user_id = ? AND c.organization_id = ? ORDER BY c.name`).all(teacherUserId, organizationId)
   };
