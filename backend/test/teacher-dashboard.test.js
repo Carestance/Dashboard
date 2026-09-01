@@ -41,6 +41,30 @@ test('teacher can access only the teacher dashboard', async () => {
   const profileBody = await profile.json();
   assert.ok(profileBody.data.assessments.length > 0);
   assert.ok(profileBody.data.skillGaps.length > 0);
+  assert.ok(profileBody.data.growthMaps.length > 0);
+  const growthMap = await fetch(`${baseUrl}/api/v1/teacher/students/${rosterBody.data.students[0].id}/growth-maps`, {
+    method: 'POST', headers: { authorization: `Bearer ${token}`, 'content-type': 'application/json' }, body: JSON.stringify({ careerArea:'Design' })
+  });
+  assert.equal(growthMap.status, 201);
+  const mapBody = await growthMap.json();
+  assert.equal(mapBody.data.career_area, 'Design');
+  assert.equal(mapBody.data.skills.length, 3);
+  assert.equal(mapBody.data.tasks.length, 3);
+  const firstMapTask = mapBody.data.tasks[0];
+  const completedTask = await fetch(`${baseUrl}/api/v1/teacher/students/${rosterBody.data.students[0].id}/growth-map-tasks/${firstMapTask.id}`, {
+    method:'PATCH', headers:{ authorization:`Bearer ${token}`, 'content-type':'application/json' }, body:JSON.stringify({ completed:true })
+  });
+  assert.equal(completedTask.status, 200);
+  assert.equal((await completedTask.json()).data.progress_percent, 33);
+  const dueAt = new Date(Date.now() + 86400000).toISOString();
+  const task = await fetch(`${baseUrl}/api/v1/teacher/classes/${body.data.class.id}/tasks`, { method:'POST', headers:{ authorization:`Bearer ${token}`, 'content-type':'application/json' }, body:JSON.stringify({ title:'Interview reflection', type:'weekly_goal', dueAt }) });
+  assert.equal(task.status, 201);
+  const event = await fetch(`${baseUrl}/api/v1/teacher/classes/${body.data.class.id}/events`, { method:'POST', headers:{ authorization:`Bearer ${token}`, 'content-type':'application/json' }, body:JSON.stringify({ title:'Career workshop', eventType:'session', startsAt:dueAt }) });
+  assert.equal(event.status, 201);
+  const assessment = await fetch(`${baseUrl}/api/v1/teacher/classes/${body.data.class.id}/assessments`, { method:'POST', headers:{ authorization:`Bearer ${token}`, 'content-type':'application/json' }, body:JSON.stringify({ title:'Career research check', dueAt }) });
+  assert.equal(assessment.status, 201);
+  const work = await fetch(`${baseUrl}/api/v1/teacher/classes/${body.data.class.id}/work`, { headers:{ authorization:`Bearer ${token}` } });
+  assert.ok((await work.json()).data.tasks.some((item) => item.title === 'Interview reflection'));
 });
 
 test('consumer identities cannot access teacher data', async () => {

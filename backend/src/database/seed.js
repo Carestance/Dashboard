@@ -1,6 +1,7 @@
 import bcrypt from 'bcryptjs';
 import db from './connection.js';
 import { migrate } from './migrate.js';
+import { generateCareerGrowthMap } from '../services/careerGrowthMaps.js';
 
 migrate();
 
@@ -13,11 +14,12 @@ const todayAt = (hour, minute = 0) => {
 };
 
 const reset = [
-  'teacher_notes', 'student_activity_events', 'task_completions', 'task_assignments', 'roadmaps', 'skill_gaps', 'simulation_history', 'career_explorations',
+  'teacher_notes', 'student_activity_events', 'task_completions', 'task_assignments', 'growth_map_tasks', 'growth_map_skills', 'career_growth_maps', 'roadmaps', 'skill_gaps', 'simulation_history', 'career_explorations',
   'assessment_attempts', 'assessment_assignments', 'assessments', 'events', 'class_enrollments', 'teacher_class_assignments',
   'classes', 'school_students', 'consumer_profiles', 'teacher_profiles', 'attention_rules', 'users', 'organizations'
 ];
 
+const seededStudentCareers = [];
 db.transaction(() => {
   reset.forEach((table) => db.prepare(`DELETE FROM ${table}`).run());
   const schoolId = db.prepare("INSERT INTO organizations (name, type) VALUES (?, 'school')").run('CareStance Demo School').lastInsertRowid;
@@ -52,6 +54,7 @@ db.transaction(() => {
   studentIds.forEach((studentId, index) => {
     db.prepare('INSERT INTO roadmaps (student_id, title, progress_percent, updated_at) VALUES (?, ?, ?, ?)').run(studentId, 'Career Growth Roadmap', students[index][4], daysAgo(index % 6));
     db.prepare('INSERT INTO career_explorations (student_id, career_area, explored_at) VALUES (?, ?, ?)').run(studentId, ['Engineering', 'Design', 'Medicine'][index % 3], daysAgo(index));
+    seededStudentCareers.push([studentId, ['Engineering', 'Design', 'Medicine'][index % 3]]);
     db.prepare('INSERT INTO simulation_history (student_id, simulation_name, result_summary, completed_at) VALUES (?, ?, ?, ?)').run(studentId, 'Career Exploration Simulation', ['Strong analytical fit', 'Creative problem-solving fit', 'Research-oriented fit'][index % 3], daysAgo(index + 1));
     db.prepare('INSERT INTO skill_gaps (student_id, skill_name, current_level, target_level, recommended_action) VALUES (?, ?, ?, ?, ?)').run(studentId, ['Communication', 'Design Thinking', 'Data Analysis'][index % 3], index % 2 ? 'Beginner' : 'Developing', 'Proficient', 'Complete the recommended practice module');
     db.prepare('INSERT INTO student_activity_events (student_id, activity_type, occurred_at) VALUES (?, ?, ?)').run(studentId, 'dashboard_activity', daysAgo(students[index][3]));
@@ -68,5 +71,8 @@ db.transaction(() => {
   [['inactive_days', 4], ['incomplete_assessments', 1], ['roadmap_below_percent', 50], ['missed_weekly_goals', 1]].forEach(([key, threshold]) =>
     db.prepare('INSERT INTO attention_rules (organization_id, rule_key, threshold) VALUES (?, ?, ?)').run(schoolId, key, threshold));
 })();
+
+// Demonstrate the same automatic result users receive after choosing a career.
+seededStudentCareers.forEach(([studentId, careerArea]) => generateCareerGrowthMap({ studentId, careerArea }));
 
 console.log('Seed complete. Teacher login: simran@carestance.demo / Teacher@123');
