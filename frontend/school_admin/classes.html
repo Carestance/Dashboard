@@ -165,6 +165,10 @@
   .section-head{display:flex; align-items:baseline; justify-content:space-between; margin-bottom:16px; flex-wrap:wrap; gap:8px;}
   .section-head h2{font-size:18px;}
   .section-head .sub{font-size:12.5px; color:var(--muted); margin-top:3px;}
+  .hierarchy{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin:0 0 16px;font-size:12px;font-weight:700;color:var(--muted);}
+  .hierarchy .node{background:#fff;border:1px solid var(--border);border-radius:20px;padding:7px 11px;}
+  .hierarchy .current{background:var(--primary-soft);color:var(--primary-dark);border-color:transparent;}
+  .hierarchy .arrow{color:var(--primary);font-size:16px;}
 
   /* ---------- CLASS & SECTION TABS ---------- */
   .class-tabs{display:flex; gap:10px; flex-wrap:wrap; margin-bottom:24px;}
@@ -231,7 +235,9 @@
   .roster-card{background:var(--card); border-radius:26px; padding:8px 8px 4px; box-shadow:var(--shadow); border:1px solid var(--border);}
   .spot-row{
     display:flex; align-items:center; gap:16px; padding:14px 18px; border-bottom:1px dashed var(--border);
+    cursor:pointer; transition:background .18s ease, transform .18s ease;
   }
+  .spot-row:hover{background:#FAF9FF;transform:translateX(2px);}
   .spot-row:last-child{border-bottom:none;}
   .spot-rank{width:28px; text-align:center; font-family:'Poppins',sans-serif; font-weight:800; color:var(--primary); font-size:13px; flex-shrink:0;}
   .spot-rank.medal{font-size:18px;}
@@ -250,6 +256,13 @@
   .tag-attention{background:#FDEAEA; color:var(--danger);}
   .tag-steady{background:var(--primary-soft); color:var(--primary-dark);}
   .roster-empty{padding:30px 18px; text-align:center; color:var(--muted); font-size:13px;}
+  .student-detail{margin-top:16px;background:#fff;border:1px solid var(--border);border-radius:18px;padding:16px 18px;display:none;align-items:center;justify-content:space-between;gap:14px;box-shadow:var(--shadow);}
+  .student-detail.show{display:flex;}
+  .student-detail strong{font-family:'Poppins',sans-serif;font-size:14px;display:block;}
+  .student-detail span{font-size:12px;color:var(--muted);}
+  .student-detail .student-metrics{display:flex;gap:18px;flex-wrap:wrap;}
+  .student-detail .student-metrics b{display:block;color:var(--primary-dark);font-size:14px;}
+  .student-detail .student-metrics small{font-size:10px;color:var(--muted);font-weight:700;text-transform:uppercase;}
 
   @media (max-width:680px){
     .spot-bar-wrap{display:none;}
@@ -343,8 +356,8 @@
     </div>
     <nav class="nav">
       <a class="nav-item" href="dashboard.html" title="Home"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 11.5 12 4l8 7.5"/><path d="M6 10v9a1 1 0 0 0 1 1h4v-6h2v6h4a1 1 0 0 0 1-1v-9"/></svg><span>Home</span></a>
-      <a class="nav-item" href="stats.html" title="Stats"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19V10M10 19V5M16 19v-7M22 19H2"/></svg><span>Stats</span></a>
-      <a class="nav-item" href="reports.html" title="Reports"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M7 3h7l4 4v14a1 1 0 0 1-1 1H7a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1Z"/><path d="M14 3v4h4"/><path d="M9 13h6M9 17h6M9 9h2"/></svg><span>Reports</span></a>
+      <a class="nav-item" href="stats.html" title="School Analytics"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19V10M10 19V5M16 19v-7M22 19H2"/></svg><span>Analytics</span></a>
+      <a class="nav-item" href="reports.html" title="Students Requiring Attention"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M7 3h7l4 4v14a1 1 0 0 1-1 1H7a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1Z"/><path d="M14 3v4h4"/><path d="M9 13h6M9 17h6M9 9h2"/></svg><span>Attention</span></a>
       <a class="nav-item active" href="classes.html" title="Classes"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="8" height="8" rx="2"/><rect x="13" y="4" width="8" height="8" rx="2"/><rect x="3" y="14" width="8" height="6" rx="2"/><rect x="13" y="14" width="8" height="6" rx="2"/></svg><span>Classes</span></a>
     </nav>
 
@@ -365,7 +378,7 @@
     <div class="topbar">
       <div>
         <h1>Classes 🏫</h1>
-        <p>Pick a class and section to see its roster, subject teachers, and this week's timetable — all in one place.</p>
+        <p>Drill down from your school to a grade, section, and individual student profile.</p>
       </div>
       <div class="top-actions">
         <div class="icon-btn">🔔</div>
@@ -375,6 +388,10 @@
           <div><strong>Priya Sharma</strong><span>School Admin</span></div>
         </div>
       </div>
+    </div>
+
+    <div class="hierarchy" aria-label="Current drill-down path">
+      <span class="node">School</span><span class="arrow">›</span><span class="node" id="crumbGrade">Grade 10</span><span class="arrow">›</span><span class="node" id="crumbSection">Section A</span><span class="arrow">›</span><span class="node current" id="crumbStudent">Students</span>
     </div>
 
     <!-- CLASS & SECTION PICKER -->
@@ -423,6 +440,7 @@
       <div class="roster-card">
         <div id="rosterList"></div>
       </div>
+      <div class="student-detail" id="studentDetail" aria-live="polite"></div>
     </section>
 
     <!-- SUBJECT TEACHERS -->
@@ -621,6 +639,10 @@
     document.getElementById('idTeacherAv').textContent = initials(c.classTeacher.name);
     document.getElementById('idTeacherName').textContent = c.classTeacher.name;
     document.getElementById('idTeacherSub').textContent = `Class Teacher · ${c.classTeacher.subject}`;
+    document.getElementById('crumbGrade').textContent = `Grade ${c.label.replace('Class ','')}`;
+    document.getElementById('crumbSection').textContent = `Section ${c.section}`;
+    document.getElementById('crumbStudent').textContent = 'Students';
+    document.getElementById('studentDetail').classList.remove('show');
   }
 
   function renderRoster(){
@@ -656,7 +678,7 @@
       const tagHtml = s.tag==='top' ? '<span class="spot-tag tag-top">Top Scorer</span>'
                     : s.tag==='attention' ? '<span class="spot-tag tag-attention">Needs Support</span>'
                     : '<span class="spot-tag tag-steady">Steady</span>';
-      return `<div class="spot-row">
+      return `<div class="spot-row" role="button" tabindex="0" onclick="showStudent('${s.name.replace(/'/g, "\\'")}')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();showStudent('${s.name.replace(/'/g, "\\'")}')}">
         <div class="spot-rank ${isMedal?'medal':''}">${rankDisplay}</div>
         <div class="spot-av">${initials(s.name)}</div>
         <div class="spot-name"><strong>${s.name}</strong><span>Roll No. ${s.roll} · ${s.attendance}% attendance</span></div>
@@ -678,6 +700,17 @@
         <div class="t-name"><div class="t-av">${initials(t.teacher)}</div><span>${t.teacher}</span></div>
       </div>`;
     }).join('');
+  }
+
+  function showStudent(name){
+    const c = CLASSES[currentClassKey];
+    const s = c.roster.find(student=>student.name===name);
+    if(!s) return;
+    const detail = document.getElementById('studentDetail');
+    document.getElementById('crumbStudent').textContent = s.name;
+    detail.innerHTML = `<div><strong>${s.name}</strong><span>Grade ${c.label.replace('Class ','')} · Section ${c.section} · Roll no. ${s.roll}</span></div><div class="student-metrics"><div><b>${s.score}%</b><small>Assessment average</small></div><div><b>${s.attendance}%</b><small>Attendance</small></div><div><b>${s.score < 70 ? 'Needs support' : 'On track'}</b><small>Current status</small></div></div>`;
+    detail.classList.add('show');
+    detail.scrollIntoView({behavior:'smooth',block:'nearest'});
   }
 
   function teacherFor(code){
