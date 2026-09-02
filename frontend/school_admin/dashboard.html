@@ -254,6 +254,20 @@
     .two-col-row{display:grid;grid-template-columns:1.55fr 1fr;gap:14px;margin-bottom:14px;}
     .side-stack{display:flex;flex-direction:column;gap:14px;}
 
+    /* ---------- SCHOOL ANALYTICS ---------- */
+    .analytics-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-bottom:14px;}
+    .analytics-grid .panel{min-height:236px;}
+    .mini-sub{font-size:11px;color:var(--muted);font-weight:600;margin:-12px 0 16px;}
+    .bar-list{display:flex;flex-direction:column;gap:13px;}
+    .bar-line{display:grid;grid-template-columns:86px 1fr 34px;align-items:center;gap:9px;font-size:11px;font-weight:700;color:var(--ink);}
+    .bar-track{height:8px;border-radius:20px;background:var(--border);overflow:hidden;}
+    .bar-fill{height:100%;border-radius:20px;background:linear-gradient(90deg,var(--purple),#A78BFA);}
+    .bar-fill.pink{background:linear-gradient(90deg,var(--pink),#F6A6CC)}
+    .bar-fill.blue{background:linear-gradient(90deg,var(--blue),#8AB9FF)}
+    .participation{display:flex;align-items:flex-end;justify-content:space-between;height:133px;padding:6px 8px 0;border-bottom:1px solid var(--border);}
+    .grade-col{height:100%;display:flex;flex-direction:column;justify-content:flex-end;align-items:center;gap:7px;font-size:10px;color:var(--muted);font-weight:700;}
+    .grade-bar{width:26px;min-height:8px;border-radius:9px 9px 2px 2px;background:linear-gradient(180deg,#A78BFA,var(--purple-dark));}
+
     /* ---------- CHART ---------- */
     .chart-box{position:relative;}
     .chart-box svg{width:100%;height:auto;display:block;}
@@ -335,6 +349,7 @@
     @media (max-width:1180px){
       .stats-row{grid-template-columns:repeat(3,1fr);}
       .two-col-row{grid-template-columns:1fr;}
+      .analytics-grid{grid-template-columns:1fr 1fr;}
     }
     @media (max-width:900px){
       .attn-panel{flex-direction:column;align-items:stretch;}
@@ -346,6 +361,7 @@
       .sidebar{display:none;}
       .main{padding:20px 16px 32px;}
       .stats-row{grid-template-columns:1fr 1fr;}
+      .analytics-grid{grid-template-columns:1fr;}
     }
 
 </style>
@@ -367,8 +383,8 @@
       </div>
       <nav class="nav">
         <a class="nav-item active" href="dashboard.html" title="Home"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 11.5 12 4l8 7.5"/><path d="M6 10v9a1 1 0 0 0 1 1h4v-6h2v6h4a1 1 0 0 0 1-1v-9"/></svg><span>Home</span></a>
-        <a class="nav-item" href="stats.html" title="Stats"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19V10M10 19V5M16 19v-7M22 19H2"/></svg><span>Stats</span></a>
-        <a class="nav-item" href="reports.html" title="Reports"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M7 3h7l4 4v14a1 1 0 0 1-1 1H7a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1Z"/><path d="M14 3v4h4"/><path d="M9 13h6M9 17h6M9 9h2"/></svg><span>Reports</span></a>
+        <a class="nav-item" href="stats.html" title="School Analytics"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19V10M10 19V5M16 19v-7M22 19H2"/></svg><span>Analytics</span></a>
+        <a class="nav-item" href="reports.html" title="Students Requiring Attention"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M7 3h7l4 4v14a1 1 0 0 1-1 1H7a1 1 0 0 1 1-1V4a1 1 0 0 1 1-1Z"/><path d="M14 3v4h4"/><path d="M9 13h6M9 17h6M9 9h2"/></svg><span>Attention</span></a>
         <a class="nav-item" href="classes.html" title="Classes"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="8" height="8" rx="2"/><rect x="13" y="4" width="8" height="8" rx="2"/><rect x="3" y="14" width="8" height="6" rx="2"/><rect x="13" y="14" width="8" height="6" rx="2"/></svg><span>Classes</span></a>
       </nav>
 
@@ -386,7 +402,7 @@
 
     <main class="main">
       <div class="topbar">
-        <div><h1>Good Morning, Priya <span>👋</span></h1><p>Here's what's happening across your school today.</p></div>
+        <div><h1>School Overview <span>👋</span></h1><p>A live, school-wide view of participation, progress, and where support is needed.</p></div>
         <div class="topbar-actions">
           <button class="icon-btn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M6 8a6 6 0 0 1 12 0c0 4.5 1.5 6 2 7H4c.5-1 2-2.5 2-7Z"/><path d="M10 20a2 2 0 0 0 4 0"/></svg><span class="dot"></span></button>
           <button class="icon-btn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.9l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.9-.3 1.7 1.7 0 0 0-1 1.6V21a2 2 0 1 1-4 0v-.2a1.7 1.7 0 0 0-1-1.5 1.7 1.7 0 0 0-1.9.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.9 1.7 1.7 0 0 0-1.6-1H3a2 2 0 1 1 0-4h.2a1.7 1.7 0 0 0 1.5-1 1.7 1.7 0 0 0-.3-1.9l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.9.3H9a1.7 1.7 0 0 0 1-1.6V3a2 2 0 1 1 4 0v.2a1.7 1.7 0 0 0 1 1.6 1.7 1.7 0 0 0 1.9-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.9V9a1.7 1.7 0 0 0 1.6 1H21a2 2 0 1 1 0 4h-.2a1.7 1.7 0 0 0-1.6 1Z"/></svg></button>
@@ -440,6 +456,40 @@
           <div class="label">Roadmap Completion</div>
           <div class="sub"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 19V5M5 12l7-7 7 7"/></svg>5% vs last month</div>
         </div>
+      </section>
+
+      <section class="analytics-grid" aria-label="School analytics">
+        <article class="card panel">
+          <div class="section-title">Skill-gap distribution <a href="stats.html" style="font-size:11px;color:var(--purple-dark)">Explore</a></div>
+          <p class="mini-sub">Students needing more practice by capability area</p>
+          <div class="bar-list">
+            <div class="bar-line"><span>Numeracy</span><div class="bar-track"><div class="bar-fill" style="width:31%"></div></div><span>31%</span></div>
+            <div class="bar-line"><span>Communication</span><div class="bar-track"><div class="bar-fill pink" style="width:24%"></div></div><span>24%</span></div>
+            <div class="bar-line"><span>Digital skills</span><div class="bar-track"><div class="bar-fill blue" style="width:18%"></div></div><span>18%</span></div>
+            <div class="bar-line"><span>Critical thinking</span><div class="bar-track"><div class="bar-fill" style="width:27%"></div></div><span>27%</span></div>
+          </div>
+        </article>
+        <article class="card panel">
+          <div class="section-title">Class-wise performance <a href="classes.html" style="font-size:11px;color:var(--purple-dark)">View classes</a></div>
+          <p class="mini-sub">Average assessment score, current term</p>
+          <div class="bar-list">
+            <div class="bar-line"><span>Grade 11 A</span><div class="bar-track"><div class="bar-fill" style="width:88%"></div></div><span>88%</span></div>
+            <div class="bar-line"><span>Grade 10 A</span><div class="bar-track"><div class="bar-fill blue" style="width:84%"></div></div><span>84%</span></div>
+            <div class="bar-line"><span>Grade 10 B</span><div class="bar-track"><div class="bar-fill pink" style="width:81%"></div></div><span>81%</span></div>
+            <div class="bar-line"><span>Grade 9 A</span><div class="bar-track"><div class="bar-fill" style="width:78%"></div></div><span>78%</span></div>
+          </div>
+        </article>
+        <article class="card panel">
+          <div class="section-title">Grade-wise participation <a href="stats.html" style="font-size:11px;color:var(--purple-dark)">Details</a></div>
+          <p class="mini-sub">Students active in at least one activity this week</p>
+          <div class="participation">
+            <div class="grade-col"><div class="grade-bar" style="height:82%"></div><span>G11</span></div>
+            <div class="grade-col"><div class="grade-bar" style="height:91%"></div><span>G10</span></div>
+            <div class="grade-col"><div class="grade-bar" style="height:76%"></div><span>G9</span></div>
+            <div class="grade-col"><div class="grade-bar" style="height:69%"></div><span>G8</span></div>
+            <div class="grade-col"><div class="grade-bar" style="height:63%"></div><span>G7</span></div>
+          </div>
+        </article>
       </section>
 
       <section class="two-col-row">
@@ -529,7 +579,7 @@
               <div class="interest-body"><div class="interest-top"><span>Law</span><span>54</span></div><div class="interest-track"><div class="interest-fill" style="width:23%;background:linear-gradient(90deg,#E9A824,#C6890F);"></div></div></div>
             </div>
 
-            <a class="view-all-link" href="reports.html" style="display:inline-block;margin-top:6px;font-size:11.5px;font-weight:700;color:var(--purple-dark);">View full report →</a>
+            <a class="view-all-link" href="stats.html" style="display:inline-block;margin-top:6px;font-size:11.5px;font-weight:700;color:var(--purple-dark);">Explore career insights →</a>
           </div>
         </div>
       </section>
