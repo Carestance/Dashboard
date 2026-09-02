@@ -1,0 +1,11 @@
+{
+  "name": "carestance-dashboard",
+  "private": true,
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "build": "npm --prefix backend ci",
+    "start": "npm --prefix backend start"
+  }
+}
