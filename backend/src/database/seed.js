@@ -28,6 +28,10 @@ db.transaction(() => {
   const teacherId = db.prepare("INSERT INTO users (organization_id, email, password_hash, role, display_name) VALUES (?, ?, ?, 'teacher', ?)")
     .run(schoolId, 'simran@carestance.demo', passwordHash, 'Ms. Simran').lastInsertRowid;
   db.prepare('INSERT INTO teacher_profiles (user_id, employee_code, title) VALUES (?, ?, ?)').run(teacherId, 'T-1001', 'Career Guidance Teacher');
+  db.prepare("INSERT INTO users (organization_id, email, password_hash, role, display_name) VALUES (?, ?, ?, 'parent', ?)")
+    .run(schoolId, 'parent@carestance.demo', bcrypt.hashSync('Parent@123', 12), 'Demo Parent');
+  db.prepare("INSERT INTO users (organization_id, email, password_hash, role, display_name) VALUES (?, ?, ?, 'school_admin', ?)")
+    .run(schoolId, 'admin@carestance.demo', bcrypt.hashSync('Admin@123', 12), 'Demo School Admin');
   db.prepare("INSERT INTO users (organization_id, email, password_hash, role, display_name) VALUES (?, ?, ?, 'consumer', ?)")
     .run(consumerOrgId, 'learner@carestance.demo', bcrypt.hashSync('Consumer@123', 12), 'Demo Learner');
 
@@ -75,4 +79,4 @@ db.transaction(() => {
 // Demonstrate the same automatic result users receive after choosing a career.
 seededStudentCareers.forEach(([studentId, careerArea]) => generateCareerGrowthMap({ studentId, careerArea }));
 
-console.log('Seed complete. Teacher login: simran@carestance.demo / Teacher@123');
+console.log('Seed complete. Demo logins: teacher simran@carestance.demo / Teacher@123; parent parent@carestance.demo / Parent@123; school admin admin@carestance.demo / Admin@123');
