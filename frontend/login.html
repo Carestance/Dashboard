@@ -11,7 +11,7 @@
     .card { width:min(100%,430px); padding:42px; border-radius:24px; background:#fff; box-shadow:0 18px 55px rgba(75,48,150,.15); }
     .brand { display:flex; align-items:center; gap:10px; font:700 23px Poppins,sans-serif; margin-bottom:28px; }.logo { width:38px;height:38px;border-radius:50%;display:grid;place-items:center;background:linear-gradient(135deg,#7c5cfc,#5f3df5);color:#fff; }
     h1 { font:700 26px Poppins,sans-serif; margin:0 0 8px; } p { color:var(--muted); font-size:14px; line-height:1.6; margin:0 0 26px; }
-    label { display:block; font-size:13px; font-weight:700; margin:18px 0 8px; } input { width:100%; border:1px solid var(--border); border-radius:12px; padding:13px 14px; font:14px Inter,sans-serif; outline:none; } input:focus { border-color:var(--purple); box-shadow:0 0 0 3px #efebfe; }
+    label { display:block; font-size:13px; font-weight:700; margin:18px 0 8px; } input, select { width:100%; border:1px solid var(--border); border-radius:12px; padding:13px 14px; font:14px Inter,sans-serif; outline:none; background:#fff; } input:focus, select:focus { border-color:var(--purple); box-shadow:0 0 0 3px #efebfe; }
     button { width:100%; border:0; border-radius:12px; margin-top:24px; padding:14px; background:linear-gradient(135deg,#7c5cfc,#5f3df5); color:#fff; font:700 14px Inter,sans-serif; cursor:pointer; } button:disabled { opacity:.65; cursor:wait; }.error { min-height:20px; margin-top:14px; color:var(--red); font-size:13px; }.hint { margin-top:18px; padding:12px; border-radius:10px; background:#efebfe; color:#5f3df5; font-size:12px; line-height:1.55; }
   </style>
 </head>
@@ -21,16 +21,37 @@
     <h1>Welcome back</h1>
     <p>Sign in to see the students and classes assigned to you.</p>
     <form id="loginForm">
+      <label for="role">Dashboard</label>
+      <select id="role">
+        <option value="teacher">Teacher</option>
+        <option value="parent">Parent</option>
+        <option value="school_admin">School administrator</option>
+      </select>
       <label for="email">Email</label><input id="email" type="email" value="simran@carestance.demo" autocomplete="email" required />
       <label for="password">Password</label><input id="password" type="password" value="Teacher@123" autocomplete="current-password" required />
       <button id="submitButton" type="submit">Sign in to dashboard</button>
       <div id="error" class="error" role="alert"></div>
     </form>
-    <div class="hint"><b>Demo teacher account</b><br />simran@carestance.demo / Teacher@123</div>
+    <div class="hint" id="demoHint"><b>Demo teacher account</b><br />simran@carestance.demo / Teacher@123</div>
   </main>
   <script>
     const apiBase = location.protocol === 'file:' ? 'http://localhost:3000' : '';
     const form = document.getElementById('loginForm');
+    const role = document.getElementById('role');
+    const email = document.getElementById('email');
+    const password = document.getElementById('password');
+    const demoAccounts = {
+      teacher: { email:'simran@carestance.demo', password:'Teacher@123', label:'teacher' },
+      parent: { email:'parent@carestance.demo', password:'Parent@123', label:'parent' },
+      school_admin: { email:'admin@carestance.demo', password:'Admin@123', label:'school administrator' }
+    };
+    function updateDemoAccount() {
+      const account = demoAccounts[role.value];
+      email.value = account.email;
+      password.value = account.password;
+      document.getElementById('demoHint').innerHTML = `<b>Demo ${account.label} account</b><br />${account.email} / ${account.password}`;
+    }
+    role.addEventListener('change', updateDemoAccount);
     form.addEventListener('submit', async (event) => {
       event.preventDefault();
       const button = document.getElementById('submitButton'); const error = document.getElementById('error');
@@ -39,9 +60,10 @@
         const response = await fetch(`${apiBase}/api/v1/auth/login`, { method:'POST', headers:{'content-type':'application/json'}, body:JSON.stringify({ email:email.value, password:password.value }) });
         const result = await response.json();
         if (!response.ok) throw new Error(result.error || 'Unable to sign in.');
-        if (result.user.role !== 'teacher') throw new Error('This account is not a teacher account.');
+        if (result.user.role !== role.value) throw new Error('Choose the dashboard that matches this account.');
         sessionStorage.setItem('carestanceAuth', JSON.stringify({ token:result.token, user:result.user }));
-        location.href = location.protocol === 'file:' ? 'teachers/dashboard.html' : '/teachers/dashboard.html';
+        const dashboards = { teacher:'teachers/dashboard.html', parent:'parents/dashboard.html', school_admin:'school_admin/dashboard.html' };
+        location.href = location.protocol === 'file:' ? dashboards[result.user.role] : `/${dashboards[result.user.role]}`;
       } catch (err) { error.textContent = err.message; button.disabled = false; button.textContent = 'Sign in to dashboard'; }
     });
   </script>
