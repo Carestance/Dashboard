@@ -15,7 +15,7 @@ const todayAt = (hour, minute = 0) => {
 
 const reset = [
   'teacher_notes', 'student_activity_events', 'task_completions', 'task_assignments', 'growth_map_tasks', 'growth_map_skills', 'career_growth_maps', 'roadmaps', 'skill_gaps', 'simulation_history', 'career_explorations',
-  'assessment_attempts', 'assessment_assignments', 'assessments', 'events', 'class_enrollments', 'teacher_class_assignments',
+  'student_achievements', 'parent_children', 'assessment_attempts', 'assessment_assignments', 'assessments', 'events', 'class_enrollments', 'teacher_class_assignments',
   'classes', 'school_students', 'consumer_profiles', 'teacher_profiles', 'attention_rules', 'users', 'organizations'
 ];
 
@@ -28,8 +28,8 @@ db.transaction(() => {
   const teacherId = db.prepare("INSERT INTO users (organization_id, email, password_hash, role, display_name) VALUES (?, ?, ?, 'teacher', ?)")
     .run(schoolId, 'simran@carestance.demo', passwordHash, 'Ms. Simran').lastInsertRowid;
   db.prepare('INSERT INTO teacher_profiles (user_id, employee_code, title) VALUES (?, ?, ?)').run(teacherId, 'T-1001', 'Career Guidance Teacher');
-  db.prepare("INSERT INTO users (organization_id, email, password_hash, role, display_name) VALUES (?, ?, ?, 'parent', ?)")
-    .run(schoolId, 'parent@carestance.demo', bcrypt.hashSync('Parent@123', 12), 'Demo Parent');
+  const parentId = db.prepare("INSERT INTO users (organization_id, email, password_hash, role, display_name) VALUES (?, ?, ?, 'parent', ?)")
+    .run(schoolId, 'parent@carestance.demo', bcrypt.hashSync('Parent@123', 12), 'Demo Parent').lastInsertRowid;
   db.prepare("INSERT INTO users (organization_id, email, password_hash, role, display_name) VALUES (?, ?, ?, 'school_admin', ?)")
     .run(schoolId, 'admin@carestance.demo', bcrypt.hashSync('Admin@123', 12), 'Demo School Admin');
   db.prepare("INSERT INTO users (organization_id, email, password_hash, role, display_name) VALUES (?, ?, ?, 'consumer', ?)")
@@ -49,11 +49,16 @@ db.transaction(() => {
     db.prepare('INSERT INTO class_enrollments (class_id, student_id) VALUES (?, ?)').run(classId, id);
     return id;
   });
+  db.prepare('INSERT INTO parent_children (parent_user_id, school_student_id, relationship) VALUES (?, ?, ?)').run(parentId, studentIds[0], 'parent');
 
   const assessmentId = db.prepare('INSERT INTO assessments (organization_id, title) VALUES (?, ?)').run(schoolId, 'Career Readiness Assessment').lastInsertRowid;
   const assignmentId = db.prepare('INSERT INTO assessment_assignments (assessment_id, class_id, due_at) VALUES (?, ?, ?)').run(assessmentId, classId, daysAgo(-2)).lastInsertRowid;
   studentIds.forEach((studentId, index) => db.prepare('INSERT INTO assessment_attempts (assignment_id, student_id, status, score, completed_at) VALUES (?, ?, ?, ?, ?)')
     .run(assignmentId, studentId, index < 7 ? 'completed' : 'in_progress', index < 7 ? 72 + index * 3 : null, index < 7 ? daysAgo(index % 4) : null));
+  db.prepare('INSERT INTO student_achievements (student_id, title, description, earned_at) VALUES (?, ?, ?, ?)')
+    .run(studentIds[0], 'Assessment finisher', 'Completed the latest career readiness assessment.', daysAgo(2));
+  db.prepare('INSERT INTO student_achievements (student_id, title, description, earned_at) VALUES (?, ?, ?, ?)')
+    .run(studentIds[0], 'Career explorer', 'Explored a new career area and created a growth map.', daysAgo(5));
 
   studentIds.forEach((studentId, index) => {
     db.prepare('INSERT INTO roadmaps (student_id, title, progress_percent, updated_at) VALUES (?, ?, ?, ?)').run(studentId, 'Career Growth Roadmap', students[index][4], daysAgo(index % 6));
