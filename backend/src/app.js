@@ -7,6 +7,7 @@ import { migrate } from './database/migrate.js';
 import authRoutes from './routes/auth.js';
 import teacherRoutes from './routes/teacher.js';
 import parentRoutes from './routes/parent.js';
+import schoolAdminRoutes from './routes/schoolAdmin.js';
 
 migrate();
 const app = express();
@@ -19,6 +20,7 @@ app.get('/health', (_req, res) => res.json({ status: 'ok' }));
 app.use('/api/v1/auth', authRoutes);
 app.use('/api/v1/teacher', teacherRoutes);
 app.use('/api/v1/parent', parentRoutes);
+app.use('/api/v1/school-admin', schoolAdminRoutes);
 app.use((_req, res) => res.status(404).json({ error: 'Route not found.' }));
 app.use((error, _req, res, _next) => {
   console.error(error);
