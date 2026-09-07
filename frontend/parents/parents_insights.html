@@ -29,69 +29,142 @@
       --r-lg:20px; --r-md:14px; --r-sm:10px;
     }
 
+
     *{box-sizing:border-box;}
     html,body{margin:0;padding:0;}
     body{
-      background:var(--bg);
+      position:relative;
+      min-height:100vh;
+      background-color:var(--bg);
       font-family:'Inter',sans-serif;
+      font-size: 23px;
       color:var(--ink);
       -webkit-font-smoothing:antialiased;
+    }
+    body::before{
+      content:"";
+      position:fixed;
+      inset:0;
+      z-index:-1;
+      background:url('../shared/assets/t1.png') center top / cover no-repeat;
     }
     h1,h2,h3,h4,.disp{font-family:'Poppins',sans-serif;}
     a{text-decoration:none;}
 
     .app-shell{display:flex;min-height:100vh;align-items:stretch;}
 
-    /* ---------- SIDEBAR ---------- */
+    /* ---------- SIDEBAR (floating light card, pill nav) ---------- */
     .sidebar{
-      width:246px; flex-shrink:0;
-      background:#fff;
-      border-right:1px solid var(--border);
-      padding:26px 18px 18px;
+      width:15vw; min-width:240px; flex-shrink:0;
+      background:var(--card);
+      border-radius:26px;
+      padding:24px 18px;
       display:flex; flex-direction:column;
-      position:sticky; top:0; height:100vh;
+      position:sticky; top:16px; height:calc(100vh - 32px);
+      margin:16px 0 16px 16px;
+      box-shadow:var(--shadow-hover);
+      overflow:hidden;
+      isolation:isolate;
+      transition:width .32s cubic-bezier(.4,0,.2,1), padding .32s cubic-bezier(.4,0,.2,1);
     }
-    .brand{display:flex;align-items:center;gap:10px;padding:0 6px;margin-bottom:30px;}
+    .sidebar.collapsed{width:100px;padding:24px 14px;}
+
+    /* ---- full-bleed video backdrop, translucent tint over it for a lively 3D feel ---- */
+    .sidebar-bg{position:absolute;inset:0;z-index:0;}
+    .sidebar-bg video{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;filter:saturate(1.25) contrast(1.05) brightness(.85);transform:scale(1.02);transition:opacity .7s ease-in-out;}
+    .sidebar-bg::after{
+      content:"";position:absolute;inset:0;
+      background:linear-gradient(165deg, rgba(124,92,252,.45) 0%, rgba(95,61,245,.4) 45%, rgba(36,28,61,.48) 100%);
+      mix-blend-mode:normal;
+    }
+    .sidebar-bg::before{
+      content:"";position:absolute;inset:0;z-index:1;
+      background:radial-gradient(120% 60% at 50% 0%, rgba(255,255,255,.22), transparent 60%);
+      pointer-events:none;
+    }
+
+    .brand-row{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:26px;transition:flex-direction .3s ease;position:relative;z-index:2;}
+    .sidebar.collapsed .brand-row{flex-direction:column;gap:18px;}
+    .brand{display:flex;align-items:center;gap:14px;min-width:0;}
     .brand .logo{
-      width:34px;height:34px;border-radius:10px;flex-shrink:0;
-      background:linear-gradient(135deg,#3FD0C9,#3E7BFA);
+      width:68px;height:68px;border-radius:50%;flex-shrink:0;
+      background:rgba(255,255,255,.22);backdrop-filter:blur(6px);
+      border:1.5px solid rgba(255,255,255,.35);
       display:flex;align-items:center;justify-content:center;
-      color:#fff;font-weight:700;font-family:'Poppins',sans-serif;font-size:16px;
+      overflow:hidden;
+      color:#fff;font-weight:700;font-family:'Poppins',sans-serif;font-size:32px;
+      transition:transform .3s ease;
     }
-    .brand span{font-weight:700;font-size:16.5px;color:var(--ink);}
+    .brand .logo img{width:100%;height:100%;object-fit:cover;display:block;}
+    .brand span{
+      font-weight:700;font-size:30px;color:#fff;white-space:nowrap;
+      opacity:1;max-width:200px;overflow:hidden;display:inline-block;
+      transition:opacity .2s ease, max-width .3s ease;
+    }
+    .sidebar.collapsed .brand span{opacity:0;max-width:0;display:none;}
 
-    .nav{display:flex;flex-direction:column;gap:4px;}
+    .sidebar-toggle{
+      width:40px;height:40px;border-radius:50%;flex-shrink:0;
+      background:rgba(255,255,255,.22);backdrop-filter:blur(6px);color:#fff;border:1.5px solid rgba(255,255,255,.4);
+      display:flex;align-items:center;justify-content:center;
+      cursor:pointer;
+      transition:transform .3s cubic-bezier(.4,0,.2,1), background .18s ease, color .18s ease;
+    }
+    .sidebar-toggle:hover{background:rgba(255,255,255,.38);color:#fff;}
+    .sidebar-toggle svg{width:20px;height:20px;transition:transform .32s cubic-bezier(.4,0,.2,1);}
+    .sidebar.collapsed .sidebar-toggle svg{transform:rotate(180deg);}
+
+    .nav{display:flex;flex-direction:column;gap:8px;position:relative;z-index:2;}
     .nav-item{
-      display:flex;align-items:center;gap:12px;
-      padding:11px 14px;border-radius:12px;
-      color:var(--muted);font-size:13.8px;font-weight:500;
-      transition:background .15s,color .15s;
+      display:flex;align-items:center;gap:14px;
+      padding:13px 18px;border-radius:999px;position:relative;
+      color:rgba(255,255,255,.88);font-size:23px;font-weight:600;
+      transition:background .2s ease,color .2s ease,padding .3s ease,transform .2s ease;
     }
-    .nav-item svg{width:18px;height:18px;flex-shrink:0;}
-    .nav-item:hover{background:var(--purple-tint);color:var(--purple-dark);}
-    .nav-item.active{background:var(--purple-tint);color:var(--purple-dark);font-weight:700;}
+    .nav-item svg{width:27px;height:27px;flex-shrink:0;transition:transform .25s cubic-bezier(.4,0,.2,1);}
+    .sidebar.collapsed .nav-item svg{width:42px;height:42px;}
+    .nav-item:hover{background:rgba(255,255,255,.34);color:#fff;}
+    .nav-item:hover svg{transform:scale(1.15);}
+    .nav-item.active{background:rgba(255,255,255,.94);color:var(--purple-dark);font-weight:700;box-shadow:0 8px 18px rgba(36,28,61,.35);}
+    .nav-item span{
+      white-space:nowrap;opacity:1;max-width:200px;overflow:hidden;display:inline-block;
+      transition:opacity .2s ease, max-width .3s ease;
+    }
+    .sidebar.collapsed .nav-item{justify-content:center;padding:14px;width:64px;height:64px;margin:0 auto;}
+    .sidebar.collapsed .nav-item span{opacity:0;max-width:0;display:none;}
 
-    .sidebar-art{
-      margin-top:auto;
-      border-radius:18px;overflow:hidden;
-      height:230px;position:relative;
-      box-shadow:inset 0 0 0 1px rgba(255,255,255,.4);
-    }
-    .sidebar-art svg{width:100%;height:100%;display:block;}
+    .nav-secondary{margin-top:10px;padding-top:12px;border-top:1px solid rgba(255,255,255,.22);position:relative;z-index:2;}
+    .nav-secondary .nav-item{color:rgba(255,255,255,.7);font-weight:600;}
+    .nav-secondary .nav-item:hover{color:#fff;}
+
+    .sidebar-spacer{flex:1;position:relative;min-height:40px;}
 
     .sidebar-footer{
-      margin-top:12px;background:var(--purple-tint);color:var(--purple-dark);
-      font-size:11.5px;font-weight:600;line-height:1.4;
-      padding:12px 14px;border-radius:12px;
-      display:flex;align-items:center;gap:8px;
+      margin-top:12px;background:rgba(255,255,255,.14);backdrop-filter:blur(6px);color:#fff;
+      border:1px solid rgba(255,255,255,.22);
+      font-size:21px;font-weight:700;line-height:1.4;
+      padding:14px 16px;border-radius:14px;
+      display:flex;align-items:flex-start;gap:10px;position:relative;z-index:2;
+      transition:padding .3s ease,justify-content .3s ease;
     }
-    .sidebar-footer svg{width:14px;height:14px;flex-shrink:0;}
+    .sidebar-footer .icon-circle{
+      width:36px;height:36px;border-radius:50%;background:rgba(255,255,255,.9);flex-shrink:0;
+      display:flex;align-items:center;justify-content:center;color:var(--purple-dark);
+    }
+    .sidebar-footer .icon-circle svg{width:20px;height:20px;}
+    .sidebar.collapsed .sidebar-footer .icon-circle svg{width:30px;height:30px;}
+    .sidebar-footer span{
+      white-space:normal;opacity:1;max-width:200px;overflow:hidden;
+      transition:opacity .2s ease, max-width .3s ease;
+    }
+    .sidebar.collapsed .sidebar-footer{justify-content:center;padding:12px;}
+    .sidebar.collapsed .sidebar-footer span{opacity:0;max-width:0;display:none;}
 
     /* ---------- MAIN / TOPBAR ---------- */
     .main{flex:1;padding:26px 32px 40px;min-width:0;}
     .topbar{display:flex;align-items:flex-start;justify-content:space-between;gap:16px;margin-bottom:22px;flex-wrap:wrap;}
-    .topbar h1{font-size:23px;margin:0 0 4px;color:var(--ink);font-weight:700;}
-    .topbar p{margin:0;color:var(--muted);font-size:13.5px;}
+    .topbar h1{font-size:32.5px;margin:0 0 4px;color:var(--ink);font-weight:700;text-shadow:0 1px 16px rgba(255,255,255,.5);}
+    .topbar p{margin:0;color:var(--ink);opacity:.7;font-size:23px;text-shadow:0 1px 12px rgba(255,255,255,.5);}
 
     .user-chip{
       display:flex;align-items:center;gap:10px;
@@ -101,35 +174,27 @@
     .avatar{
       width:34px;height:34px;border-radius:50%;
       background:var(--purple-tint);
-      display:flex;align-items:center;justify-content:center;font-size:16px;
+      display:flex;align-items:center;justify-content:center;font-size:25px;
     }
-    .user-chip strong{display:block;font-size:12.8px;color:var(--ink);font-weight:700;font-family:'Poppins',sans-serif;line-height:1.3;}
-    .user-chip .role{font-size:11px;color:var(--muted);}
-    .user-chip .chev{color:var(--muted-soft);width:15px;height:15px;}
-
-    .back-link{
-      display:inline-flex;align-items:center;gap:6px;
-      font-size:13px;font-weight:600;color:var(--muted);
-      margin-bottom:18px;
-    }
-    .back-link svg{width:15px;height:15px;transform:scaleX(-1);}
-    .back-link:hover{color:var(--purple-dark);}
+    .user-chip strong{display:block;font-size:22px;color:var(--ink);font-weight:700;font-family:'Poppins',sans-serif;line-height:1.3;}
+    .user-chip .role{font-size:20px;color:var(--muted);}
+    .user-chip .chev{color:var(--muted-soft);width:22px;height:22px;}
 
     /* ---------- CARD PRIMITIVES ---------- */
     .card{background:var(--card);border-radius:var(--r-lg);box-shadow:var(--shadow);}
     .panel{padding:22px;}
     .section-title{
       display:flex;align-items:center;gap:10px;
-      font-size:15px;font-weight:700;color:var(--ink);margin:0 0 18px;
+      font-size:24.5px;font-weight:700;color:var(--ink);margin:0 0 18px;
     }
-    .section-title .icon-badge{width:30px;height:30px;border-radius:9px;margin-bottom:0;}
-    .section-title .icon-badge svg{width:15px;height:15px;}
+    .section-title .icon-badge{width:39px;height:39px;border-radius:9px;margin-bottom:0;}
+    .section-title .icon-badge svg{width:22px;height:22px;}
 
     .icon-badge{
-      width:40px;height:40px;border-radius:12px;
+      width:49px;height:49px;border-radius:12px;
       display:flex;align-items:center;justify-content:center;margin-bottom:10px;
     }
-    .icon-badge svg{width:18px;height:18px;}
+    .icon-badge svg{width:27px;height:27px;}
     .bg-purple{background:var(--purple-tint);color:var(--purple-dark);}
     .bg-pink{background:var(--pink-tint);color:var(--pink);}
     .bg-green{background:var(--green-tint);color:var(--green);}
@@ -138,179 +203,78 @@
     .bg-indigo{background:var(--indigo-tint);color:var(--indigo);}
     .bg-amber{background:var(--amber-tint);color:var(--amber);}
 
-    /* ---------- DASHBOARD STAT ROW ---------- */
-    .stats-row{display:grid;grid-template-columns:1.35fr repeat(5,1fr);gap:14px;margin-bottom:14px;}
-    .stat-card{padding:18px;}
-    .stat-card .label{font-size:11.5px;color:var(--muted);font-weight:500;margin-bottom:4px;}
-    .stat-card .value{font-size:14.5px;font-weight:700;color:var(--ink);line-height:1.35;}
-    .stat-card .sub{font-size:10.8px;color:var(--muted-soft);font-weight:600;margin-top:2px;}
-    .badge-note{color:var(--green);}
-
-    .progress-card{padding:18px;display:flex;flex-direction:column;align-items:center;text-align:center;}
-    .progress-card .label-top{align-self:flex-start;font-size:11.5px;color:var(--muted);font-weight:600;margin-bottom:10px;}
-    .ring{position:relative;width:118px;height:118px;display:flex;align-items:center;justify-content:center;margin-bottom:8px;}
-    .ring svg{width:100%;height:100%;}
-    .ring-value{position:absolute;font-size:22px;font-weight:700;color:var(--ink);font-family:'Poppins',sans-serif;}
-    .progress-card .caption{font-size:11.5px;color:var(--muted);font-weight:600;margin-bottom:10px;}
-    .bar-track{width:100%;height:6px;border-radius:6px;background:var(--purple-tint);overflow:hidden;}
-    .bar-fill{height:100%;border-radius:6px;background:linear-gradient(90deg,var(--purple),var(--purple-dark));}
-
-    /* ---------- TWO COLUMN ROW ---------- */
-    .two-col-row{display:grid;grid-template-columns:1.4fr 1fr;gap:14px;margin-bottom:14px;}
-
-    .journey-steps{display:flex;align-items:flex-start;gap:2px;overflow-x:auto;padding:2px 2px 6px;margin-bottom:18px;}
-    .journey-step{display:flex;flex-direction:column;align-items:center;gap:7px;min-width:52px;flex-shrink:0;}
-    .journey-step .icon-badge{margin-bottom:0;width:34px;height:34px;border-radius:10px;}
-    .journey-step .icon-badge svg{width:15px;height:15px;}
-    .journey-step span{font-size:10px;color:var(--muted);text-align:center;font-weight:600;line-height:1.25;}
-    .journey-arrow{display:flex;align-items:center;color:var(--muted-soft);margin-top:15px;flex-shrink:0;}
-    .journey-arrow svg{width:11px;height:11px;}
-
-    .journey-table{display:flex;flex-direction:column;gap:6px;}
-    .journey-row{display:flex;align-items:center;gap:12px;padding:10px 12px;border-radius:12px;background:var(--purple-tint);}
-    .row-icon{width:28px;height:28px;border-radius:8px;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
-    .row-icon svg{width:13px;height:13px;}
-    .row-label{font-size:12px;color:var(--muted);font-weight:600;flex:0 0 150px;}
-    .row-value{font-size:12px;color:var(--ink);font-weight:700;text-align:right;flex:1;}
-
-    .insight-bubble{
-      display:flex;align-items:flex-start;gap:10px;
-      background:var(--purple-tint);padding:14px 16px;border-radius:14px;
-      font-size:12.3px;color:var(--ink);line-height:1.55;margin-bottom:14px;
-    }
-    .insight-bubble svg{width:16px;height:16px;color:var(--purple-dark);flex-shrink:0;margin-top:1px;}
-
     .action-card{
       position:relative;background:var(--purple-tint);
       border-radius:16px;padding:16px 18px;overflow:hidden;
     }
     .action-card .tag{
       display:flex;align-items:center;gap:6px;
-      font-size:10.8px;font-weight:700;color:var(--purple-dark);
+      font-size:20.3px;font-weight:700;color:var(--purple-dark);
       text-transform:uppercase;letter-spacing:.02em;margin-bottom:8px;
     }
-    .action-card .tag svg{width:13px;height:13px;}
-    .action-card .action-text{font-size:12.5px;color:var(--ink);max-width:60%;line-height:1.55;margin:0 0 34px;font-weight:500;}
+    .action-card .tag svg{width:22px;height:22px;}
+    .action-card .action-text{font-size:22px;color:var(--ink);max-width:60%;line-height:1.55;margin:0 0 34px;font-weight:500;}
     .action-arrow{
-      width:30px;height:30px;border-radius:50%;
+      width:39px;height:39px;border-radius:50%;
       background:var(--purple);color:#fff;
       display:flex;align-items:center;justify-content:center;
     }
-    .action-arrow svg{width:15px;height:15px;}
+    .action-arrow svg{width:24px;height:24px;}
     .action-img{position:absolute;right:-8px;bottom:-6px;width:128px;pointer-events:none;}
     .action-img img{width:100%;display:block;}
-
-    /* ---------- REPORTS GRID ---------- */
-    .reports-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:14px;}
-    .report-card{
-      padding:18px;position:relative;display:block;
-      transition:transform .18s ease, box-shadow .18s ease;
-      color:inherit;
-    }
-    .report-card:hover{transform:translateY(-5px);box-shadow:var(--shadow-hover);}
-    .report-card h4{font-size:13.3px;margin:2px 0 5px;color:var(--ink);font-weight:700;}
-    .report-card p{font-size:11.3px;color:var(--muted);line-height:1.45;margin:0 0 20px;}
-    .go-arrow{position:absolute;right:16px;bottom:16px;color:var(--muted-soft);}
-    .go-arrow svg{width:14px;height:14px;}
-
-    /* ---------- CAREER JOURNEY PAGE ---------- */
-    .journey-detail-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;}
-    .journey-detail-card{padding:20px;transition:transform .18s ease, box-shadow .18s ease;}
-    .journey-detail-card:hover{transform:translateY(-5px);box-shadow:var(--shadow-hover);}
-    .journey-detail-card .icon-badge{width:42px;height:42px;border-radius:12px;}
-    .journey-detail-card h3{font-size:14.5px;margin:0 0 6px;font-weight:700;}
-    .journey-detail-card p{font-size:12.3px;color:var(--muted);line-height:1.55;margin:0;}
-    .step-num{font-size:10.8px;font-weight:700;color:var(--purple);letter-spacing:.04em;margin-bottom:8px;}
 
     /* ---------- PARENT INSIGHTS PAGE ---------- */
     .insights-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;}
     .insight-card{padding:20px;transition:transform .18s ease, box-shadow .18s ease;}
     .insight-card:hover{transform:translateY(-5px);box-shadow:var(--shadow-hover);}
-    .insight-card .icon-badge{width:36px;height:36px;border-radius:10px;}
-    .insight-card h3{font-size:14px;margin:0 0 6px;font-weight:700;}
-    .insight-card p{font-size:12.3px;color:var(--muted);line-height:1.55;margin:0;}
+    .insight-card .icon-badge{width:45px;height:45px;border-radius:10px;}
+    .insight-card h3{font-size:23.5px;margin:0 0 6px;font-weight:700;}
+    .insight-card p{font-size:21.8px;color:var(--muted);line-height:1.55;margin:0;}
 
     /* ---------- RESPONSIVE ---------- */
-    @media (max-width:1180px){
-      .stats-row{grid-template-columns:repeat(3,1fr);}
-      .stats-row .progress-card{grid-column:span 3;}
-      .reports-grid{grid-template-columns:repeat(3,1fr);}
-      .journey-detail-grid{grid-template-columns:repeat(2,1fr);}
-    }
     @media (max-width:900px){
-      .two-col-row{grid-template-columns:1fr;}
       .insights-grid{grid-template-columns:1fr;}
     }
     @media (max-width:760px){
       .sidebar{display:none;}
       .main{padding:20px 16px 32px;}
-      .stats-row{grid-template-columns:1fr 1fr;}
-      .reports-grid{grid-template-columns:1fr 1fr;}
-      .journey-detail-grid{grid-template-columns:1fr;}
-      .row-label{flex:0 0 110px;}
       .action-card .action-text{max-width:100%;}
     }
-
 
 </style>
 </head>
 <body>
   <div class="app-shell">
-    <aside class="sidebar">
-      <div class="brand"><div class="logo">S</div><span>CareStance</span></div>
+    <aside class="sidebar" id="sidebar">
+      <div class="sidebar-bg">
+        <video src="../shared/assets/t3.mp4" autoplay muted playsinline id="sidebarVidA" style="opacity:1"></video>
+        <video src="../shared/assets/t3.mp4" muted playsinline id="sidebarVidB" style="opacity:0"></video>
+      </div>
+      <div class="brand-row">
+        <div class="brand"><div class="logo"><img src="../shared/assets/logo.png" alt="CareStance" onerror="this.parentElement.textContent='S'" /></div><span>CareStance</span></div>
+        <button class="sidebar-toggle" id="sidebarToggle" aria-label="Collapse sidebar" onclick="document.getElementById('sidebar').classList.toggle('collapsed')">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="m15 6-6 6 6 6"/></svg>
+        </button>
+      </div>
       <nav class="nav">
-        <a class="nav-item" href="dashboard.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 11.5 12 4l8 7.5"/><path d="M6 10v9a1 1 0 0 0 1 1h4v-6h2v6h4a1 1 0 0 0 1-1v-9"/></svg><span>Home</span></a>
-        <a class="nav-item" href="careerjourney.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M15.5 8.5 13 13l-4.5 2.5L11 11l4.5-2.5Z"/></svg><span>Career Journey</span></a>
-        <a class="nav-item active" href="parents_insights.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18h6"/><path d="M10 21h4"/><path d="M12 3a6 6 0 0 0-3.5 10.9c.5.4.8 1 .9 1.6h5.2c.1-.6.4-1.2.9-1.6A6 6 0 0 0 12 3Z"/></svg><span>Parent Insights</span></a>
-        <a class="nav-item" href="reports.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M7 3h7l4 4v14a1 1 0 0 1-1 1H7a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1Z"/><path d="M14 3v4h4"/><path d="M9 13h6M9 17h6M9 9h2"/></svg><span>Reports</span></a>
+        <a class="nav-item" href="dashboard.html" title="Home"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 11.5 12 4l8 7.5"/><path d="M6 10v9a1 1 0 0 0 1 1h4v-6h2v6h4a1 1 0 0 0 1-1v-9"/></svg><span>Home</span></a>
+        <a class="nav-item" href="careerjourney.html" title="Career Journey"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M15.5 8.5 13 13l-4.5 2.5L11 11l4.5-2.5Z"/></svg><span>Career Journey</span></a>
+        <a class="nav-item active" href="parents_insights.html" title="Parent Insights"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18h6"/><path d="M10 21h4"/><path d="M12 3a6 6 0 0 0-3.5 10.9c.5.4.8 1 .9 1.6h5.2c.1-.6.4-1.2.9-1.6A6 6 0 0 0 12 3Z"/></svg><span>Parent Insights</span></a>
+        <a class="nav-item" href="reports.html" title="Reports"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M7 3h7l4 4v14a1 1 0 0 1-1 1H7a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1Z"/><path d="M14 3v4h4"/><path d="M9 13h6M9 17h6M9 9h2"/></svg><span>Reports</span></a>
+        <a class="nav-item" href="settings.html" title="Settings"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l-.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg><span>Settings</span></a>
       </nav>
-      <div class="sidebar-art">
-<svg viewBox="0 0 220 260" preserveAspectRatio="xMidYMax slice" xmlns="http://www.w3.org/2000/svg">
-  <defs>
-    <linearGradient id="skyGrad" x1="0" y1="0" x2="0" y2="1">
-      <stop offset="0%" stop-color="#B9A6F2"/>
-      <stop offset="55%" stop-color="#D79FD6"/>
-      <stop offset="100%" stop-color="#F4C6CB"/>
-    </linearGradient>
-    <linearGradient id="waterGrad" x1="0" y1="0" x2="0" y2="1">
-      <stop offset="0%" stop-color="#C9AEEF"/>
-      <stop offset="100%" stop-color="#E9C3D8"/>
-    </linearGradient>
-  </defs>
-  <rect x="0" y="0" width="220" height="260" fill="url(#skyGrad)"/>
-  <circle cx="34" cy="40" r="1.6" fill="#fff" opacity=".9"/>
-  <circle cx="70" cy="26" r="1.1" fill="#fff" opacity=".8"/>
-  <circle cx="150" cy="34" r="1.4" fill="#fff" opacity=".85"/>
-  <circle cx="190" cy="55" r="1.1" fill="#fff" opacity=".75"/>
-  <circle cx="115" cy="20" r="1" fill="#fff" opacity=".7"/>
-  <path d="M42 32 46 33 42 34 41 38 40 34 36 33 40 32 41 28Z" fill="#fff" opacity=".9"/>
-  <path d="M172 70 175 71 172 72 171 75 170 72 167 71 170 70 171 67Z" fill="#fff" opacity=".8"/>
-  <g opacity=".55">
-    <rect x="150" y="90" width="10" height="70" fill="#8B6FB8"/>
-    <rect x="163" y="70" width="9" height="90" fill="#9A7BC0"/>
-    <rect x="176" y="105" width="8" height="55" fill="#8B6FB8"/>
-    <rect x="188" y="60" width="7" height="100" fill="#9A7BC0"/>
-    <rect x="199" y="85" width="9" height="75" fill="#8B6FB8"/>
-    <rect x="190" y="52" width="3" height="10" fill="#9A7BC0"/>
-  </g>
-  <rect x="0" y="160" width="220" height="100" fill="url(#waterGrad)"/>
-  <ellipse cx="55" cy="160" rx="70" ry="6" fill="#7A5FBE" opacity=".25"/>
-  <g>
-    <path d="M55 160 C55 130 48 108 55 92 C62 108 55 130 55 160 Z" fill="#5B4A8F" opacity=".85"/>
-    <ellipse cx="55" cy="86" rx="30" ry="24" fill="#6B4FA0" opacity=".9"/>
-    <ellipse cx="32" cy="98" rx="18" ry="15" fill="#6B4FA0" opacity=".8"/>
-    <ellipse cx="80" cy="100" rx="19" ry="15" fill="#6B4FA0" opacity=".8"/>
-    <ellipse cx="55" cy="70" rx="17" ry="13" fill="#7A5FB4" opacity=".85"/>
-  </g>
-  <g opacity=".3" transform="translate(0,166) scale(1,-1)">
-    <path d="M55 -6 C55 24 48 46 55 62 C62 46 55 24 55 -6 Z" fill="#5B4A8F"/>
-    <ellipse cx="55" cy="68" rx="30" ry="20" fill="#6B4FA0"/>
-    <ellipse cx="32" cy="58" rx="16" ry="12" fill="#6B4FA0"/>
-    <ellipse cx="80" cy="60" rx="17" ry="12" fill="#6B4FA0"/>
-  </g>
-</svg>
-</div>
-      <div class="sidebar-footer"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20.5s-7.5-4.6-9.6-9.2C1.1 8 2.7 4.8 6 4.1c2-.4 3.7.5 4.8 2.1a.9.9 0 0 0 1.4 0c1.1-1.6 2.8-2.5 4.8-2.1 3.3.7 4.9 3.9 3.6 7.2C19.5 15.9 12 20.5 12 20.5Z"/></svg><span>Empower futures, one student at a time.</span></div>
+
+      <div class="sidebar-spacer"></div>
+
+      <nav class="nav nav-secondary">
+        <a class="nav-item" href="#" title="Help"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M9.2 9.3a2.8 2.8 0 1 1 3.9 2.7c-.9.4-1.5 1.1-1.5 2v.3"/><circle cx="12" cy="17" r=".6" fill="currentColor" stroke="none"/></svg><span>Help</span></a>
+        <a class="nav-item" href="#" title="Log out"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H6a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h3"/><path d="M16 17l5-5-5-5"/><path d="M21 12H9"/></svg><span>Log out</span></a>
+      </nav>
+
+      <div class="sidebar-footer" title="Empower futures, one student at a time.">
+        <div class="icon-circle"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20.5s-7.5-4.6-9.6-9.2C1.1 8 2.7 4.8 6 4.1c2-.4 3.7.5 4.8 2.1a.9.9 0 0 0 1.4 0c1.1-1.6 2.8-2.5 4.8-2.1 3.3.7 4.9 3.9 3.6 7.2C19.5 15.9 12 20.5 12 20.5Z"/></svg></div>
+        <span>Empower futures, one student at a time.</span>
+      </div>
     </aside>
     <main class="main">
       <div class="topbar">
@@ -321,7 +285,6 @@
           <svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg>
         </div>
       </div>
-      <a class="back-link" href="dashboard.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12h16"/><path d="m13 5 7 7-7 7"/></svg><span>Back to Dashboard</span></a>
 
       <section class="card panel" style="margin-bottom:16px;">
         <div class="section-title"><span class="icon-badge bg-amber"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18h6"/><path d="M10 21h4"/><path d="M12 3a6 6 0 0 0-3.5 10.9c.5.4.8 1 .9 1.6h5.2c.1-.6.4-1.2.9-1.6A6 6 0 0 0 12 3Z"/></svg></span>Suggested Parent Action</div>
@@ -345,5 +308,41 @@
       </section>
     </main>
   </div>
+
+  <script>
+    (function(){
+      var a = document.getElementById('sidebarVidA');
+      var b = document.getElementById('sidebarVidB');
+      if (!a || !b) return;
+      var active = a, standby = b;
+
+      function armSwap(v){
+        function onTime(){
+          var d = v.duration;
+          if (d && v.currentTime > d - 0.7) {
+            v.removeEventListener('timeupdate', onTime);
+            doCrossfade();
+          }
+        }
+        v.addEventListener('timeupdate', onTime);
+      }
+
+      function doCrossfade(){
+        standby.currentTime = 0;
+        var playPromise = standby.play();
+        if (playPromise) playPromise.catch(function(){});
+        standby.style.opacity = '1';
+        active.style.opacity = '0';
+        setTimeout(function(){
+          active.pause();
+          var tmp = active; active = standby; standby = tmp;
+          armSwap(active);
+        }, 720);
+      }
+
+      armSwap(active);
+    })();
+  </script>
+
 </body>
 </html>
