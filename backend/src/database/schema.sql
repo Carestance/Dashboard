@@ -28,7 +28,43 @@ CREATE TABLE IF NOT EXISTS student_achievements (
   title TEXT NOT NULL, description TEXT NOT NULL, earned_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
 CREATE TABLE IF NOT EXISTS consumer_profiles (
-  user_id INTEGER PRIMARY KEY REFERENCES users(id), preferred_goal TEXT
+  user_id INTEGER PRIMARY KEY REFERENCES users(id), preferred_goal TEXT, current_stage TEXT NOT NULL DEFAULT 'Exploration'
+);
+-- Direct learners intentionally use a distinct dataset.  These records never
+-- share a school student id, class, admission number, or organization roster.
+CREATE TABLE IF NOT EXISTS consumer_assessments (
+  id INTEGER PRIMARY KEY, user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+  title TEXT NOT NULL, status TEXT NOT NULL CHECK(status IN ('assigned','in_progress','completed')),
+  score REAL, completed_at TEXT
+);
+CREATE TABLE IF NOT EXISTS consumer_career_explorations (
+  id INTEGER PRIMARY KEY, user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+  career_area TEXT NOT NULL, explored_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+CREATE TABLE IF NOT EXISTS consumer_simulation_history (
+  id INTEGER PRIMARY KEY, user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+  simulation_name TEXT NOT NULL, result_summary TEXT NOT NULL, completed_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+CREATE TABLE IF NOT EXISTS consumer_skill_gaps (
+  id INTEGER PRIMARY KEY, user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+  skill_name TEXT NOT NULL, current_level TEXT NOT NULL, target_level TEXT NOT NULL, recommended_action TEXT NOT NULL
+);
+CREATE TABLE IF NOT EXISTS consumer_roadmaps (
+  id INTEGER PRIMARY KEY, user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+  title TEXT NOT NULL, progress_percent REAL NOT NULL DEFAULT 0 CHECK(progress_percent BETWEEN 0 AND 100),
+  updated_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+CREATE TABLE IF NOT EXISTS consumer_tasks (
+  id INTEGER PRIMARY KEY, user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+  title TEXT NOT NULL, task_type TEXT NOT NULL, due_at TEXT, completed_at TEXT
+);
+CREATE TABLE IF NOT EXISTS consumer_achievements (
+  id INTEGER PRIMARY KEY, user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+  title TEXT NOT NULL, description TEXT NOT NULL, earned_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+CREATE TABLE IF NOT EXISTS consumer_activity_events (
+  id INTEGER PRIMARY KEY, user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+  activity_type TEXT NOT NULL, occurred_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
 CREATE TABLE IF NOT EXISTS classes (
   id INTEGER PRIMARY KEY, organization_id INTEGER NOT NULL REFERENCES organizations(id), name TEXT NOT NULL, grade TEXT NOT NULL, section TEXT NOT NULL,

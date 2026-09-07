@@ -16,7 +16,7 @@ const todayAt = (hour, minute = 0) => {
 const reset = [
   'teacher_notes', 'student_activity_events', 'task_completions', 'task_assignments', 'growth_map_tasks', 'growth_map_skills', 'career_growth_maps', 'roadmaps', 'skill_gaps', 'simulation_history', 'career_explorations',
   'student_achievements', 'parent_children', 'assessment_attempts', 'assessment_assignments', 'assessments', 'events', 'class_enrollments', 'teacher_class_assignments',
-  'classes', 'school_students', 'consumer_profiles', 'teacher_profiles', 'attention_rules', 'users', 'organizations'
+  'classes', 'school_students', 'consumer_activity_events', 'consumer_achievements', 'consumer_tasks', 'consumer_roadmaps', 'consumer_skill_gaps', 'consumer_simulation_history', 'consumer_career_explorations', 'consumer_assessments', 'consumer_profiles', 'teacher_profiles', 'attention_rules', 'users', 'organizations'
 ];
 
 const seededStudentCareers = [];
@@ -32,8 +32,22 @@ db.transaction(() => {
     .run(schoolId, 'parent@carestance.demo', bcrypt.hashSync('Parent@123', 12), 'Demo Parent').lastInsertRowid;
   db.prepare("INSERT INTO users (organization_id, email, password_hash, role, display_name) VALUES (?, ?, ?, 'school_admin', ?)")
     .run(schoolId, 'admin@carestance.demo', bcrypt.hashSync('Admin@123', 12), 'Demo School Admin');
-  db.prepare("INSERT INTO users (organization_id, email, password_hash, role, display_name) VALUES (?, ?, ?, 'consumer', ?)")
-    .run(consumerOrgId, 'learner@carestance.demo', bcrypt.hashSync('Consumer@123', 12), 'Demo Learner');
+  const consumerId = db.prepare("INSERT INTO users (organization_id, email, password_hash, role, display_name) VALUES (?, ?, ?, 'consumer', ?)")
+    .run(consumerOrgId, 'learner@carestance.demo', bcrypt.hashSync('Consumer@123', 12), 'Demo Learner').lastInsertRowid;
+  const directParentId = db.prepare("INSERT INTO users (organization_id, email, password_hash, role, display_name) VALUES (?, ?, ?, 'parent', ?)")
+    .run(consumerOrgId, 'direct-parent@carestance.demo', bcrypt.hashSync('Parent@123', 12), 'Direct Learner Parent').lastInsertRowid;
+  db.prepare('INSERT INTO consumer_profiles (user_id, preferred_goal, current_stage) VALUES (?, ?, ?)').run(consumerId, 'Product Design', 'Skill Building');
+  db.prepare('INSERT INTO parent_children (parent_user_id, consumer_user_id, relationship) VALUES (?, ?, ?)').run(directParentId, consumerId, 'parent');
+  db.prepare("INSERT INTO consumer_assessments (user_id, title, status, score, completed_at) VALUES (?, ?, 'completed', ?, ?)").run(consumerId, 'Career Strengths Assessment', 78, daysAgo(4));
+  db.prepare('INSERT INTO consumer_career_explorations (user_id, career_area, explored_at) VALUES (?, ?, ?)').run(consumerId, 'UI/UX Design', daysAgo(3));
+  db.prepare('INSERT INTO consumer_career_explorations (user_id, career_area, explored_at) VALUES (?, ?, ?)').run(consumerId, 'Product Design', daysAgo(1));
+  db.prepare('INSERT INTO consumer_simulation_history (user_id, simulation_name, result_summary, completed_at) VALUES (?, ?, ?, ?)').run(consumerId, 'Product Design Sprint', 'Strong user-empathy and problem-framing fit', daysAgo(2));
+  db.prepare('INSERT INTO consumer_skill_gaps (user_id, skill_name, current_level, target_level, recommended_action) VALUES (?, ?, ?, ?, ?)').run(consumerId, 'Figma fundamentals', 'Beginner', 'Proficient', 'Complete the Figma fundamentals module');
+  db.prepare('INSERT INTO consumer_roadmaps (user_id, title, progress_percent, updated_at) VALUES (?, ?, ?, ?)').run(consumerId, 'Product Design Roadmap', 42, daysAgo(1));
+  db.prepare('INSERT INTO consumer_tasks (user_id, title, task_type, due_at, completed_at) VALUES (?, ?, ?, ?, ?)').run(consumerId, 'Complete UI/UX simulation', 'weekly_goal', daysAgo(-2), daysAgo(2));
+  db.prepare('INSERT INTO consumer_tasks (user_id, title, task_type, due_at) VALUES (?, ?, ?, ?)').run(consumerId, 'Finish Figma fundamentals module', 'learning_module', daysAgo(-5));
+  db.prepare('INSERT INTO consumer_achievements (user_id, title, description, earned_at) VALUES (?, ?, ?, ?)').run(consumerId, 'Career explorer', 'Explored two design career paths.', daysAgo(1));
+  db.prepare('INSERT INTO consumer_activity_events (user_id, activity_type, occurred_at) VALUES (?, ?, ?)').run(consumerId, 'simulation_completed', daysAgo(2));
 
   const classId = db.prepare('INSERT INTO classes (organization_id, name, grade, section, academic_year) VALUES (?, ?, ?, ?, ?)')
     .run(schoolId, 'Class 10-A', '10', 'A', '2026-27').lastInsertRowid;
