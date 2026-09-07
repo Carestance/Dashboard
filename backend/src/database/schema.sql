@@ -15,6 +15,18 @@ CREATE TABLE IF NOT EXISTS school_students (
   admission_number TEXT NOT NULL, first_name TEXT NOT NULL, last_name TEXT NOT NULL, grade TEXT NOT NULL, section TEXT NOT NULL,
   created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP, UNIQUE(organization_id, admission_number)
 );
+CREATE TABLE IF NOT EXISTS parent_children (
+  parent_user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+  school_student_id INTEGER REFERENCES school_students(id) ON DELETE CASCADE,
+  consumer_user_id INTEGER REFERENCES users(id) ON DELETE CASCADE,
+  relationship TEXT NOT NULL DEFAULT 'parent',
+  CHECK ((school_student_id IS NOT NULL AND consumer_user_id IS NULL) OR (school_student_id IS NULL AND consumer_user_id IS NOT NULL)),
+  PRIMARY KEY (parent_user_id, school_student_id, consumer_user_id)
+);
+CREATE TABLE IF NOT EXISTS student_achievements (
+  id INTEGER PRIMARY KEY, student_id INTEGER NOT NULL REFERENCES school_students(id) ON DELETE CASCADE,
+  title TEXT NOT NULL, description TEXT NOT NULL, earned_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
 CREATE TABLE IF NOT EXISTS consumer_profiles (
   user_id INTEGER PRIMARY KEY REFERENCES users(id), preferred_goal TEXT
 );
