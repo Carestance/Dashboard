@@ -1,0 +1,925 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Settings · CareStance</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@500;600;700&family=Inter:wght@400;500;600;700&display=swap');
+
+  :root{
+    --bg:#F5F3FC;
+    --card:#FFFFFF;
+    --ink:#241C3D;
+    --muted:#8C87A6;
+    --muted-soft:#B7B2CE;
+    --border:#EFEBFA;
+
+    --purple:#7C5CFC;   --purple-dark:#5F3DF5;  --purple-tint:#EFEBFE;
+    --pink:#F0559B;     --pink-tint:#FDE7F1;
+    --green:#1FAE74;    --green-tint:#E1F8EE;
+    --orange:#F0913F;   --orange-tint:#FDEDE0;
+    --blue:#4C8DF5;     --blue-tint:#E8F1FE;
+    --indigo:#6A63EE;   --indigo-tint:#ECEAFE;
+    --amber:#E9A824;    --amber-tint:#FCF1DC;
+    --red-500:#ef5a6f;  --red-100:#fde8ea;
+
+    --shadow:0 4px 22px rgba(110,80,210,.07);
+    --shadow-hover:0 14px 32px rgba(110,80,210,.16);
+    --r-lg:20px; --r-md:14px; --r-sm:10px;
+  }
+
+  *{box-sizing:border-box; margin:0; padding:0;}
+
+  body{
+    position:relative;
+    min-height:100vh;
+    background-color:var(--bg);
+    font-family:'Inter',sans-serif;
+    font-size: 23px;
+    color:var(--ink);
+    -webkit-font-smoothing:antialiased;
+  }
+  body::before{
+    content:"";
+    position:fixed;
+    inset:0;
+    z-index:-1;
+    background:url('../shared/assets/t1.png') center top / cover no-repeat;
+  }
+  h1,h2,h3,h4,.disp{font-family:'Poppins',sans-serif;}
+  a{text-decoration:none;}
+
+  .app-shell{display:flex;min-height:100vh;align-items:stretch;}
+
+  /* ---------- SIDEBAR ---------- */
+  .sidebar{
+    width:15vw; min-width:240px; flex-shrink:0;
+    background:var(--card);
+    border-radius:26px;
+    padding:24px 18px;
+    display:flex; flex-direction:column;
+    position:sticky; top:16px; height:calc(100vh - 32px);
+    margin:16px 0 16px 16px;
+    box-shadow:var(--shadow-hover);
+    overflow:hidden;
+    isolation:isolate;
+    transition:width .32s cubic-bezier(.4,0,.2,1), padding .32s cubic-bezier(.4,0,.2,1);
+  }
+  .sidebar.collapsed{width:100px;padding:24px 14px;}
+
+  .sidebar-bg{position:absolute;inset:0;z-index:0;}
+  .sidebar-bg video{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;filter:saturate(1.25) contrast(1.05) brightness(.85);transform:scale(1.02);transition:opacity .7s ease-in-out;}
+  .sidebar-bg::after{
+    content:"";position:absolute;inset:0;
+    background:linear-gradient(165deg, rgba(124,92,252,.45) 0%, rgba(95,61,245,.4) 45%, rgba(36,28,61,.48) 100%);
+    mix-blend-mode:normal;
+  }
+  .sidebar-bg::before{
+    content:"";position:absolute;inset:0;z-index:1;
+    background:radial-gradient(120% 60% at 50% 0%, rgba(255,255,255,.22), transparent 60%);
+    pointer-events:none;
+  }
+
+  .brand-row{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:26px;transition:flex-direction .3s ease;position:relative;z-index:2;}
+  .sidebar.collapsed .brand-row{flex-direction:column;gap:18px;}
+  .brand{display:flex;align-items:center;gap:14px;min-width:0;}
+  .brand .logo{
+    width:68px;height:68px;border-radius:50%;flex-shrink:0;
+    background:rgba(255,255,255,.22);backdrop-filter:blur(6px);
+    border:1.5px solid rgba(255,255,255,.35);
+    display:flex;align-items:center;justify-content:center;
+    overflow:hidden;
+    color:#fff;font-weight:700;font-family:'Poppins',sans-serif;font-size:32px;
+    transition:transform .3s ease;
+  }
+  .brand .logo img{width:100%;height:100%;object-fit:cover;display:block;}
+  .brand span{
+    font-weight:700;font-size:30px;color:#fff;white-space:nowrap;
+    opacity:1;max-width:200px;overflow:hidden;display:inline-block;
+    transition:opacity .2s ease, max-width .3s ease;
+  }
+  .sidebar.collapsed .brand span{opacity:0;max-width:0;display:none;}
+
+  .sidebar-toggle{
+    width:40px;height:40px;border-radius:50%;flex-shrink:0;
+    background:rgba(255,255,255,.22);backdrop-filter:blur(6px);color:#fff;border:1.5px solid rgba(255,255,255,.4);
+    display:flex;align-items:center;justify-content:center;
+    cursor:pointer;
+    transition:transform .3s cubic-bezier(.4,0,.2,1), background .18s ease, color .18s ease;
+  }
+  .sidebar-toggle:hover{background:rgba(255,255,255,.38);color:#fff;}
+  .sidebar-toggle svg{width:20px;height:20px;transition:transform .32s cubic-bezier(.4,0,.2,1);}
+  .sidebar.collapsed .sidebar-toggle svg{transform:rotate(180deg);}
+
+  .nav{display:flex;flex-direction:column;gap:8px;position:relative;z-index:2;}
+  .nav-item{
+    display:flex;align-items:center;gap:14px;
+    padding:13px 18px;border-radius:999px;position:relative;
+    color:rgba(255,255,255,.88);font-size:23px;font-weight:600;
+    transition:background .2s ease,color .2s ease,padding .3s ease,transform .2s ease;
+  }
+  .nav-item svg{width:27px;height:27px;flex-shrink:0;transition:transform .25s cubic-bezier(.4,0,.2,1);}
+  .sidebar.collapsed .nav-item svg{width:42px;height:42px;}
+  .nav-item:hover{background:rgba(255,255,255,.34);color:#fff;}
+  .nav-item:hover svg{transform:scale(1.15);}
+  .nav-item.active{background:rgba(255,255,255,.94);color:var(--purple-dark);font-weight:700;box-shadow:0 8px 18px rgba(36,28,61,.35);}
+  .nav-item span{
+    white-space:nowrap;opacity:1;max-width:200px;overflow:hidden;display:inline-block;
+    transition:opacity .2s ease, max-width .3s ease;
+  }
+  .sidebar.collapsed .nav-item{justify-content:center;padding:14px;width:64px;height:64px;margin:0 auto;}
+  .sidebar.collapsed .nav-item span{opacity:0;max-width:0;display:none;}
+
+  .nav-secondary{margin-top:10px;padding-top:12px;border-top:1px solid rgba(255,255,255,.22);position:relative;z-index:2;}
+  .nav-secondary .nav-item{color:rgba(255,255,255,.7);font-weight:600;}
+  .nav-secondary .nav-item:hover{color:#fff;}
+
+  .sidebar-spacer{flex:1;position:relative;min-height:40px;}
+
+  .sidebar-footer{
+    margin-top:12px;background:rgba(255,255,255,.14);backdrop-filter:blur(6px);color:#fff;
+    border:1px solid rgba(255,255,255,.22);
+    font-size:21px;font-weight:700;line-height:1.4;
+    padding:14px 16px;border-radius:14px;
+    display:flex;align-items:flex-start;gap:10px;position:relative;z-index:2;
+    transition:padding .3s ease,justify-content .3s ease;
+  }
+  .sidebar-footer .icon-circle{
+    width:36px;height:36px;border-radius:50%;background:rgba(255,255,255,.9);flex-shrink:0;
+    display:flex;align-items:center;justify-content:center;color:var(--purple-dark);
+  }
+  .sidebar-footer .icon-circle svg{width:20px;height:20px;}
+  .sidebar.collapsed .sidebar-footer .icon-circle svg{width:30px;height:30px;}
+  .sidebar-footer span{
+    white-space:normal;opacity:1;max-width:200px;overflow:hidden;
+    transition:opacity .2s ease, max-width .3s ease;
+  }
+  .sidebar.collapsed .sidebar-footer{justify-content:center;padding:12px;}
+  .sidebar.collapsed .sidebar-footer span{opacity:0;max-width:0;display:none;}
+
+  /* ---------- MAIN ---------- */
+  main{
+    flex:1;
+    padding:26px 34px 60px;
+    min-width:0;
+  }
+
+  .topbar{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    margin-bottom:24px;
+    gap:16px;
+    flex-wrap:wrap;
+  }
+  .page-title{
+    font-size:32.5px;
+    font-weight:700;
+    letter-spacing:-0.4px;
+    text-shadow:0 1px 16px rgba(255,255,255,.5);
+  }
+  .page-sub{
+    font-size:23px;
+    color:var(--ink);
+    opacity:.7;
+    margin-top:3px;
+    text-shadow:0 1px 12px rgba(255,255,255,.5);
+  }
+
+  .top-actions{display:flex; align-items:center; gap:12px;}
+
+  .pill{
+    display:flex; align-items:center; gap:8px;
+    background:#fff;
+    border:1px solid var(--border);
+    padding:8px 14px;
+    border-radius:999px;
+    font-size:22px;
+    font-weight:600;
+    color:var(--ink);
+    box-shadow:var(--shadow);
+  }
+  .pill svg{width:22px;height:22px;color:var(--purple);}
+
+  .icon-btn{
+    width:42px;height:42px;
+    border-radius:12px;
+    background:#fff;
+    border:1px solid var(--border);
+    display:flex; align-items:center; justify-content:center;
+    box-shadow:var(--shadow);
+    position:relative;
+    color:var(--ink);
+  }
+  .icon-btn svg{width:22px;height:22px;}
+  .icon-btn .dot{
+    position:absolute; top:8px; right:8px;
+    width:8px;height:8px;border-radius:50%;
+    background:var(--red-500);
+  }
+
+  .profile-chip{
+    display:flex; align-items:center; gap:10px;
+    background:#fff;
+    border:1px solid var(--border);
+    border-radius:999px;
+    padding:7px 14px 7px 7px;
+    box-shadow:var(--shadow);
+  }
+  .avatar{
+    width:34px;height:34px;border-radius:50%;
+    background:var(--purple-tint);
+    display:flex;align-items:center;justify-content:center;
+    color:var(--purple-dark); font-weight:700; font-size:16px;
+  }
+  .profile-chip .who{line-height:1.3;}
+  .profile-chip .who .name{font-size:22px;font-weight:700;color:var(--ink);font-family:'Poppins',sans-serif;}
+  .profile-chip .who .role{font-size:20px;color:var(--muted);}
+
+  /* ---------- FULL WIDTH SETTINGS STACK ---------- */
+  .settings-stack{
+    display:flex;
+    flex-direction:column;
+    gap:20px;
+    width:100%;
+  }
+
+  .card{
+    background:var(--card);
+    border-radius:var(--r-lg);
+    box-shadow:var(--shadow);
+    border:1px solid var(--border);
+    padding:26px 30px;
+    position:relative;
+    width:100%;
+  }
+
+  .card-head{
+    display:flex; align-items:flex-start; justify-content:space-between;
+    margin-bottom:20px;
+  }
+  .card-head h2{
+    font-size:24.5px; font-weight:700; letter-spacing:-0.2px;
+    display:flex; align-items:center; gap:12px;
+  }
+  .card-head p{
+    font-size:21.8px; color:var(--muted); margin-top:4px;
+  }
+  .head-icon{
+    width:39px;height:39px;border-radius:9px;
+    display:flex;align-items:center;justify-content:center;
+    background:var(--purple-tint); color:var(--purple-dark);
+  }
+  .head-icon svg{width:22px;height:22px;}
+
+  /* Profile section */
+  .profile-row{
+    display:flex; align-items:center; gap:20px;
+    margin-bottom:24px;
+    padding-bottom:24px;
+    border-bottom:1px dashed var(--border);
+  }
+  .avatar-lg{
+    width:72px;height:72px;border-radius:20px;
+    background:linear-gradient(135deg,#f7b8d3,#c9a4f7);
+    display:flex;align-items:center;justify-content:center;
+    color:#5c3163; font-weight:700; font-size:26px;
+    flex-shrink:0;
+    box-shadow:0 8px 18px -8px rgba(150,80,150,0.4);
+  }
+  .avatar-actions{display:flex; gap:10px; margin-top:10px;}
+
+  .btn{
+    border:none; cursor:pointer;
+    font-family:inherit; font-weight:600;
+    border-radius:12px;
+    padding:11px 18px;
+    font-size:21.5px;
+    display:inline-flex; align-items:center; gap:8px;
+    transition:transform .12s ease, box-shadow .12s ease, opacity .12s ease;
+  }
+  .btn:active{transform:scale(0.97);}
+  .btn-primary{
+    background:linear-gradient(135deg,var(--purple),var(--purple-dark));
+    color:#fff;
+    box-shadow:0 10px 20px -8px rgba(91,79,233,0.55);
+  }
+  .btn-primary:hover{opacity:0.94;}
+  .btn-ghost{
+    background:var(--purple-tint);
+    color:var(--purple-dark);
+    border:1px solid var(--border);
+  }
+  .btn-ghost:hover{background:#e2dbfc;}
+  .btn-danger-ghost{
+    background:var(--red-100);
+    color:var(--red-500);
+    border:1px solid #fbd4da;
+  }
+  .btn-danger-ghost:hover{background:#fbdbe1;}
+  .btn-sm{padding:8px 14px; font-size:20.5px;}
+
+  .field-grid{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:16px 20px;
+  }
+  .field{display:flex; flex-direction:column; gap:8px;}
+  .field.full{grid-column:1 / -1;}
+  .field label{font-size:21px; font-weight:600; color:var(--ink);}
+  .field input,
+  .field select,
+  .field textarea{
+    border:1px solid var(--border);
+    background:var(--purple-tint);
+    border-radius:12px;
+    padding:12px 16px;
+    font-size:22px;
+    font-family:inherit;
+    color:var(--ink);
+    outline:none;
+    transition:border-color .15s ease, background .15s ease;
+  }
+  .field input:focus,
+  .field select:focus,
+  .field textarea:focus{
+    border-color:var(--purple);
+    background:#fff;
+  }
+  .field textarea{resize:vertical; min-height:80px; line-height:1.5;}
+  .field .hint{font-size:20px; color:var(--muted);}
+
+  .card-actions{
+    display:flex; justify-content:flex-end; gap:12px;
+    margin-top:24px;
+    padding-top:20px;
+    border-top:1px dashed var(--border);
+  }
+
+  /* Toggle rows */
+  .toggle-row{
+    display:flex; align-items:center; justify-content:space-between;
+    padding:14px 0;
+    border-bottom:1px solid var(--border);
+    gap:16px;
+  }
+  .toggle-row:last-child{border-bottom:none; padding-bottom:0;}
+  .toggle-info .t-title{font-size:22px; font-weight:600; color:var(--ink);}
+  .toggle-info .t-sub{font-size:20.5px; color:var(--muted); margin-top:3px;}
+
+  .switch{
+    position:relative; width:48px; height:26px; flex-shrink:0;
+  }
+  .switch input{opacity:0; width:0; height:0; position:absolute;}
+  .switch .track{
+    position:absolute; inset:0;
+    background:#dedaf3;
+    border-radius:999px;
+    cursor:pointer;
+    transition:background .18s ease;
+  }
+  .switch .track::before{
+    content:"";
+    position:absolute; top:3px; left:3px;
+    width:20px; height:20px; border-radius:50%;
+    background:#fff;
+    box-shadow:0 2px 5px rgba(0,0,0,0.18);
+    transition:transform .18s ease;
+  }
+  .switch input:checked + .track{background:linear-gradient(135deg,var(--purple),var(--purple-dark));}
+  .switch input:checked + .track::before{transform:translateX(22px);}
+
+  /* Segmented Control */
+  .segment{
+    display:flex; background:var(--purple-tint); border-radius:12px; padding:4px; gap:4px;
+  }
+  .segment button{
+    flex:1; border:none; background:transparent; cursor:pointer;
+    padding:11px 10px; border-radius:10px; font-size:21px; font-weight:600;
+    color:var(--muted); font-family:inherit;
+    transition:background .15s ease, color .15s ease;
+  }
+  .segment button.active{
+    background:#fff; color:var(--purple-dark);
+    box-shadow:var(--shadow);
+  }
+
+  /* Security list / KV row */
+  .kv-row{
+    display:flex; align-items:center; justify-content:space-between;
+    padding:14px 0;
+    border-bottom:1px solid var(--border);
+  }
+  .kv-row:last-child{border-bottom:none;}
+  .kv-row .k{font-size:22px; font-weight:600;}
+  .kv-row .v{font-size:20.5px; color:var(--muted); margin-top:3px;}
+
+  .badge{
+    font-size:19.5px; font-weight:700;
+    padding:5px 12px; border-radius:999px;
+  }
+  .badge.on{background:var(--green-tint); color:var(--green);}
+  .badge.off{background:var(--red-100); color:var(--red-500);}
+
+  /* Danger zone */
+  .danger-card{
+    border:1px dashed #f6c3cc;
+    background:linear-gradient(150deg,#fff,#fff6f8);
+  }
+  .danger-row{
+    display:flex; align-items:center; justify-content:space-between;
+    gap:16px; padding:14px 0;
+  }
+  .danger-row .k{font-size:22px; font-weight:700; color:var(--red-500);}
+  .danger-row .v{font-size:20.5px; color:var(--muted); margin-top:3px;}
+
+  /* Sticky Note Styling for Parent Notifications */
+  .sticky-note-card {
+    background: #FFF8DB;
+    border: 1px solid #F3E2A9;
+    box-shadow: 0 10px 25px rgba(200, 180, 80, 0.15);
+    position: relative;
+    padding-top: 32px;
+  }
+  .purple-tape {
+    position: absolute;
+    top: -12px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 110px;
+    height: 28px;
+    background: rgba(124, 92, 252, 0.75);
+    border-radius: 4px;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+  }
+  .sticky-note-card .card-head h2 {
+    color: #3C3523;
+  }
+  .sticky-note-card .card-head p {
+    color: #72684B;
+  }
+  .sticky-note-card .toggle-row {
+    border-bottom-color: #F1E5C4;
+  }
+  .sticky-note-card .toggle-info .t-title {
+    color: #3C3523;
+  }
+  .sticky-note-card .toggle-info .t-sub {
+    color: #72684B;
+  }
+
+  /* Sticky Note Top-Right positioned relative to Parent Profile Info card */
+  .parent-info-wrapper {
+    position: relative;
+  }
+  .sticky-badge-topright {
+    position: absolute;
+    top: -14px;
+    right: 24px;
+    background: linear-gradient(135deg, #FFF192, #FFE362);
+    border: 1.5px solid #F3DA53;
+    padding: 10px 18px;
+    border-radius: 14px;
+    font-size: 20.5px;
+    font-weight: 700;
+    color: #5C4D00;
+    box-shadow: 0 6px 16px rgba(200, 170, 40, 0.25);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    z-index: 2;
+    transform: rotate(2deg);
+  }
+  .sticky-badge-topright::before {
+    content: "";
+    position: absolute;
+    top: -8px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 45px;
+    height: 14px;
+    background: rgba(124, 92, 252, 0.65);
+    border-radius: 3px;
+  }
+
+  .footnote{
+    text-align:center;
+    font-size:21px;
+    color:var(--muted);
+    margin-top:32px;
+  }
+
+  @media (max-width:1080px){
+    .sidebar{display:none;}
+    main{padding:20px;}
+    .sticky-badge-topright { position: relative; top: 0; right: 0; margin-bottom: 16px; transform: none; display: inline-flex; }
+  }
+  @media (max-width:560px){
+    .field-grid{grid-template-columns:1fr;}
+    .topbar{flex-direction:column; align-items:flex-start;}
+  }
+</style>
+</head>
+<body>
+
+<div class="app-shell">
+
+  <!-- ============ SIDEBAR ============ -->
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-bg">
+      <video src="../shared/assets/t3.mp4" autoplay muted playsinline id="sidebarVidA" style="opacity:1"></video>
+      <video src="../shared/assets/t3.mp4" muted playsinline id="sidebarVidB" style="opacity:0"></video>
+    </div>
+    <div class="brand-row">
+      <div class="brand">
+        <div class="logo"><img src="../shared/assets/logo.png" alt="CareStance" onerror="this.parentElement.textContent='S'" /></div>
+        <span>CareStance</span>
+      </div>
+      <button class="sidebar-toggle" id="sidebarToggle" aria-label="Collapse sidebar" onclick="document.getElementById('sidebar').classList.toggle('collapsed')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="m15 6-6 6 6 6"/></svg>
+      </button>
+    </div>
+    <nav class="nav">
+      <a class="nav-item" href="dashboard.html" title="Home"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 11.5 12 4l8 7.5"/><path d="M6 10v9a1 1 0 0 0 1 1h4v-6h2v6h4a1 1 0 0 0 1-1v-9"/></svg><span>Home</span></a>
+      <a class="nav-item" href="careerjourney.html" title="Career Journey"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M15.5 8.5 13 13l-4.5 2.5L11 11l4.5-2.5Z"/></svg><span>Career Journey</span></a>
+      <a class="nav-item" href="parents_insights.html" title="Parent Insights"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18h6"/><path d="M10 21h4"/><path d="M12 3a6 6 0 0 0-3.5 10.9c.5.4.8 1 .9 1.6h5.2c.1-.6.4-1.2.9-1.6A6 6 0 0 0 12 3Z"/></svg><span>Parent Insights</span></a>
+      <a class="nav-item" href="reports.html" title="Reports"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M7 3h7l4 4v14a1 1 0 0 1-1 1H7a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1Z"/><path d="M14 3v4h4"/><path d="M9 13h6M9 17h6M9 9h2"/></svg><span>Reports</span></a>
+      <a class="nav-item active" href="settings.html" title="Settings"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l-.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg><span>Settings</span></a>
+    </nav>
+
+    <div class="sidebar-spacer"></div>
+
+    <nav class="nav nav-secondary">
+      <a class="nav-item" href="#" title="Help"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M9.2 9.3a2.8 2.8 0 1 1 3.9 2.7c-.9.4-1.5 1.1-1.5 2v.3"/><circle cx="12" cy="17" r=".6" fill="currentColor" stroke="none"/></svg><span>Help</span></a>
+      <a class="nav-item" href="#" title="Log out"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H6a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h3"/><path d="M16 17l5-5-5-5"/><path d="M21 12H9"/></svg><span>Log out</span></a>
+    </nav>
+
+    <div class="sidebar-footer" title="Empower futures, one student at a time.">
+      <div class="icon-circle"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20.5s-7.5-4.6-9.6-9.2C1.1 8 2.7 4.8 6 4.1c2-.4 3.7.5 4.8 2.1a.9.9 0 0 0 1.4 0c1.1-1.6 2.8-2.5 4.8-2.1 3.3.7 4.9 3.9 3.6 7.2C19.5 15.9 12 20.5 12 20.5Z"/></svg></div>
+      <span>Empower futures, one student at a time.</span>
+    </div>
+  </aside>
+
+  <!-- ============ MAIN ============ -->
+  <main>
+    <div class="topbar">
+      <div>
+        <div class="page-title">Settings</div>
+        <div class="page-sub">Manage your parent profile, notification preferences, and student tracking controls</div>
+      </div>
+
+      <div class="top-actions">
+        <div class="pill">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 10v6M2 10l10-5 10 5-10 5z"/><path d="M6 12v5c3 3 9 3 12 0v-5"/></svg>
+          Rahul Sharma (Class 10-A)
+        </div>
+        <div class="icon-btn">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+          <span class="dot"></span>
+        </div>
+        <div class="profile-chip">
+          <div class="avatar">PS</div>
+          <div class="who">
+            <div class="name">Priya Sharma</div>
+            <div class="role">Parent</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- SINGLE COLUMN FLOW STACK -->
+    <div class="settings-stack">
+
+      <!-- 1. Parent Profile Information (with Sticky Note Top-Right) -->
+      <section class="card parent-info-wrapper">
+        <div class="sticky-badge-topright">📌 Linked: Rahul (10-A)</div>
+        <div class="card-head">
+          <div>
+            <h2>
+              <span class="head-icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+              </span>
+              Parent Profile Information
+            </h2>
+            <p>Manage your account details and linked student profile.</p>
+          </div>
+        </div>
+
+        <div class="profile-row">
+          <div class="avatar-lg">PS</div>
+          <div>
+            <div class="avatar-actions">
+              <button class="btn btn-ghost btn-sm">Upload photo</button>
+              <button class="btn btn-danger-ghost btn-sm">Remove</button>
+            </div>
+            <div class="hint" style="margin-top:8px;">JPG or PNG, at least 200×200px.</div>
+          </div>
+        </div>
+
+        <div class="field-grid">
+          <div class="field">
+            <label>Full name</label>
+            <input type="text" value="Priya Sharma">
+          </div>
+          <div class="field">
+            <label>Email address</label>
+            <input type="email" value="priya.sharma@gmail.com">
+          </div>
+          <div class="field">
+            <label>Phone number</label>
+            <input type="tel" value="+91 98111 22334">
+          </div>
+          <div class="field">
+            <label>Linked student</label>
+            <input type="text" value="Rahul Sharma (Class 10-A)" readonly>
+          </div>
+          <div class="field full">
+            <label>Home address / Notes</label>
+            <textarea>Primary contact guardian for Rahul Sharma. Interested in Design and UI/UX career tracks.</textarea>
+          </div>
+        </div>
+
+        <div class="card-actions">
+          <button class="btn btn-ghost">Cancel</button>
+          <button class="btn btn-primary">
+            <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg>
+            Save changes
+          </button>
+        </div>
+      </section>
+
+      <!-- 2. Password & Security -->
+      <section class="card">
+        <div class="card-head">
+          <div>
+            <h2>
+              <span class="head-icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="10" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+              </span>
+              Password &amp; Security
+            </h2>
+            <p>Keep your parent account secure.</p>
+          </div>
+        </div>
+
+        <div class="field-grid">
+          <div class="field full">
+            <label>Current password</label>
+            <input type="password" value="••••••••••">
+          </div>
+          <div class="field">
+            <label>New password</label>
+            <input type="password" placeholder="Enter new password">
+          </div>
+          <div class="field">
+            <label>Confirm new password</label>
+            <input type="password" placeholder="Re-enter new password">
+          </div>
+        </div>
+
+        <div class="kv-row" style="margin-top:12px;">
+          <div>
+            <div class="k">Two-factor authentication</div>
+            <div class="v">Add an extra security check upon login</div>
+          </div>
+          <label class="switch">
+            <input type="checkbox" checked>
+            <span class="track"></span>
+          </label>
+        </div>
+
+        <div class="card-actions">
+          <button class="btn btn-primary">Update password</button>
+        </div>
+      </section>
+
+      <!-- 3. Parent Notifications (Styled as Sticky Note with Purple Tape) -->
+      <section class="card sticky-note-card">
+        <div class="purple-tape"></div>
+        <div class="card-head">
+          <div>
+            <h2>
+              <span class="head-icon" style="background:#F2E291; color:#5C4D00;">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+              </span>
+              Parent Notifications
+            </h2>
+            <p>Configure alerts regarding Rahul's progress and tasks.</p>
+          </div>
+        </div>
+
+        <div class="toggle-row">
+          <div class="toggle-info">
+            <div class="t-title">Weekly task completion alerts</div>
+            <div class="t-sub">Notify when Rahul finishes weekly targets (e.g., 8/10 tasks)</div>
+          </div>
+          <label class="switch">
+            <input type="checkbox" checked>
+            <span class="track"></span>
+          </label>
+        </div>
+        <div class="toggle-row">
+          <div class="toggle-info">
+            <div class="t-title">Simulation &amp; milestone updates</div>
+            <div class="t-sub">Alert when a new career simulation or badge is unlocked</div>
+          </div>
+          <label class="switch">
+            <input type="checkbox" checked>
+            <span class="track"></span>
+          </label>
+        </div>
+        <div class="toggle-row">
+          <div class="toggle-info">
+            <div class="t-title">Suggested parent action reminders</div>
+            <div class="t-sub">Reminders to review recommended actions and check-ins</div>
+          </div>
+          <label class="switch">
+            <input type="checkbox" checked>
+            <span class="track"></span>
+          </label>
+        </div>
+        <div class="toggle-row">
+          <div class="toggle-info">
+            <div class="t-title">Teacher messages</div>
+            <div class="t-sub">Instant notifications for messages from Ms. Simran</div>
+          </div>
+          <label class="switch">
+            <input type="checkbox" checked>
+            <span class="track"></span>
+          </label>
+        </div>
+        <div class="toggle-row">
+          <div class="toggle-info">
+            <div class="t-title">Monthly growth report summary</div>
+            <div class="t-sub">Receive monthly progress PDF insights via notification</div>
+          </div>
+          <label class="switch">
+            <input type="checkbox" checked>
+            <span class="track"></span>
+          </label>
+        </div>
+      </section>
+
+      <!-- 4. Portal Preferences -->
+      <section class="card">
+        <div class="card-head">
+          <div>
+            <h2>
+              <span class="head-icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 2a15.3 15.3 0 0 1 0 20"/><path d="M12 2a15.3 15.3 0 0 0 0 20"/><path d="M2 12h20"/></svg>
+              </span>
+              Portal Preferences
+            </h2>
+            <p>Customize your parent view and reporting preferences.</p>
+          </div>
+        </div>
+
+        <div class="field">
+          <label>Default dashboard view</label>
+          <div class="segment">
+            <button class="active">Overview</button>
+            <button>Career Journey</button>
+            <button>Reports</button>
+          </div>
+        </div>
+
+        <div class="field-grid" style="margin-top:16px;">
+          <div class="field">
+            <label>Language</label>
+            <select>
+              <option>English</option>
+              <option>Hindi</option>
+              <option>Punjabi</option>
+            </select>
+          </div>
+          <div class="field">
+            <label>Timezone</label>
+            <select>
+              <option>(GMT+5:30) India Standard Time</option>
+              <option>(GMT+0:00) UTC</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="toggle-row" style="margin-top:10px;">
+          <div class="toggle-info">
+            <div class="t-title">Detailed milestone breakdowns</div>
+            <div class="t-sub">Show granular scores on skill gap and roadmap views</div>
+          </div>
+          <label class="switch">
+            <input type="checkbox" checked>
+            <span class="track"></span>
+          </label>
+        </div>
+      </section>
+
+      <!-- 5. Subscription & Status -->
+      <section class="card">
+        <div class="card-head">
+          <div>
+            <h2>
+              <span class="head-icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="M2 9h20"/></svg>
+              </span>
+              Subscription &amp; Status
+            </h2>
+          </div>
+        </div>
+
+        <div class="kv-row">
+          <div>
+            <div class="k">Portal Plan</div>
+            <div class="v">Parent Companion Access (Class 10-A)</div>
+          </div>
+          <span class="badge on">Active</span>
+        </div>
+        <div class="kv-row">
+          <div>
+            <div class="k">Linked Student Account</div>
+            <div class="v">Rahul Sharma</div>
+          </div>
+          <span class="badge on">Linked</span>
+        </div>
+        <div class="kv-row">
+          <div>
+            <div class="k">Teacher Contact</div>
+            <div class="v">Ms. Simran (simran.chouhan@carestance.edu)</div>
+          </div>
+          <span class="badge on">Connected</span>
+        </div>
+      </section>
+
+      <!-- 6. Danger Zone -->
+      <section class="card danger-card">
+        <div class="card-head">
+          <div>
+            <h2 style="color:var(--red-500);">
+              <span class="head-icon" style="background:var(--red-100); color:var(--red-500);">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><path d="M12 9v4"/><path d="M12 17h.01"/></svg>
+              </span>
+              Danger Zone
+            </h2>
+          </div>
+        </div>
+
+        <div class="danger-row">
+          <div>
+            <div class="k">Log out of this device</div>
+            <div class="v">Sign out from your parent dashboard session</div>
+          </div>
+          <button class="btn btn-danger-ghost btn-sm">Log out</button>
+        </div>
+        <div class="danger-row" style="border-top:1px dashed var(--border);">
+          <div>
+            <div class="k">Deactivate parent profile</div>
+            <div class="v">Remove portal access and disconnect linked student records</div>
+          </div>
+          <button class="btn btn-danger-ghost btn-sm">Deactivate account</button>
+        </div>
+      </section>
+
+    </div>
+
+    <div class="footnote">CareStance · Parent Dashboard · Settings last saved just now</div>
+  </main>
+
+</div>
+
+  <script>
+    (function(){
+      var a = document.getElementById('sidebarVidA');
+      var b = document.getElementById('sidebarVidB');
+      if (!a || !b) return;
+      var active = a, standby = b;
+
+      function armSwap(v){
+        function onTime(){
+          var d = v.duration;
+          if (d && v.currentTime > d - 0.7) {
+            v.removeEventListener('timeupdate', onTime);
+            doCrossfade();
+          }
+        }
+        v.addEventListener('timeupdate', onTime);
+      }
+
+      function doCrossfade(){
+        standby.currentTime = 0;
+        var playPromise = standby.play();
+        if (playPromise) playPromise.catch(function(){});
+        standby.style.opacity = '1';
+        active.style.opacity = '0';
+        setTimeout(function(){
+          active.pause();
+          var tmp = active; active = standby; standby = tmp;
+          armSwap(active);
+        }, 720);
+      }
+
+      armSwap(active);
+    })();
+  </script>
+
+</body>
+</html>
