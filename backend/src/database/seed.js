@@ -16,7 +16,7 @@ const todayAt = (hour, minute = 0) => {
 const reset = [
   'teacher_notes', 'student_activity_events', 'task_completions', 'task_assignments', 'growth_map_tasks', 'growth_map_skills', 'career_growth_maps', 'roadmaps', 'skill_gaps', 'simulation_history', 'career_explorations',
   'student_achievements', 'parent_children', 'assessment_attempts', 'assessment_assignments', 'assessments', 'events', 'class_enrollments', 'teacher_class_assignments',
-  'classes', 'school_students', 'consumer_profiles', 'teacher_profiles', 'attention_rules', 'users', 'organizations'
+  'classes', 'school_students', 'consumer_activity_events', 'consumer_achievements', 'consumer_tasks', 'consumer_roadmaps', 'consumer_skill_gaps', 'consumer_simulation_history', 'consumer_career_explorations', 'consumer_assessments', 'consumer_profiles', 'teacher_profiles', 'attention_rules', 'users', 'organizations'
 ];
 
 const seededStudentCareers = [];
@@ -32,8 +32,22 @@ db.transaction(() => {
     .run(schoolId, 'parent@carestance.demo', bcrypt.hashSync('Parent@123', 12), 'Demo Parent').lastInsertRowid;
   db.prepare("INSERT INTO users (organization_id, email, password_hash, role, display_name) VALUES (?, ?, ?, 'school_admin', ?)")
     .run(schoolId, 'admin@carestance.demo', bcrypt.hashSync('Admin@123', 12), 'Demo School Admin');
-  db.prepare("INSERT INTO users (organization_id, email, password_hash, role, display_name) VALUES (?, ?, ?, 'consumer', ?)")
-    .run(consumerOrgId, 'learner@carestance.demo', bcrypt.hashSync('Consumer@123', 12), 'Demo Learner');
+  const consumerId = db.prepare("INSERT INTO users (organization_id, email, password_hash, role, display_name) VALUES (?, ?, ?, 'consumer', ?)")
+    .run(consumerOrgId, 'learner@carestance.demo', bcrypt.hashSync('Consumer@123', 12), 'Demo Learner').lastInsertRowid;
+  const directParentId = db.prepare("INSERT INTO users (organization_id, email, password_hash, role, display_name) VALUES (?, ?, ?, 'parent', ?)")
+    .run(consumerOrgId, 'direct-parent@carestance.demo', bcrypt.hashSync('Parent@123', 12), 'Direct Learner Parent').lastInsertRowid;
+  db.prepare('INSERT INTO consumer_profiles (user_id, preferred_goal, current_stage) VALUES (?, ?, ?)').run(consumerId, 'Product Design', 'Skill Building');
+  db.prepare('INSERT INTO parent_children (parent_user_id, consumer_user_id, relationship) VALUES (?, ?, ?)').run(directParentId, consumerId, 'parent');
+  db.prepare("INSERT INTO consumer_assessments (user_id, title, status, score, completed_at) VALUES (?, ?, 'completed', ?, ?)").run(consumerId, 'Career Strengths Assessment', 78, daysAgo(4));
+  db.prepare('INSERT INTO consumer_career_explorations (user_id, career_area, explored_at) VALUES (?, ?, ?)').run(consumerId, 'UI/UX Design', daysAgo(3));
+  db.prepare('INSERT INTO consumer_career_explorations (user_id, career_area, explored_at) VALUES (?, ?, ?)').run(consumerId, 'Product Design', daysAgo(1));
+  db.prepare('INSERT INTO consumer_simulation_history (user_id, simulation_name, result_summary, completed_at) VALUES (?, ?, ?, ?)').run(consumerId, 'Product Design Sprint', 'Strong user-empathy and problem-framing fit', daysAgo(2));
+  db.prepare('INSERT INTO consumer_skill_gaps (user_id, skill_name, current_level, target_level, recommended_action) VALUES (?, ?, ?, ?, ?)').run(consumerId, 'Figma fundamentals', 'Beginner', 'Proficient', 'Complete the Figma fundamentals module');
+  db.prepare('INSERT INTO consumer_roadmaps (user_id, title, progress_percent, updated_at) VALUES (?, ?, ?, ?)').run(consumerId, 'Product Design Roadmap', 42, daysAgo(1));
+  db.prepare('INSERT INTO consumer_tasks (user_id, title, task_type, due_at, completed_at) VALUES (?, ?, ?, ?, ?)').run(consumerId, 'Complete UI/UX simulation', 'weekly_goal', daysAgo(-2), daysAgo(2));
+  db.prepare('INSERT INTO consumer_tasks (user_id, title, task_type, due_at) VALUES (?, ?, ?, ?)').run(consumerId, 'Finish Figma fundamentals module', 'learning_module', daysAgo(-5));
+  db.prepare('INSERT INTO consumer_achievements (user_id, title, description, earned_at) VALUES (?, ?, ?, ?)').run(consumerId, 'Career explorer', 'Explored two design career paths.', daysAgo(1));
+  db.prepare('INSERT INTO consumer_activity_events (user_id, activity_type, occurred_at) VALUES (?, ?, ?)').run(consumerId, 'simulation_completed', daysAgo(2));
 
   const classId = db.prepare('INSERT INTO classes (organization_id, name, grade, section, academic_year) VALUES (?, ?, ?, ?, ?)')
     .run(schoolId, 'Class 10-A', '10', 'A', '2026-27').lastInsertRowid;
@@ -69,6 +83,55 @@ db.transaction(() => {
     db.prepare('INSERT INTO student_activity_events (student_id, activity_type, occurred_at) VALUES (?, ?, ?)').run(studentId, 'dashboard_activity', daysAgo(students[index][3]));
   });
 
+  // A school-scale, deterministic dataset makes the admin analytics useful immediately.
+  // The original Class 10-A remains intentionally small for the teacher demo.
+  const adminTeachers = [];
+  for (let index = 0; index < 67; index += 1) {
+    const id = db.prepare("INSERT INTO users (organization_id, email, password_hash, role, display_name) VALUES (?, ?, ?, 'teacher', ?)")
+      .run(schoolId, `teacher${index + 2}@carestance.demo`, passwordHash, `Teacher ${index + 2}`).lastInsertRowid;
+    db.prepare('INSERT INTO teacher_profiles (user_id, employee_code, title) VALUES (?, ?, ?)').run(id, `T-${1002 + index}`, 'Career Guidance Teacher');
+    adminTeachers.push(id);
+  }
+  const supplementalCareers = [
+    ...Array(214).fill('Engineering'), ...Array(170).fill('Medicine'), ...Array(93).fill('Design'),
+    ...Array(81).fill('Management'), ...Array(54).fill('Law'), ...Array(155).fill('Education'),
+    ...Array(155).fill('Commerce'), ...Array(154).fill('Science'), ...Array(154).fill('Arts')
+  ];
+  let extraStudentIndex = 0;
+  for (let classIndex = 0; classIndex < 41; classIndex += 1) {
+    const grade = String(8 + Math.floor(classIndex / 7));
+    // Class 10-A is reserved for the teacher demo above.
+    const section = classIndex === 14 ? 'H' : String.fromCharCode(65 + (classIndex % 7));
+    const extraClassId = db.prepare('INSERT INTO classes (organization_id, name, grade, section, academic_year) VALUES (?, ?, ?, ?, ?)')
+      .run(schoolId, `Class ${grade}-${section}`, grade, section, '2026-27').lastInsertRowid;
+    db.prepare('INSERT INTO teacher_class_assignments (teacher_user_id, class_id) VALUES (?, ?)').run(adminTeachers[classIndex], extraClassId);
+    const extraAssessmentId = db.prepare('INSERT INTO assessments (organization_id, title) VALUES (?, ?)').run(schoolId, `Career Readiness ${grade}-${section}`).lastInsertRowid;
+    const extraAssignmentId = db.prepare('INSERT INTO assessment_assignments (assessment_id, class_id, due_at) VALUES (?, ?, ?)').run(extraAssessmentId, extraClassId, daysAgo(-2)).lastInsertRowid;
+    const classSize = classIndex < 41 ? 30 : 0; // 41 x 30 plus Class 10-A's 10 = 1,240 students.
+    for (let studentIndex = 0; studentIndex < classSize; studentIndex += 1) {
+      const sequence = extraStudentIndex++;
+      const id = db.prepare('INSERT INTO school_students (organization_id, admission_number, first_name, last_name, grade, section) VALUES (?, ?, ?, ?, ?, ?)')
+        .run(schoolId, `CS-${String(sequence + 11).padStart(4, '0')}`, `Student${sequence + 11}`, `Demo${sequence + 11}`, grade, section).lastInsertRowid;
+      db.prepare('INSERT INTO class_enrollments (class_id, student_id) VALUES (?, ?)').run(extraClassId, id);
+      const completed = sequence < 1035;
+      db.prepare('INSERT INTO assessment_attempts (assignment_id, student_id, status, score, completed_at) VALUES (?, ?, ?, ?, ?)')
+        .run(extraAssignmentId, id, completed ? 'completed' : 'in_progress', completed ? 68 + (sequence % 28) : null, completed ? daysAgo(sequence % 10) : null);
+      const requiresAttention = sequence < 44;
+      db.prepare('INSERT INTO roadmaps (student_id, title, progress_percent, updated_at) VALUES (?, ?, ?, ?)')
+        .run(id, 'Career Growth Roadmap', requiresAttention ? 40 : 63, daysAgo(requiresAttention ? 18 : sequence % 7));
+      db.prepare('INSERT INTO career_explorations (student_id, career_area, explored_at) VALUES (?, ?, ?)').run(id, supplementalCareers[sequence], daysAgo(sequence % 14));
+      db.prepare('INSERT INTO skill_gaps (student_id, skill_name, current_level, target_level, recommended_action) VALUES (?, ?, ?, ?, ?)')
+        .run(id, ['Communication', 'Data Analysis', 'Critical Thinking', 'Digital Literacy'][sequence % 4], 'Developing', 'Proficient', 'Complete the recommended practice module');
+      // Keep 968 supplemental learners active while preserving a realistic attention cohort.
+      if (sequence >= 44 && sequence < 1012) db.prepare('INSERT INTO student_activity_events (student_id, activity_type, occurred_at) VALUES (?, ?, ?)').run(id, 'dashboard_activity', daysAgo(sequence % 10));
+      else db.prepare('INSERT INTO student_activity_events (student_id, activity_type, occurred_at) VALUES (?, ?, ?)').run(id, 'dashboard_activity', daysAgo(20));
+    }
+    const goalId = db.prepare('INSERT INTO task_assignments (class_id, title, type, due_at, created_by) VALUES (?, ?, ?, ?, ?)')
+      .run(extraClassId, 'Complete career reflection', 'weekly_goal', daysAgo(-3), adminTeachers[classIndex]).lastInsertRowid;
+    const enrolled = db.prepare('SELECT student_id FROM class_enrollments WHERE class_id=?').all(extraClassId);
+    enrolled.forEach(({ student_id }, index) => { if (extraStudentIndex - enrolled.length + index >= 44) db.prepare('INSERT INTO task_completions (task_assignment_id, student_id, completed_at) VALUES (?, ?, ?)').run(goalId, student_id, daysAgo(index % 5)); });
+  }
+
   const weeklyTask = db.prepare('INSERT INTO task_assignments (class_id, title, type, due_at, created_by) VALUES (?, ?, ?, ?, ?)')
     .run(classId, 'Complete career reflection', 'weekly_goal', daysAgo(-3), teacherId).lastInsertRowid;
   studentIds.forEach((studentId, index) => { if (index !== 1 && index !== 3 && index !== 5) db.prepare('INSERT INTO task_completions (task_assignment_id, student_id, completed_at) VALUES (?, ?, ?)').run(weeklyTask, studentId, daysAgo(index % 5)); });
@@ -77,7 +140,7 @@ db.transaction(() => {
     ['Weekly Goal Review', 'class_activity', 13, 30], ['Assessment Window Closing', 'reminder', 15, 0]
   ].forEach(([title, type, hour, minute]) => db.prepare('INSERT INTO events (organization_id, class_id, title, event_type, starts_at, ends_at) VALUES (?, ?, ?, ?, ?, ?)')
     .run(schoolId, classId, title, type, todayAt(hour, minute), todayAt(hour + 1, minute)));
-  [['inactive_days', 4], ['incomplete_assessments', 1], ['roadmap_below_percent', 50], ['missed_weekly_goals', 1]].forEach(([key, threshold]) =>
+  [['inactive_days', 14], ['incomplete_assessments', 2], ['roadmap_below_percent', 50], ['missed_weekly_goals', 1], ['low_engagement_percent', 35]].forEach(([key, threshold]) =>
     db.prepare('INSERT INTO attention_rules (organization_id, rule_key, threshold) VALUES (?, ?, ?)').run(schoolId, key, threshold));
 })();
 

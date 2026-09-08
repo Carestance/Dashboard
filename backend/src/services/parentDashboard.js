@@ -1,5 +1,6 @@
 import db from '../database/connection.js';
 import { getStudentCareerGrowthMaps } from './careerGrowthMaps.js';
+import { getConsumerDashboard } from './consumerDashboard.js';
 
 const percent = (value, total) => total ? Math.round((value / total) * 100) : 0;
 const dateDaysAgo = (value) => value ? Math.floor((Date.now() - new Date(value).getTime()) / 86400000) : null;
@@ -53,7 +54,7 @@ function schoolDashboard(child) {
 }
 
 function consumerDashboard(child) {
-  return { source:'consumer', child:{ id:child.consumer_id, name:child.consumer_name, className:'Direct learner' }, metrics:{ overallProgress:0, progressThisMonth:0, tasksCompleted:0, tasksTotal:0, weeklyTasksCompleted:0, weeklyTasksTotal:0, assessmentsCompleted:0, assessmentsTotal:0 }, interests:[], skills:[], roadmap:null, simulations:[], achievements:[], tasks:{ completed:[], pending:[] }, journey:{ currentInterest:child.preferred_goal || 'Not explored yet', exploredCareers:[], recommendedAreas:[], simulation:'No simulation completed yet', currentSkill:'Starting point', nextStep:'Choose a career interest', stage:'Exploration' }, insights:{ summary:'Your child has not started any activities yet.', action:'Encourage your child to choose a career interest.', trend:'Activity will appear here as your child uses CareStance.' }, reports:{ career:{ interests:[], simulations:[], journey:null }, progress:{ overallProgress:0, roadmap:null, assessments:[] }, monthly:{ overallProgress:0, weeklyTasksCompleted:0, weeklyTasksTotal:0 }, skills:[], simulation:[], achievements:[] } };
+  return getConsumerDashboard(child.consumer_id);
 }
 
 export function getParentDashboard(parentUserId) {
